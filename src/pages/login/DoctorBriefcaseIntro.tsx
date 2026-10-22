@@ -9,38 +9,32 @@ interface DoctorBriefcaseIntroProps {
 export const DoctorBriefcaseIntro: React.FC<DoctorBriefcaseIntroProps> = ({ onComplete }) => {
   // Step:
   // 0: Initial ready (Dokter memegang koper)
-  // 1: Unlocking (Kunci koper terbuka & memancarkan kilau)
-  // 2: Lid opening (Tutup koper terangkat ke atas & cahaya memancar)
-  // 3: Items pop out (Peralatan K3 dan medis melayang keluar)
-  // 4: Completed (Ready to fade out)
+  // 1: Unlocking (Kunci koper terbuka & memancarkan kilau halus)
+  // 2: Lid opening (Tutup koper terangkat anggun & sinar cahaya memancar)
+  // 3: Items pop out (Peralatan K3 dan medis melayang anggun cascade)
+  // 4: Completed (Ready to cross-dissolve to login)
   const [step, setStep] = useState<number>(0);
   const [isFadingOut, setIsFadingOut] = useState<boolean>(false);
-  const [progress, setProgress] = useState<number>(0);
+  const [progressStarted, setProgressStarted] = useState<boolean>(false);
 
   useEffect(() => {
-    // Progress counter animation
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
-          return 100;
-        }
-        return prev + 1.25;
-      });
-    }, 45);
+    // Trigger smooth GPU-accelerated progress transition
+    const progressTimer = setTimeout(() => {
+      setProgressStarted(true);
+    }, 40);
 
-    // Sequence timer
-    const t1 = setTimeout(() => setStep(1), 700);   // Unlock latches
-    const t2 = setTimeout(() => setStep(2), 1400);  // Open lid + beam
-    const t3 = setTimeout(() => setStep(3), 2000);  // Items fly out
-    const t4 = setTimeout(() => setStep(4), 3200);  // Ready to transition
+    // Sequence timer: The Golden Timing (~2.4s) dengan fluid transitions
+    const t1 = setTimeout(() => setStep(1), 380);   // 0.38s: Unlock latches
+    const t2 = setTimeout(() => setStep(2), 750);   // 0.75s: Lid opens fluidly
+    const t3 = setTimeout(() => setStep(3), 1150);  // 1.15s: Items glide out gracefully
+    const t4 = setTimeout(() => setStep(4), 1750);  // 1.75s: Ready message
     const t5 = setTimeout(() => {
       setIsFadingOut(true);
-      setTimeout(onComplete, 550);
-    }, 3900);
+      setTimeout(onComplete, 380);
+    }, 2250); // 2.25s: Cross-dissolve fade-out (total selesai di 2.45s)
 
     return () => {
-      clearInterval(progressInterval);
+      clearTimeout(progressTimer);
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
@@ -51,7 +45,7 @@ export const DoctorBriefcaseIntro: React.FC<DoctorBriefcaseIntroProps> = ({ onCo
 
   const handleSkip = () => {
     setIsFadingOut(true);
-    setTimeout(onComplete, 350);
+    setTimeout(onComplete, 220);
   };
 
   return (
@@ -319,7 +313,7 @@ export const DoctorBriefcaseIntro: React.FC<DoctorBriefcaseIntroProps> = ({ onCo
                 style={{
                   transformOrigin: "250px 330px",
                   transform: step >= 2 ? "rotateX(-105deg) translateY(-24px) scaleY(0.65)" : "rotateX(0deg)",
-                  transition: "transform 0.85s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                  transition: "transform 0.52s cubic-bezier(0.25, 1, 0.5, 1)",
                   transformStyle: "preserve-3d",
                 }}
               >
@@ -372,7 +366,7 @@ export const DoctorBriefcaseIntro: React.FC<DoctorBriefcaseIntroProps> = ({ onCo
                 <g
                   className="float-elem-1"
                   style={{
-                    animation: "itemPopOut 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards",
+                    animation: "itemPopOut 0.48s cubic-bezier(0.25, 1, 0.5, 1) forwards",
                     transformOrigin: "150px 220px",
                   }}
                 >
@@ -394,7 +388,7 @@ export const DoctorBriefcaseIntro: React.FC<DoctorBriefcaseIntroProps> = ({ onCo
                 <g
                   className="float-elem-2"
                   style={{
-                    animation: "itemPopOut 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0.1s forwards",
+                    animation: "itemPopOut 0.48s cubic-bezier(0.25, 1, 0.5, 1) 0.08s forwards",
                     transformOrigin: "350px 210px",
                   }}
                 >
@@ -417,7 +411,7 @@ export const DoctorBriefcaseIntro: React.FC<DoctorBriefcaseIntroProps> = ({ onCo
                 {/* 3. Heartbeat ECG Pulse Monitor (Center-Top) */}
                 <g
                   style={{
-                    animation: "itemPopOut 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0.2s forwards",
+                    animation: "itemPopOut 0.48s cubic-bezier(0.25, 1, 0.5, 1) 0.16s forwards",
                     transformOrigin: "250px 180px",
                   }}
                 >
@@ -438,7 +432,7 @@ export const DoctorBriefcaseIntro: React.FC<DoctorBriefcaseIntroProps> = ({ onCo
                 <g
                   className="float-elem-2"
                   style={{
-                    animation: "itemPopOut 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0.3s forwards",
+                    animation: "itemPopOut 0.48s cubic-bezier(0.25, 1, 0.5, 1) 0.24s forwards",
                     transformOrigin: "110px 290px",
                   }}
                 >
@@ -455,7 +449,7 @@ export const DoctorBriefcaseIntro: React.FC<DoctorBriefcaseIntroProps> = ({ onCo
                 <g
                   className="float-elem-1"
                   style={{
-                    animation: "itemPopOut 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0.35s forwards",
+                    animation: "itemPopOut 0.48s cubic-bezier(0.25, 1, 0.5, 1) 0.30s forwards",
                     transformOrigin: "390px 290px",
                   }}
                 >
@@ -507,7 +501,7 @@ export const DoctorBriefcaseIntro: React.FC<DoctorBriefcaseIntroProps> = ({ onCo
           </p>
         </div>
 
-        {/* Smooth Progress Bar */}
+        {/* Hardware-accelerated Fluid Progress Bar */}
         <div
           style={{
             width: "100%",
@@ -522,12 +516,13 @@ export const DoctorBriefcaseIntro: React.FC<DoctorBriefcaseIntroProps> = ({ onCo
         >
           <div
             style={{
-              width: `${Math.min(100, progress)}%`,
+              width: progressStarted ? "100%" : "0%",
               height: "100%",
               background: "linear-gradient(90deg, #10b981 0%, #38bdf8 100%)",
               borderRadius: 9999,
-              transition: "width 0.1s linear",
+              transition: "width 2.2s cubic-bezier(0.25, 1, 0.5, 1)",
               boxShadow: "0 0 10px rgba(56, 189, 248, 0.6)",
+              willChange: "width",
             }}
           />
         </div>

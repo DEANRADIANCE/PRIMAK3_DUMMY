@@ -32,6 +32,7 @@ import {
 } from "@ant-design/icons";
 import { useNavigate, useLocation, Link } from "react-router";
 import { useGetIdentity, useLogout } from "@refinedev/core";
+import { IUser } from "../../types/user";
 import { EmergencyModal } from "../common/EmergencyModal";
 import { switchRole } from "../../providers/authProvider";
 
@@ -48,7 +49,7 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: user } = useGetIdentity<any>();
+  const { data: user } = useGetIdentity<IUser>();
   const { mutate: logout } = useLogout();
 
   // Mapping breadcrumbs
@@ -287,7 +288,7 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
 
   return (
     <Layout hasSider style={{ minHeight: "100vh" }}>
-      {/* Sidebar Desktop & Tablet */}
+      {/* Sidebar Desktop & Tablet - Ikut scroll bersama halaman & kotak memanjang sampai bawah */}
       <Sider
         collapsible
         collapsed={collapsed}
@@ -296,16 +297,12 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
         collapsedWidth={80}
         className="prima-sider"
         style={{
-          overflow: "auto",
-          height: "100vh",
-          position: "sticky",
-          top: 0,
-          left: 0,
           background: "#f5f5f5",
           borderRight: "1px solid #e8e8e8",
+          minHeight: "100%",
         }}
       >
-        <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+        <div style={{ minHeight: "100%", display: "flex", flexDirection: "column" }}>
           <div
             style={{
               padding: "20px 16px",
@@ -320,7 +317,7 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
                 width: 38,
                 height: 38,
                 borderRadius: 8,
-                background: "#595959",
+                background: "linear-gradient(135deg, #0d9488 0%, #0284c7 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -344,7 +341,7 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
             )}
           </div>
 
-          <div style={{ flex: 1, overflowY: "auto", padding: "12px 0" }}>
+          <div style={{ flex: 1, padding: "12px 0" }}>
             <Menu
               mode="inline"
               selectedKeys={getSelectedKeys()}
@@ -369,13 +366,11 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
           flexDirection: "column",
         }}
       >
-        {/* Global Header */}
+        {/* Global Header - Ikut scroll bersama halaman */}
         <Header
           className="prima-header"
           style={{
-            position: "sticky",
-            top: 0,
-            zIndex: 100,
+            position: "relative",
             width: "100%",
             padding: "0 24px",
             display: "flex",
@@ -477,9 +472,33 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
           </div>
         </Content>
 
-        {/* Global Footer */}
-        <Footer className="prima-footer">
-          © 2026 Klinik Pratama ANRI – PRIMA K3. Hak Cipta Dilindungi Undang-Undang.
+        {/* Global Footer Kotak - Simpel & Elegan */}
+        <Footer style={{ background: "transparent", padding: "0 24px 20px 24px" }}>
+          <div
+            className="prima-footer-box"
+            style={{
+              background: "#ffffff",
+              border: "1px solid #e2e8f0",
+              borderRadius: 10,
+              padding: "12px 20px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: 12,
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.02)",
+            }}
+          >
+            <Text style={{ fontSize: 12, color: "#64748b" }}>
+              © 2026 <strong style={{ color: "#334155", fontWeight: 600 }}>PRIMA K3</strong> • Klinik Pratama ANRI
+            </Text>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12, color: "#94a3b8" }}>
+              <span>Arsip Nasional Republik Indonesia</span>
+              <span style={{ color: "#cbd5e1" }}>•</span>
+              <span style={{ color: "#0d9488", fontWeight: 500 }}>V2.0</span>
+            </div>
+          </div>
         </Footer>
       </Layout>
 

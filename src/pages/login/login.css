@@ -77,11 +77,11 @@
 @keyframes itemPopOut {
   0% {
     opacity: 0;
-    transform: translateY(40px) scale(0.4);
+    transform: translateY(28px) scale(0.65);
   }
-  70% {
-    opacity: 1;
-    transform: translateY(-16px) scale(1.1);
+  60% {
+    opacity: 0.95;
+    transform: translateY(-4px) scale(1.02);
   }
   100% {
     opacity: 1;
@@ -89,7 +89,7 @@
   }
 }
 
-/* Background container */
+/* Background container - Soft Iridescent Pastel RGB Fading into Pure White */
 .login-page-wrapper {
   min-height: 100vh;
   width: 100%;
@@ -98,66 +98,76 @@
   align-items: center;
   justify-content: center;
   padding: 24px 16px;
-  background: linear-gradient(135deg, #022c22 0%, #064e3b 25%, #0f766e 50%, #0369a1 75%, #0f172a 100%);
-  background-size: 300% 300%;
-  animation: gradientShift 18s ease infinite;
+  background-color: #ffffff;
+  background-image: 
+    radial-gradient(at 12% 18%, rgba(244, 63, 94, 0.09) 0px, transparent 52%), /* R: Rose */
+    radial-gradient(at 88% 16%, rgba(14, 165, 233, 0.11) 0px, transparent 52%), /* B: Sky Blue */
+    radial-gradient(at 50% 86%, rgba(16, 185, 129, 0.10) 0px, transparent 55%), /* G: Mint Emerald */
+    radial-gradient(at 84% 82%, rgba(168, 85, 247, 0.07) 0px, transparent 48%), /* Violet accent */
+    radial-gradient(at 18% 80%, rgba(245, 158, 11, 0.07) 0px, transparent 48%), /* Amber accent */
+    linear-gradient(135deg, #ffffff 0%, #fbfcfe 50%, #f4f6fa 100%);
+  background-size: 150% 150%;
+  animation: gradientShift 22s ease-in-out infinite alternate;
   overflow: hidden;
 }
 
-/* Background grid overlay */
+/* Background delicate grid overlay */
 .login-page-wrapper::before {
   content: "";
   position: absolute;
   inset: 0;
   background-image: 
-    radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px),
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 32px 32px, 64px 64px, 64px 64px;
+    radial-gradient(rgba(15, 23, 42, 0.04) 1.2px, transparent 1.2px),
+    linear-gradient(to right, rgba(15, 23, 42, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.015) 1px, transparent 1px);
+  background-size: 28px 28px, 56px 56px, 56px 56px;
   pointer-events: none;
   z-index: 1;
 }
 
-/* Glowing background orbs */
+/* Subtle, Frosted Pastel RGB Glowing Orbs fading into white */
 .login-glow-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
+  filter: blur(100px);
   pointer-events: none;
   z-index: 1;
-  animation: pulseGlow 8s ease-in-out infinite;
+  animation: pulseGlow 10s ease-in-out infinite;
 }
 
+/* Red / Coral Rose Pastel Glow */
 .login-glow-orb-1 {
-  width: 480px;
-  height: 480px;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.45) 0%, rgba(5, 150, 105, 0) 70%);
-  top: -100px;
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.14) 0%, rgba(255, 255, 255, 0) 70%);
+  top: -120px;
   left: -80px;
 }
 
+/* Blue / Sky Azure Pastel Glow */
 .login-glow-orb-2 {
-  width: 520px;
-  height: 520px;
-  background: radial-gradient(circle, rgba(14, 165, 233, 0.4) 0%, rgba(3, 105, 161, 0) 70%);
-  bottom: -120px;
+  width: 560px;
+  height: 560px;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+  bottom: -140px;
   right: -80px;
-  animation-delay: -3s;
+  animation-delay: -4s;
 }
 
+/* Green / Mint Emerald Pastel Glow */
 .login-glow-orb-3 {
-  width: 360px;
-  height: 360px;
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0) 70%);
-  top: 40%;
-  right: 25%;
-  animation-delay: -5s;
+  width: 440px;
+  height: 440px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.14) 0%, rgba(255, 255, 255, 0) 70%);
+  top: 35%;
+  right: 28%;
+  animation-delay: -7s;
 }
 
 @keyframes formReveal {
   0% {
     opacity: 0;
-    transform: translateY(24px) scale(0.96);
+    transform: translateY(18px) scale(0.98);
   }
   100% {
     opacity: 1;
@@ -165,26 +175,26 @@
   }
 }
 
-/* Main Container */
+/* Main Container - Elegant Floating Glass on Soft RGB Canvas */
 .login-card-container {
   position: relative;
   z-index: 10;
   width: 100%;
   max-width: 1080px;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
   border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(226, 232, 240, 0.9);
   box-shadow: 
-    0 25px 60px -15px rgba(0, 0, 0, 0.35),
-    0 0 0 1px rgba(255, 255, 255, 0.2),
-    0 0 40px rgba(16, 185, 129, 0.15);
+    0 24px 60px -15px rgba(15, 23, 42, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.8),
+    0 0 35px rgba(14, 165, 233, 0.06);
   overflow: hidden;
   display: flex;
   flex-direction: row;
   transition: all 0.3s ease;
-  animation: formReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: formReveal 0.42s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 @media (max-width: 900px) {
@@ -441,7 +451,9 @@
   justify-content: center;
   padding: 24px;
   overflow: hidden;
-  animation: fadeIn 0.4s ease;
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+  transform: translateZ(0);
 }
 
 @keyframes fadeIn {
@@ -455,8 +467,8 @@
 
 .doctor-intro-overlay.fade-out {
   opacity: 0;
-  transform: scale(1.05);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transform: scale(1.025);
+  transition: opacity 0.38s cubic-bezier(0.25, 1, 0.5, 1), transform 0.38s cubic-bezier(0.25, 1, 0.5, 1);
   pointer-events: none;
 }
 
