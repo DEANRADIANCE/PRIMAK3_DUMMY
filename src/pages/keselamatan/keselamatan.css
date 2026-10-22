@@ -1,0 +1,241 @@
+/* PRIMA K3 - Modul Keselamatan Modern, Colorful & Scroll-Animated Styling */
+
+/* Keyframe for scroll reveal up */
+@keyframes scrollRevealUp {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes shimmerGlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes pulseBorder {
+  0%, 100% {
+    border-color: rgba(239, 68, 68, 0.4);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2);
+  }
+  50% {
+    border-color: rgba(239, 68, 68, 0.8);
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.1);
+  }
+}
+
+/* Staggered animation classes */
+.safety-card-animate {
+  animation: scrollRevealUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+.safety-delay-1 { animation-delay: 0.05s; }
+.safety-delay-2 { animation-delay: 0.12s; }
+.safety-delay-3 { animation-delay: 0.19s; }
+.safety-delay-4 { animation-delay: 0.26s; }
+.safety-delay-5 { animation-delay: 0.33s; }
+.safety-delay-6 { animation-delay: 0.40s; }
+
+/* Hero Banners */
+.safety-hero-banner {
+  border-radius: 16px;
+  padding: 26px 32px;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 22px;
+}
+
+.safety-hero-banner::before {
+  content: "";
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 240px;
+  height: 240px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Gradient Themes for Safety Submodules */
+.safety-banner-hazard {
+  background: linear-gradient(135deg, #b45309 0%, #d97706 30%, #0d9488 70%, #0f172a 100%);
+  background-size: 200% 200%;
+  animation: shimmerGlow 14s ease infinite alternate;
+}
+
+.safety-banner-accident {
+  background: linear-gradient(135deg, #991b1b 0%, #dc2626 35%, #b45309 70%, #1e1b4b 100%);
+  background-size: 200% 200%;
+  animation: shimmerGlow 14s ease infinite alternate;
+}
+
+.safety-banner-hiradc {
+  background: linear-gradient(135deg, #0369a1 0%, #0284c7 35%, #059669 70%, #0f172a 100%);
+  background-size: 200% 200%;
+  animation: shimmerGlow 14s ease infinite alternate;
+}
+
+.safety-banner-investigasi {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 35%, #0d9488 70%, #4f46e5 100%);
+  background-size: 200% 200%;
+  animation: shimmerGlow 14s ease infinite alternate;
+}
+
+.safety-banner-inspeksi {
+  background: linear-gradient(135deg, #c2410c 0%, #ea580c 35%, #15803d 70%, #0f766e 100%);
+  background-size: 200% 200%;
+  animation: shimmerGlow 14s ease infinite alternate;
+}
+
+/* Stat Metric Mini-Cards */
+.safety-stat-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  padding: 16px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 100%;
+}
+
+.safety-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -6px rgba(13, 148, 136, 0.15);
+  border-color: #0d9488;
+}
+
+.safety-stat-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+/* Content Container Cards */
+.safety-content-card {
+  border-radius: 14px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  overflow: hidden;
+}
+
+.safety-content-card:hover {
+  box-shadow: 0 12px 28px -6px rgba(13, 148, 136, 0.12), 0 0 0 1px #0d9488 !important;
+  border-color: #0d9488 !important;
+}
+
+/* Primary Action Buttons */
+.btn-safety-primary {
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  background: #0d9488 !important;
+  border-color: #0d9488 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3) !important;
+  transition: all 0.25s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+
+.btn-safety-primary:hover {
+  background: #0f766e !important;
+  border-color: #0f766e !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(13, 148, 136, 0.4) !important;
+}
+
+.btn-safety-hazard {
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3) !important;
+  transition: all 0.25s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+
+.btn-safety-hazard:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(217, 119, 6, 0.45) !important;
+}
+
+.btn-safety-danger {
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+  transition: all 0.25s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+
+.btn-safety-danger:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.45) !important;
+}
+
+.btn-safety-secondary {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-safety-secondary:hover {
+  border-color: #0d9488 !important;
+  color: #0d9488 !important;
+}
+
+/* Tip / Advisory Cards */
+.safety-tip-card {
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 16px;
+  transition: all 0.25s ease;
+}
+
+.safety-tip-card:hover {
+  background: #f0fdfa;
+  border-color: #99f6e4;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(13, 148, 136, 0.08);
+}

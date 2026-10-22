@@ -1,0 +1,219 @@
+/* PRIMA K3 - Modul Kesehatan Modern, Colorful & Scroll-Animated Styling */
+
+/* Keyframe for scroll reveal up */
+@keyframes scrollRevealUp {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(13, 148, 136, 0);
+  }
+}
+
+@keyframes shimmerGlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Staggered animation classes */
+.health-card-animate {
+  animation: scrollRevealUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+.health-delay-1 { animation-delay: 0.05s; }
+.health-delay-2 { animation-delay: 0.12s; }
+.health-delay-3 { animation-delay: 0.19s; }
+.health-delay-4 { animation-delay: 0.26s; }
+.health-delay-5 { animation-delay: 0.33s; }
+.health-delay-6 { animation-delay: 0.40s; }
+
+/* Hero Banners */
+.health-hero-banner {
+  border-radius: 16px;
+  padding: 26px 32px;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px -10px rgba(13, 148, 136, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 22px;
+}
+
+.health-hero-banner::before {
+  content: "";
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 240px;
+  height: 240px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.health-banner-disease {
+  background: linear-gradient(135deg, #047857 0%, #0d9488 35%, #0284c7 70%, #1e3a8a 100%);
+  background-size: 200% 200%;
+  animation: shimmerGlow 14s ease infinite alternate;
+}
+
+.health-banner-psychology {
+  background: linear-gradient(135deg, #0f766e 0%, #0284c7 35%, #6366f1 70%, #8b5cf6 100%);
+  background-size: 200% 200%;
+  animation: shimmerGlow 14s ease infinite alternate;
+}
+
+/* Stat Metric Mini-Cards */
+.health-stat-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  padding: 16px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 100%;
+}
+
+.health-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -6px rgba(13, 148, 136, 0.15);
+  border-color: #0d9488;
+}
+
+.health-stat-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+/* Content Container Cards */
+.health-content-card {
+  border-radius: 14px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  overflow: hidden;
+}
+
+.health-content-card:hover {
+  box-shadow: 0 12px 28px -6px rgba(13, 148, 136, 0.12), 0 0 0 1px #0d9488 !important;
+  border-color: #0d9488 !important;
+}
+
+/* Primary Action Buttons */
+.btn-health-primary {
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  background: #0d9488 !important;
+  border-color: #0d9488 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3) !important;
+  transition: all 0.25s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+
+.btn-health-primary:hover {
+  background: #0f766e !important;
+  border-color: #0f766e !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(13, 148, 136, 0.4) !important;
+}
+
+.btn-health-secondary {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-health-secondary:hover {
+  border-color: #0d9488 !important;
+  color: #0d9488 !important;
+}
+
+/* Filter Pill Buttons */
+.health-filter-btn {
+  border-radius: 20px !important;
+  padding: 4px 16px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.health-filter-btn.active {
+  background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.25) !important;
+}
+
+/* Interactive Bar Chart Items */
+.health-chart-bar-col {
+  transition: transform 0.25s ease;
+  cursor: pointer;
+}
+
+.health-chart-bar-col:hover {
+  transform: translateY(-4px);
+}
+
+.health-chart-bar-col:hover .bar-fill {
+  filter: brightness(1.15);
+}
+
+/* Tip / Advisory Cards */
+.health-tip-card {
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 16px;
+  transition: all 0.25s ease;
+}
+
+.health-tip-card:hover {
+  background: #f0fdfa;
+  border-color: #99f6e4;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(13, 148, 136, 0.08);
+}
