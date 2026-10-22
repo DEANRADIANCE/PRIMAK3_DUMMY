@@ -4,19 +4,23 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@ant-design/charts": "^2.6.7",
+    "@ant-design/icons": "^5.5.1",
+    "@ant-design/plots": "^2.6.8",
+    "@refinedev/antd": "^6.0.1",
     "@refinedev/cli": "^2.16.48",
     "@refinedev/core": "^5.0.8",
     "@refinedev/devtools": "^2.0.1",
     "@refinedev/kbar": "^2.0.0",
+    "@refinedev/react-router": "^2.0.0",
+    "@refinedev/rest": "^2.1.0",
+    "@uiw/react-md-editor": "^4.0.8",
+    "antd": "^5.23.0",
+    "dayjs": "^1.11.23",
+    "msw": "^3.0.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router": "^7.0.2",
-    "@refinedev/rest": "^2.1.0",
-    "@refinedev/antd": "^6.0.1",
-    "antd": "^5.23.0",
-    "@ant-design/icons": "^5.5.1",
-    "@uiw/react-md-editor": "^4.0.8",
-    "@refinedev/react-router": "^2.0.0"
+    "react-router": "^7.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
@@ -30,14 +34,14 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "typescript": "^5.8.3",
     "typescript-eslint": "^8.30.1",
-    "vite": "^6.3.5",
-    "typescript": "^5.8.3"
+    "vite": "^6.3.5"
   },
   "scripts": {
-    "dev": "refine dev",
-    "build": "tsc && refine build",
-    "start": "refine start",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
     "refine": "refine"
   },
   "browserslist": {
@@ -54,5 +58,10 @@
   },
   "refine": {
     "projectId": "4BnHEe-xfFofG-OV2Om5"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

@@ -1,0 +1,328 @@
+/* PRIMA K3 - Global Styles */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f0f2f5;
+  color: #262626;
+}
+
+/* Override Ant Design font */
+.ant-layout,
+.ant-menu,
+.ant-table,
+.ant-form,
+.ant-card,
+.ant-modal,
+.ant-btn,
+.ant-input,
+.ant-select,
+.ant-typography,
+.ant-descriptions,
+.ant-steps,
+.ant-tabs,
+.ant-tag,
+.ant-badge,
+.ant-breadcrumb {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Layout */
+.prima-layout {
+  min-height: 100vh;
+}
+
+.prima-sider {
+  background: #f5f5f5 !important;
+  border-right: 1px solid #e8e8e8;
+}
+
+.prima-sider .ant-layout-sider-children {
+  display: flex;
+  flex-direction: column;
+}
+
+.prima-sider .ant-menu {
+  background: transparent !important;
+  border-inline-end: none !important;
+}
+
+.prima-sider .ant-menu-item {
+  border-radius: 8px !important;
+  margin: 2px 8px !important;
+}
+
+.prima-sider .ant-menu-item-selected {
+  background-color: #e0e0e0 !important;
+  color: #333 !important;
+}
+
+.prima-sider .ant-menu-item:hover {
+  background-color: #eaeaea !important;
+}
+
+.prima-sider .ant-menu-submenu-title {
+  border-radius: 8px !important;
+  margin: 2px 8px !important;
+}
+
+.prima-sider .ant-menu-submenu-title:hover {
+  background-color: #eaeaea !important;
+}
+
+.prima-header {
+  background: #f5f5f5 !important;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 0 24px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  line-height: 64px;
+}
+
+.prima-content {
+  padding: 24px;
+  background: #fff;
+  margin: 16px;
+  border-radius: 12px;
+  min-height: calc(100vh - 160px);
+}
+
+.prima-footer {
+  text-align: center;
+  background: transparent;
+  color: #999;
+  font-size: 12px;
+  padding: 16px 24px;
+}
+
+/* Stat Cards */
+.stat-card {
+  border-radius: 12px !important;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card .ant-card-body {
+  padding: 20px;
+}
+
+/* Emergency button */
+.emergency-btn {
+  border-radius: 20px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px;
+  border: 2px solid #ff4d4f !important;
+  color: #ff4d4f !important;
+  background: #fff !important;
+  transition: all 0.2s;
+}
+
+.emergency-btn:hover {
+  background: #ff4d4f !important;
+  color: #fff !important;
+}
+
+/* Cards */
+.ant-card {
+  border-radius: 12px;
+}
+
+/* Tables */
+.ant-table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Buttons */
+.ant-btn-primary {
+  border-radius: 6px;
+}
+
+/* Login page */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Dashboard */
+.dashboard-chart-card {
+  border-radius: 12px !important;
+  height: 100%;
+}
+
+.dashboard-chart-card .ant-card-body {
+  padding: 16px;
+}
+
+/* Info cards */
+.info-card-featured {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.info-card-small {
+  border-radius: 8px !important;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+.info-card-small:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Risk Matrix */
+.risk-matrix table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.risk-matrix td,
+.risk-matrix th {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #e8e8e8;
+  font-size: 12px;
+  min-width: 40px;
+}
+
+.risk-matrix .risk-low { background-color: #d9f7be; }
+.risk-matrix .risk-medium { background-color: #fffb8f; }
+.risk-matrix .risk-high { background-color: #ffd591; }
+.risk-matrix .risk-extreme { background-color: #ffa39e; }
+.risk-matrix .risk-highlight { outline: 3px solid #1890ff; outline-offset: -2px; }
+
+/* Poster grid */
+.poster-grid .ant-card-cover img {
+  height: 250px;
+  object-fit: cover;
+}
+
+/* Article card */
+.article-card {
+  border-radius: 12px !important;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.article-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.article-card .ant-card-cover img {
+  height: 180px;
+  object-fit: cover;
+}
+
+/* Announcement card */
+.announcement-card {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+/* Checklist */
+.checklist-row-compliant { background-color: #f6ffed; }
+.checklist-row-non-compliant { background-color: #fff1f0; }
+
+/* User profile info */
+.user-profile-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  line-height: 1.2;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .user-profile-info {
+    display: none !important;
+  }
+
+  .prima-content {
+    margin: 8px;
+    padding: 16px;
+    border-radius: 8px;
+  }
+
+  .prima-header {
+    padding: 0 12px !important;
+  }
+
+  .stat-card .ant-card-body {
+    padding: 12px;
+  }
+}
+
+/* Mobile drawer override */
+@media (max-width: 992px) {
+  .prima-sider-mobile {
+    position: fixed !important;
+    z-index: 999;
+    height: 100vh;
+  }
+}
+
+/* Print styles for investigation PDF */
+@media print {
+  .prima-header,
+  .prima-sider,
+  .prima-footer,
+  .ant-btn,
+  .no-print {
+    display: none !important;
+  }
+
+  .prima-content {
+    margin: 0;
+    padding: 20px;
+  }
+}

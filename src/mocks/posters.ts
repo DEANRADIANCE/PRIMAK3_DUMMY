@@ -1,0 +1,48 @@
+import { IPoster } from "../types/poster";
+
+export const initialPosters: IPoster[] = [
+  {
+    id: 1,
+    title: "Poster 5R di Ruang Arsip dan Perkantoran",
+    description: "Panduan visual pelaksanaan Ringkas, Rapi, Resik, Rawat, dan Rajin untuk menciptakan lingkungan kerja yang aman dan produktif di seluruh unit ANRI.",
+    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80",
+    fileUrl: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1600&q=80",
+    category: "Budaya K3",
+    createdBy: "Tim K3 ANRI",
+    createdAt: "2026-03-01T08:00:00Z",
+    updatedAt: "2026-03-01T08:00:00Z",
+  },
+  {
+    id: 2,
+    title: "Alur Tanggap Darurat Evakuasi Gempa Bumi",
+    description: "Langkah Drop, Cover, and Hold On saat gempa terjadi, serta denah rute tangga darurat menuju Titik Kumpul (Assembly Point) Lapangan Utama.",
+    image: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800&q=80",
+    fileUrl: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1600&q=80",
+    category: "Tanggap Darurat",
+    createdBy: "Tim K3 ANRI",
+    createdAt: "2026-02-25T10:00:00Z",
+    updatedAt: "2026-02-25T10:00:00Z",
+  },
+  {
+    id: 3,
+    title: "Gunakan Masker Partikulat & Sarung Tangan Saat Menangani Arsip Tua",
+    description: "Lindungi diri dari spora jamur dan debu mikroskopis asam pada arsip kertas masa kolonial dengan APD yang sesuai standar laboratorium.",
+    image: "https://images.unsplash.com/photo-1584634731339-252c581abfc5?auto=format&fit=crop&w=800&q=80",
+    fileUrl: "https://images.unsplash.com/photo-1584634731339-252c581abfc5?auto=format&fit=crop&w=1600&q=80",
+    category: "Alat Pelindung Diri",
+    createdBy: "Direktorat Preservasi",
+    createdAt: "2026-02-10T14:00:00Z",
+    updatedAt: "2026-02-10T14:00:00Z",
+  },
+  {
+    id: 4,
+    title: "Layanan Konseling Psikologis Rahasia Klinik Pratama ANRI",
+    description: "Kesehatan mental Anda sama pentingnya dengan kesehatan fisik. Konsultasi tatap muka dan konseling gratis bersama psikolog klinis profesional.",
+    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80",
+    fileUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1600&q=80",
+    category: "Kesehatan Kerja",
+    createdBy: "Klinik Pratama ANRI",
+    createdAt: "2026-01-20T09:00:00Z",
+    updatedAt: "2026-01-20T09:00:00Z",
+  },
+];
