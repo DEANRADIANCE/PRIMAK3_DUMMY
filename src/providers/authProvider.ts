@@ -22,10 +22,8 @@ export const setStoredUser = (user: IUser | null) => {
   }
 };
 
-// Default fallback login jika belum ada user tersimpan: Admin
-if (!getStoredUser()) {
-  setStoredUser(initialUsers[0]);
-}
+// Catatan: Tidak melakukan auto-login default agar pengguna selalu disambut halaman login terlebih dahulu
+// export const setStoredUser...
 
 export const switchRole = (role: UserRole) => {
   const targetUser = initialUsers.find((u) => u.role === role) || initialUsers[0];

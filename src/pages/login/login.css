@@ -1,0 +1,521 @@
+/* PRIMA K3 - Modern & Vibrant Login Page Styling */
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(3deg);
+  }
+}
+
+@keyframes floatReverse {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(14px) rotate(-4deg);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  15% {
+    transform: scale(1.15);
+  }
+  30% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes openCaseLid {
+  0% {
+    transform: rotateX(0deg);
+  }
+  100% {
+    transform: rotateX(-105deg);
+  }
+}
+
+@keyframes itemPopOut {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.4);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-16px) scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0px) scale(1);
+  }
+}
+
+/* Background container */
+.login-page-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: linear-gradient(135deg, #022c22 0%, #064e3b 25%, #0f766e 50%, #0369a1 75%, #0f172a 100%);
+  background-size: 300% 300%;
+  animation: gradientShift 18s ease infinite;
+  overflow: hidden;
+}
+
+/* Background grid overlay */
+.login-page-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px),
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px, 64px 64px, 64px 64px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Glowing background orbs */
+.login-glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 1;
+  animation: pulseGlow 8s ease-in-out infinite;
+}
+
+.login-glow-orb-1 {
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.45) 0%, rgba(5, 150, 105, 0) 70%);
+  top: -100px;
+  left: -80px;
+}
+
+.login-glow-orb-2 {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.4) 0%, rgba(3, 105, 161, 0) 70%);
+  bottom: -120px;
+  right: -80px;
+  animation-delay: -3s;
+}
+
+.login-glow-orb-3 {
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0) 70%);
+  top: 40%;
+  right: 25%;
+  animation-delay: -5s;
+}
+
+@keyframes formReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Main Container */
+.login-card-container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1080px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 
+    0 25px 60px -15px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.2),
+    0 0 40px rgba(16, 185, 129, 0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  transition: all 0.3s ease;
+  animation: formReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (max-width: 900px) {
+  .login-card-container {
+    flex-direction: column;
+    max-width: 520px;
+  }
+}
+
+/* Left Hero Banner */
+.login-hero-panel {
+  flex: 1.1;
+  background: linear-gradient(145deg, #064e3b 0%, #065f46 40%, #0d9488 80%, #0284c7 100%);
+  color: #ffffff;
+  padding: 44px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-hero-panel::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  right: -40%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Hero Badge */
+.hero-tag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(8px);
+  color: #ecfdf5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Hero Pill highlights */
+.hero-pill-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+  transition: all 0.25s ease;
+}
+
+.hero-pill-feature:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(4px);
+}
+
+/* Doctor Interactive Illustration in Left Banner */
+.doctor-hero-visual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}
+
+/* Right Form Section */
+.login-form-panel {
+  flex: 1;
+  padding: 44px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #ffffff;
+  position: relative;
+}
+
+@media (max-width: 576px) {
+  .login-form-panel {
+    padding: 32px 20px;
+  }
+  .login-hero-panel {
+    padding: 32px 20px;
+  }
+}
+
+/* Brand Logo Header */
+.login-brand-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.brand-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #10b981 0%, #0284c7 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 800;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+  position: relative;
+}
+
+/* Primary Button Styling */
+.login-btn-submit {
+  height: 48px !important;
+  border-radius: 12px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px;
+  background: linear-gradient(135deg, #059669 0%, #0d9488 45%, #0284c7 100%) !important;
+  border: none !important;
+  box-shadow: 0 8px 20px rgba(5, 150, 105, 0.35) !important;
+  transition: all 0.3s ease !important;
+  position: relative;
+  overflow: hidden;
+  color: #ffffff !important;
+}
+
+.login-btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(2, 132, 199, 0.45) !important;
+  filter: brightness(1.08);
+}
+
+.login-btn-submit::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.login-btn-submit:hover::after {
+  transform: translateX(100%);
+}
+
+/* Custom Input Field */
+.login-input-custom .ant-input-affix-wrapper {
+  border-radius: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid #e2e8f0;
+  transition: all 0.2s ease;
+  background-color: #f8fafc;
+}
+
+.login-input-custom .ant-input-affix-wrapper:hover {
+  border-color: #10b981;
+}
+
+.login-input-custom .ant-input-affix-wrapper-focused {
+  border-color: #0d9488 !important;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.18) !important;
+  background-color: #ffffff;
+}
+
+/* Demo Role Cards */
+.role-badge-btn {
+  border-radius: 10px !important;
+  height: auto !important;
+  padding: 10px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  border: 1.5px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  transition: all 0.25s ease !important;
+  text-align: left !important;
+}
+
+.role-badge-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.role-badge-btn.role-admin {
+  border-color: #a7f3d0 !important;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%) !important;
+}
+.role-badge-btn.role-admin:hover {
+  border-color: #10b981 !important;
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.2) !important;
+}
+
+.role-badge-btn.role-tim_k3 {
+  border-color: #bae6fd !important;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
+}
+.role-badge-btn.role-tim_k3:hover {
+  border-color: #0284c7 !important;
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.2) !important;
+}
+
+.role-badge-btn.role-kepala_unit {
+  border-color: #ddd6fe !important;
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%) !important;
+}
+.role-badge-btn.role-kepala_unit:hover {
+  border-color: #7c3aed !important;
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.2) !important;
+}
+
+.role-badge-btn.role-pegawai {
+  border-color: #fed7aa !important;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+}
+.role-badge-btn.role-pegawai:hover {
+  border-color: #f59e0b !important;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.2) !important;
+}
+
+/* Floating animation elements */
+.float-elem-1 {
+  animation: floatSlow 4s ease-in-out infinite;
+}
+
+.float-elem-2 {
+  animation: floatReverse 5s ease-in-out infinite;
+}
+
+/* ==================================================== */
+/* INTRO OVERLAY: DOCTOR OPENING BRIEFCASE ANIMATION   */
+/* ==================================================== */
+.doctor-intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: radial-gradient(circle at center, #064e3b 0%, #032d27 45%, #021a17 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow: hidden;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.doctor-intro-overlay.fade-out {
+  opacity: 0;
+  transform: scale(1.05);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  pointer-events: none;
+}
+
+/* Doctor Stage Container */
+.doctor-stage {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Glowing Aura behind briefcase */
+.case-glow-aura {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -40%);
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.45) 0%, rgba(6, 182, 212, 0.25) 40%, transparent 70%);
+  filter: blur(35px);
+  border-radius: 50%;
+  pointer-events: none;
+  transition: all 0.6s ease;
+}
+
+.case-glow-aura.opened {
+  width: 440px;
+  height: 440px;
+  background: radial-gradient(circle, rgba(52, 211, 153, 0.65) 0%, rgba(56, 189, 248, 0.45) 45%, transparent 75%);
+  filter: blur(45px);
+}
+
+/* Skip Button */
+.intro-skip-btn {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  backdrop-filter: blur(10px);
+  border-radius: 9999px !important;
+  font-weight: 500;
+  transition: all 0.2s ease !important;
+}
+
+.intro-skip-btn:hover {
+  background: rgba(255, 255, 255, 0.28) !important;
+  transform: scale(1.04);
+}
+
+/* Floating medical particles in intro */
+.floating-sparkle {
+  position: absolute;
+  pointer-events: none;
+  animation: floatSlow 3s ease-in-out infinite;
+}
