@@ -8,30 +8,48 @@ import {
   Select,
   Card,
   Typography,
-  Space,
   Row,
   Col,
   Radio,
-  Divider,
+  Tag,
 } from "antd";
 import {
   ArrowLeftOutlined,
   SaveOutlined,
-  UserOutlined,
-  MedicineBoxOutlined,
-  SafetyCertificateOutlined,
+  AlertOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import { useCreate, useGetIdentity } from "@refinedev/core";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { TaspenCountdown } from "../../../components/common/TaspenCountdown";
-import { EmploymentStatus } from "../../../types/accident";
+import { EmploymentStatus, SeverityLevel, TaspenStatus } from "../../../types/accident";
+import { IUser } from "../../../types/user";
+import "../../../components/common/form-theme.css";
 
-const { Title, Text } = Typography;
+const { Title, Paragraph } = Typography;
+
+interface FormValues {
+  date: Dayjs;
+  time: Dayjs;
+  location: string;
+  accidentType: string;
+  chronology: string;
+  severityLevel: SeverityLevel;
+  victimName: string;
+  victimNip: string;
+  employmentStatus: EmploymentStatus;
+  victimUnit: string;
+  injuryType: string;
+  medicalAction: string;
+  k3Name: string;
+  k3Position: string;
+  k3Handling: string;
+  taspenStatus: TaspenStatus;
+}
 
 export const AccidentReportCreate: React.FC = () => {
   const navigate = useNavigate();
-  const { data: user } = useGetIdentity<any>();
+  const { data: user } = useGetIdentity<IUser>();
   const [form] = Form.useForm();
   const { mutate: createAccident, mutation } = useCreate();
   const isLoading = mutation.isPending;
@@ -39,7 +57,7 @@ export const AccidentReportCreate: React.FC = () => {
   const [employmentStatus, setEmploymentStatus] = useState<EmploymentStatus>("ASN");
   const [selectedDate, setSelectedDate] = useState<string>(dayjs().format("YYYY-MM-DD"));
 
-  const onFinish = (values: any) => {
+  const onFinish = (values: FormValues) => {
     const formatted = {
       date: values.date ? values.date.format("YYYY-MM-DD") : dayjs().format("YYYY-MM-DD"),
       time: values.time ? values.time.format("HH:mm") : "09:00",
@@ -93,25 +111,47 @@ export const AccidentReportCreate: React.FC = () => {
   };
 
   return (
-    <div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          marginBottom: 16,
-          flexWrap: "wrap",
-        }}
-      >
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/keselamatan/kecelakaan")} />
-        <div>
-          <Title level={4} style={{ margin: 0, color: "#262626" }}>
-            Form Pelaporan Kecelakaan Kerja Baru
-          </Title>
-          <Text type="secondary" style={{ fontSize: 13 }}>
-            Pencatatan data insiden kecelakaan kerja pegawai ANRI dan klaim TASPEN
-          </Text>
-        </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* 1. Header Banner Gradient */}
+      <div className="form-hero-banner form-banner-danger form-card-animate form-delay-1">
+        <Row align="middle" justify="space-between" gutter={[20, 20]}>
+          <Col xs={24} md={18}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <Tag
+                style={{
+                  background: "rgba(255, 255, 255, 0.2)",
+                  color: "#ffffff",
+                  border: "1px solid rgba(255,255,255,0.35)",
+                  borderRadius: 20,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  padding: "2px 10px",
+                }}
+              >
+                <AlertOutlined /> INSIDEN KERJA & KLAIM JKK TASPEN
+              </Tag>
+              <span style={{ fontSize: 13, color: "#fee2e2" }}>Batas Pelaporan 2x24 Jam</span>
+            </div>
+
+            <Title level={3} style={{ color: "#ffffff", margin: "0 0 8px 0", fontWeight: 800 }}>
+              Formulir Pelaporan Kecelakaan Kerja Baru
+            </Title>
+            <Paragraph style={{ color: "#fee2e2", fontSize: 13.5, lineHeight: 1.6, margin: 0, opacity: 0.95 }}>
+              Catat data insiden kecelakaan kerja, identitas korban, pertolongan medis awal, dan pengajuan klaim jaminan kecelakaan kerja PT TASPEN.
+            </Paragraph>
+          </Col>
+
+          <Col xs={24} md={6} style={{ textAlign: "right" }}>
+            <Button
+              icon={<ArrowLeftOutlined />}
+              onClick={() => navigate("/keselamatan/kecelakaan")}
+              className="btn-form-cancel"
+              style={{ background: "rgba(255,255,255,0.15)", color: "#fff", borderColor: "rgba(255,255,255,0.3)" }}
+            >
+              Kembali ke Daftar
+            </Button>
+          </Col>
+        </Row>
       </div>
 
       <Form
@@ -139,25 +179,21 @@ export const AccidentReportCreate: React.FC = () => {
         </div>
 
         {/* Seksi 1: Data Kejadian */}
-        <Card
-          title="1. Data Kejadian Kecelakaan"
-          bordered={false}
-          style={{
-            borderRadius: 12,
-            border: "1px solid #e8e8e8",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-            marginBottom: 20,
-          }}
-        >
+        <Card className="form-content-card form-card-animate form-delay-2" bordered={false} style={{ marginBottom: 20 }}>
+          <div className="form-section-title">
+            <span className="badge-num">1</span>
+            <span>Data Waktu & Lokasi Kejadian Kecelakaan</span>
+          </div>
+
           <Row gutter={24}>
             <Col xs={24} md={8}>
               <Form.Item
-                label="Tanggal Kejadian"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Tanggal Kejadian</span>}
                 name="date"
                 rules={[{ required: true, message: "Tanggal wajib diisi!" }]}
               >
                 <DatePicker
-                  style={{ width: "100%" }}
+                  style={{ width: "100%", borderRadius: 8 }}
                   format="DD/MM/YYYY"
                   size="large"
                   onChange={(d) => {
@@ -168,18 +204,22 @@ export const AccidentReportCreate: React.FC = () => {
             </Col>
 
             <Col xs={24} md={8}>
-              <Form.Item label="Waktu / Jam Kejadian" name="time" rules={[{ required: true }]}>
-                <TimePicker style={{ width: "100%" }} format="HH:mm" size="large" />
+              <Form.Item
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Waktu / Jam Kejadian</span>}
+                name="time"
+                rules={[{ required: true }]}
+              >
+                <TimePicker style={{ width: "100%", borderRadius: 8 }} format="HH:mm" size="large" />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={8}>
               <Form.Item
-                label="Jenis Kecelakaan"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Jenis Kecelakaan</span>}
                 name="accidentType"
                 rules={[{ required: true, message: "Jenis kecelakaan wajib dipilih!" }]}
               >
-                <Select size="large">
+                <Select size="large" style={{ borderRadius: 8 }}>
                   <Select.Option value="Terjatuh / Terpeleset">Terjatuh / Terpeleset</Select.Option>
                   <Select.Option value="Tertimpa Benda">Tertimpa Benda</Select.Option>
                   <Select.Option value="Tersengat Listrik">Tersengat Listrik</Select.Option>
@@ -192,17 +232,21 @@ export const AccidentReportCreate: React.FC = () => {
 
             <Col xs={24} md={12}>
               <Form.Item
-                label="Lokasi Spesifik Kejadian"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Lokasi Spesifik Kejadian</span>}
                 name="location"
                 rules={[{ required: true, message: "Lokasi kejadian wajib diisi!" }]}
               >
-                <Input placeholder="Contoh: Tangga Utama Gedung B Lantai 1" size="large" />
+                <Input placeholder="Contoh: Tangga Utama Gedung B Lantai 1" size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
-              <Form.Item label="Tingkat Keparahan" name="severityLevel" rules={[{ required: true }]}>
-                <Select size="large">
+              <Form.Item
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Tingkat Keparahan Cedera</span>}
+                name="severityLevel"
+                rules={[{ required: true }]}
+              >
+                <Select size="large" style={{ borderRadius: 8 }}>
                   <Select.Option value="ringan">Ringan (Dapat langsung bekerja kembali / P3K)</Select.Option>
                   <Select.Option value="sedang">Sedang (Perlu istirahat medis 1-3 hari)</Select.Option>
                   <Select.Option value="berat">Berat (Dirujuk ke RS / Istirahat &gt; 3 hari)</Select.Option>
@@ -213,12 +257,13 @@ export const AccidentReportCreate: React.FC = () => {
 
             <Col xs={24}>
               <Form.Item
-                label="Kronologi Lengkap Kejadian"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Kronologi Lengkap Kejadian</span>}
                 name="chronology"
                 rules={[{ required: true, message: "Kronologi kejadian wajib diisi!" }]}
               >
                 <Input.TextArea
                   rows={4}
+                  style={{ borderRadius: 8 }}
                   placeholder="Uraikan alur kejadian secara runtut bagaimana kecelakaan dapat terjadi..."
                 />
               </Form.Item>
@@ -227,40 +272,36 @@ export const AccidentReportCreate: React.FC = () => {
         </Card>
 
         {/* Seksi 2: Data Korban */}
-        <Card
-          title="2. Data Korban Kecelakaan"
-          bordered={false}
-          style={{
-            borderRadius: 12,
-            border: "1px solid #e8e8e8",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-            marginBottom: 20,
-          }}
-        >
+        <Card className="form-content-card form-card-animate form-delay-3" bordered={false} style={{ marginBottom: 20 }}>
+          <div className="form-section-title">
+            <span className="badge-num">2</span>
+            <span>Identitas Korban & Penanganan Medis</span>
+          </div>
+
           <Row gutter={24}>
             <Col xs={24} md={12}>
               <Form.Item
-                label="Nama Lengkap Korban"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Nama Lengkap Korban</span>}
                 name="victimName"
                 rules={[{ required: true, message: "Nama korban wajib diisi!" }]}
               >
-                <Input placeholder="Contoh: Rina Kusuma Dewi, S.Sos." size="large" />
+                <Input placeholder="Contoh: Rina Kusuma Dewi, S.Sos." size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
               <Form.Item
-                label="NIP / Nomor Identitas Pegawai"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>NIP / Nomor Identitas Pegawai</span>}
                 name="victimNip"
                 rules={[{ required: true, message: "NIP wajib diisi!" }]}
               >
-                <Input placeholder="Contoh: 199208142018012003" size="large" />
+                <Input placeholder="Contoh: 199208142018012003" size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
               <Form.Item
-                label="Status Kepegawaian (Menentukan Durasi TASPEN)"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Status Kepegawaian (Menentukan Durasi TASPEN)</span>}
                 name="employmentStatus"
                 rules={[{ required: true }]}
               >
@@ -278,67 +319,71 @@ export const AccidentReportCreate: React.FC = () => {
 
             <Col xs={24} md={12}>
               <Form.Item
-                label="Unit Kerja Korban"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Unit Kerja Korban</span>}
                 name="victimUnit"
                 rules={[{ required: true, message: "Unit kerja wajib diisi!" }]}
               >
-                <Input placeholder="Contoh: Direktorat Pelayanan dan Informasi" size="large" />
+                <Input placeholder="Contoh: Direktorat Pelayanan dan Informasi" size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
               <Form.Item
-                label="Jenis Cedera yang Dialami"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Jenis Cedera yang Dialami</span>}
                 name="injuryType"
                 rules={[{ required: true, message: "Jenis cedera wajib diisi!" }]}
               >
-                <Input placeholder="Contoh: Keseleo pergelangan kaki kanan dan memar siku" size="large" />
+                <Input placeholder="Contoh: Keseleo pergelangan kaki kanan dan memar siku" size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
               <Form.Item
-                label="Tindakan Medis Awal yang Diberikan"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Tindakan Medis Awal yang Diberikan</span>}
                 name="medicalAction"
                 rules={[{ required: true, message: "Tindakan medis wajib diisi!" }]}
               >
-                <Input placeholder="Contoh: Pertolongan pertama kompres es di Klinik Pratama ANRI" size="large" />
+                <Input placeholder="Contoh: Pertolongan pertama kompres es di Klinik Pratama ANRI" size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
           </Row>
         </Card>
 
         {/* Seksi 3: Penginput Tim K3 & Pengajuan TASPEN */}
-        <Card
-          title="3. Penanganan Tim K3 & Administrasi TASPEN"
-          bordered={false}
-          style={{
-            borderRadius: 12,
-            border: "1px solid #e8e8e8",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-            marginBottom: 24,
-          }}
-        >
+        <Card className="form-content-card form-card-animate form-delay-4" bordered={false} style={{ marginBottom: 24 }}>
+          <div className="form-section-title">
+            <span className="badge-num">3</span>
+            <span>Penanganan Tim K3 & Administrasi TASPEN</span>
+          </div>
+
           <Row gutter={24}>
             <Col xs={24} md={12}>
-              <Form.Item label="Nama Petugas Tim K3" name="k3Name" rules={[{ required: true }]}>
-                <Input size="large" />
-              </Form.Item>
-            </Col>
-
-            <Col xs={24} md={12}>
-              <Form.Item label="Jabatan Petugas Tim K3" name="k3Position" rules={[{ required: true }]}>
-                <Input size="large" />
+              <Form.Item
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Nama Petugas Tim K3</span>}
+                name="k3Name"
+                rules={[{ required: true }]}
+              >
+                <Input size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
               <Form.Item
-                label="Status Pengajuan Klaim JKK TASPEN"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Jabatan Petugas Tim K3</span>}
+                name="k3Position"
+                rules={[{ required: true }]}
+              >
+                <Input size="large" style={{ borderRadius: 8 }} />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Form.Item
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Status Pengajuan Klaim JKK TASPEN</span>}
                 name="taspenStatus"
                 rules={[{ required: true }]}
               >
-                <Select size="large">
+                <Select size="large" style={{ borderRadius: 8 }}>
                   <Select.Option value="belum">Belum Diajukan</Select.Option>
                   <Select.Option value="diajukan">Sudah Diajukan ke PT TASPEN</Select.Option>
                   <Select.Option value="selesai">Klaim Selesai / Disetujui</Select.Option>
@@ -348,31 +393,34 @@ export const AccidentReportCreate: React.FC = () => {
 
             <Col xs={24} md={12}>
               <Form.Item
-                label="Tindakan Pengamanan Area oleh Tim K3"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Tindakan Pengamanan Area oleh Tim K3</span>}
                 name="k3Handling"
                 rules={[{ required: true, message: "Tindakan pengamanan wajib diisi!" }]}
               >
                 <Input.TextArea
                   rows={2}
+                  style={{ borderRadius: 8 }}
                   placeholder="Contoh: Mengamankan lokasi dengan pita pembatas dan membuat Berita Acara Kejadian"
                 />
               </Form.Item>
             </Col>
           </Row>
-        </Card>
 
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
-          <Button onClick={() => navigate("/keselamatan/kecelakaan")}>Batal</Button>
-          <Button
-            type="primary"
-            htmlType="submit"
-            icon={<SaveOutlined />}
-            loading={isLoading}
-            style={{ background: "#595959", borderColor: "#595959" }}
-          >
-            Simpan Laporan Kecelakaan
-          </Button>
-        </div>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 20, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
+            <Button className="btn-form-cancel" onClick={() => navigate("/keselamatan/kecelakaan")}>
+              Batal
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              icon={<SaveOutlined />}
+              loading={isLoading}
+              className="btn-form-submit"
+            >
+              Simpan Laporan Kecelakaan
+            </Button>
+          </div>
+        </Card>
       </Form>
     </div>
   );

@@ -8,10 +8,12 @@ import {
   Space,
   Typography,
   Breadcrumb,
+  Drawer,
 } from "antd";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  MenuOutlined,
   DashboardOutlined,
   MedicineBoxOutlined,
   WarningOutlined,
@@ -45,6 +47,7 @@ interface CustomLayoutProps {
 
 export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [emergencyModalOpen, setEmergencyModalOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -293,7 +296,7 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
         collapsible
         collapsed={collapsed}
         trigger={null}
-        width={250}
+        width={260}
         collapsedWidth={80}
         className="prima-sider"
         style={{
@@ -305,43 +308,76 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
         <div style={{ minHeight: "100%", display: "flex", flexDirection: "column" }}>
           <div
             style={{
-              padding: "20px 16px",
+              padding: collapsed ? "16px 8px" : "16px 14px",
               display: "flex",
               alignItems: "center",
-              gap: 12,
+              justifyContent: collapsed ? "center" : "space-between",
+              gap: 8,
               borderBottom: "1px solid #e8e8e8",
+              minHeight: 64,
             }}
           >
-            <div
-              style={{
-                width: 38,
-                height: 38,
-                borderRadius: 8,
-                background: "linear-gradient(135deg, #0d9488 0%, #0284c7 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#fff",
-                fontWeight: 700,
-                fontSize: 18,
-                flexShrink: 0,
-              }}
-            >
-              K3
-            </div>
-            {!collapsed && (
-              <div style={{ overflow: "hidden" }}>
-                <div style={{ fontWeight: 700, fontSize: 16, color: "#262626", lineHeight: 1.2 }}>
-                  PRIMA K3
-                </div>
-                <div style={{ fontSize: 11, color: "#8c8c8c", whiteSpace: "nowrap" }}>
-                  Klinik Pratama ANRI
-                </div>
+            {collapsed ? (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, width: "100%" }}>
+                <img
+                  src="/Logo-PrimaK3.png"
+                  alt="Logo PRIMA K3"
+                  style={{
+                    width: 36,
+                    height: 36,
+                    objectFit: "contain",
+                    flexShrink: 0,
+                  }}
+                />
+                <Button
+                  type="text"
+                  icon={<MenuUnfoldOutlined />}
+                  onClick={() => setCollapsed(false)}
+                  title="Buka Sidebar"
+                  style={{ fontSize: 16, width: 36, height: 36 }}
+                />
               </div>
+            ) : (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, flex: 1 }}>
+                  <img
+                    src="/Logo-PrimaK3.png"
+                    alt="Logo PRIMA K3"
+                    style={{
+                      width: 36,
+                      height: 36,
+                      objectFit: "contain",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <div style={{ overflow: "hidden", minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: "#1f2937", lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      PRIMA K3
+                    </div>
+                    <div style={{ fontSize: 11, color: "#64748b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      Klinik Pratama ANRI
+                    </div>
+                  </div>
+                </div>
+
+                <Button
+                  type="text"
+                  icon={<MenuFoldOutlined />}
+                  onClick={() => setCollapsed(true)}
+                  title="Tutup Sidebar"
+                  style={{
+                    fontSize: 16,
+                    width: 36,
+                    height: 36,
+                    flexShrink: 0,
+                    marginLeft: "auto",
+                  }}
+                />
+              </>
             )}
           </div>
 
-          <div style={{ flex: 1, padding: "12px 0" }}>
+          <div style={{ flex: 1, padding: "12px 0", overflowY: "auto", overflowX: "hidden" }}>
             <Menu
               mode="inline"
               selectedKeys={getSelectedKeys()}
@@ -383,23 +419,34 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
             boxSizing: "border-box",
           }}
         >
-          <Space direction="horizontal" size="middle" style={{ minWidth: 0 }}>
+          {/* Header Left: Burger simpel & identitas untuk layout hp / zoom */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <Button
+              className="mobile-burger-btn"
               type="text"
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
-              style={{ fontSize: 16, width: 40, height: 40 }}
+              icon={<MenuOutlined style={{ fontSize: 20 }} />}
+              onClick={() => setMobileDrawerOpen(true)}
+              title="Menu Navigasi"
+              style={{
+                width: 40,
+                height: 40,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             />
 
-            <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
-              <span style={{ fontSize: 18, fontWeight: 700, color: "#262626" }}>
-                PRIMA K3
-              </span>
-              <span style={{ fontSize: 12, color: "#8c8c8c" }}>
-                Klinik Pratama ANRI
-              </span>
+            <div className="mobile-header-brand" style={{ alignItems: "center", gap: 8 }}>
+              <img
+                src="/Logo-PrimaK3.png"
+                alt="Logo PRIMA K3"
+                style={{ width: 32, height: 32, objectFit: "contain" }}
+              />
+              <div style={{ lineHeight: 1.2 }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "#1f2937" }}>PRIMA K3</div>
+                <div style={{ fontSize: 10, color: "#64748b" }}>Klinik Pratama ANRI</div>
+              </div>
             </div>
-          </Space>
+          </div>
 
           {/* Header Right Actions */}
           <Space direction="horizontal" size="large" style={{ flexShrink: 0 }}>
@@ -489,9 +536,16 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.02)",
             }}
           >
-            <Text style={{ fontSize: 12, color: "#64748b" }}>
-              © 2026 <strong style={{ color: "#334155", fontWeight: 600 }}>PRIMA K3</strong> • Klinik Pratama ANRI
-            </Text>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <img
+                src="/Logo-PrimaK3.png"
+                alt="Logo PRIMA K3"
+                style={{ width: 22, height: 22, objectFit: "contain" }}
+              />
+              <Text style={{ fontSize: 12, color: "#64748b" }}>
+                © 2026 <strong style={{ color: "#334155", fontWeight: 600 }}>PRIMA K3</strong> • Klinik Pratama ANRI
+              </Text>
+            </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12, color: "#94a3b8" }}>
               <span>Arsip Nasional Republik Indonesia</span>
@@ -501,6 +555,47 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
           </div>
         </Footer>
       </Layout>
+
+      {/* Mobile Drawer Menu untuk layar HP / saat zoom */}
+      <Drawer
+        placement="left"
+        closable={true}
+        onClose={() => setMobileDrawerOpen(false)}
+        open={mobileDrawerOpen}
+        styles={{
+          body: { padding: 0, background: "#f5f5f5" },
+          header: { background: "#f5f5f5", borderBottom: "1px solid #e8e8e8" },
+        }}
+        width={280}
+        title={
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <img
+              src="/Logo-PrimaK3.png"
+              alt="Logo PRIMA K3"
+              style={{ width: 34, height: 34, objectFit: "contain" }}
+            />
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 15, color: "#1f2937", lineHeight: 1.2 }}>
+                PRIMA K3
+              </div>
+              <div style={{ fontSize: 11, color: "#64748b" }}>
+                Klinik Pratama ANRI
+              </div>
+            </div>
+          </div>
+        }
+      >
+        <div style={{ padding: "12px 0", height: "100%", overflowY: "auto" }}>
+          <Menu
+            mode="inline"
+            selectedKeys={getSelectedKeys()}
+            defaultOpenKeys={getOpenKeys()}
+            items={menuItems}
+            onClick={() => setMobileDrawerOpen(false)}
+            style={{ background: "transparent", borderRight: "none" }}
+          />
+        </div>
+      </Drawer>
 
       {/* Emergency Modal */}
       <EmergencyModal

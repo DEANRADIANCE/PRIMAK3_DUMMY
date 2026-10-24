@@ -6,10 +6,10 @@ import {
   Typography,
   Button,
   Tag,
-  List,
   Input,
-  Space,
   Popconfirm,
+  Select,
+  Empty,
 } from "antd";
 import {
   PlusOutlined,
@@ -20,6 +20,7 @@ import {
   EditOutlined,
   CalendarOutlined,
   UserOutlined,
+  FilterOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import { useTable } from "@refinedev/antd";
@@ -121,7 +122,7 @@ export const ArticleList: React.FC = () => {
         </Row>
       </div>
 
-      {/* 2. Control Bar Terpisah: Search & Tombol Create Kontras di Luar Gradasi */}
+      {/* 2. Control Bar Terpisah: Search & Dropdown Kategori Pembahasan & Tombol Create */}
       <div
         style={{
           background: "#ffffff",
@@ -136,15 +137,44 @@ export const ArticleList: React.FC = () => {
           gap: 12,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, maxWidth: 450 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 12,
+            flex: 1,
+            minWidth: 280,
+          }}
+        >
+          {/* Search Box */}
           <Input
             prefix={<SearchOutlined style={{ color: "#0d9488" }} />}
             placeholder="Cari judul artikel, topik, atau penulis..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ borderRadius: 8, height: 38 }}
+            style={{ borderRadius: 8, height: 40, minWidth: 240, maxWidth: 340, flex: 1 }}
             allowClear
           />
+
+          {/* Dropdown Kategori Pembahasan di samping Search */}
+          <Select
+            value={selectedCategory}
+            onChange={handleCategorySelect}
+            style={{ minWidth: 230, height: 40 }}
+            suffixIcon={<FilterOutlined style={{ color: "#0d9488" }} />}
+            placeholder="Pilih Kategori Pembahasan"
+            options={initialArticleCategories.map((cat) => ({
+              value: cat.slug,
+              label: (
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <BookOutlined style={{ color: selectedCategory === cat.slug ? "#0d9488" : "#94a3b8" }} />
+                  <span>{cat.name}</span>
+                </div>
+              ),
+            }))}
+          />
+
           <span style={{ fontSize: 12, color: "#94a3b8", whiteSpace: "nowrap" }}>
             {filteredArticles.length} artikel ditemukan
           </span>
@@ -176,169 +206,139 @@ export const ArticleList: React.FC = () => {
         )}
       </div>
 
-      {/* 2. Content Layout: Category Nav + Article Cards */}
-      <Row gutter={[20, 20]}>
-        {/* Sisi Kiri: Kategori List Elegan */}
-        <Col xs={24} md={7} lg={6}>
-          <Card
-            title={
-              <span style={{ fontWeight: 700, fontSize: 14, color: "#0f172a" }}>
-                Kategori Bahasan
-              </span>
-            }
-            size="small"
-            bordered={false}
-            style={{
-              borderRadius: 14,
-              border: "1px solid #e2e8f0",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
-            }}
-          >
-            <List
-              dataSource={initialArticleCategories}
-              renderItem={(cat) => {
-                const isActive = selectedCategory === cat.slug;
-                return (
-                  <List.Item
-                    onClick={() => handleCategorySelect(cat.slug)}
+      {/* 3. Grid Kartu Artikel Edukasi K3 (Full Width Responsif) */}
+      <Row gutter={[18, 18]}>
+        {filteredArticles.length === 0 ? (
+          <Col span={24}>
+            <Card
+              bordered={false}
+              style={{
+                borderRadius: 14,
+                border: "1px solid #e2e8f0",
+                textAlign: "center",
+                padding: "48px 24px",
+                background: "#ffffff",
+              }}
+            >
+              <Empty
+                description={
+                  <span style={{ color: "#64748b", fontSize: 14 }}>
+                    Tidak ada artikel edukasi K3 yang sesuai kriteria pencarian atau kategori ini.
+                  </span>
+                }
+              />
+            </Card>
+          </Col>
+        ) : (
+          filteredArticles.map((art, index) => {
+            const delayClass = `media-delay-${(index % 6) + 1}`;
+            return (
+              <Col xs={24} sm={12} lg={8} key={art.id}>
+                <Card
+                  hoverable
+                  bordered={false}
+                  className={`media-content-card media-card-animate ${delayClass}`}
+                  style={{ height: "100%", display: "flex", flexDirection: "column" }}
+                  cover={
+                    art.image ? (
+                      <div style={{ height: 170, overflow: "hidden", position: "relative" }}>
+                        <img
+                          alt={art.title}
+                          src={art.image}
+                          className="media-card-img"
+                        />
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: 10,
+                            left: 10,
+                            background: "rgba(13, 148, 136, 0.85)",
+                            color: "#ffffff",
+                            fontSize: 10,
+                            fontWeight: 700,
+                            padding: "2px 8px",
+                            borderRadius: 4,
+                            backdropFilter: "blur(4px)",
+                          }}
+                        >
+                          {art.category?.name || "K3 ANRI"}
+                        </div>
+                      </div>
+                    ) : null
+                  }
+                  actions={[
+                    <Button
+                      key="view"
+                      type="link"
+                      onClick={() => navigate(`/media/edukasi/show/${art.id}`)}
+                      style={{ color: "#0d9488", fontWeight: 600 }}
+                    >
+                      Baca Artikel &rarr;
+                    </Button>,
+                    ...(canManage
+                      ? [
+                          <Button
+                            key="edit"
+                            type="link"
+                            icon={<EditOutlined />}
+                            onClick={() => navigate(`/media/edukasi/edit/${art.id}`)}
+                          />,
+                          <Popconfirm
+                            key="del"
+                            title="Hapus artikel ini?"
+                            onConfirm={() =>
+                              deleteArticle({
+                                resource: "articles",
+                                id: art.id,
+                              })
+                            }
+                          >
+                            <Button key="del-btn" type="link" danger icon={<DeleteOutlined />} />
+                          </Popconfirm>,
+                        ]
+                      : []),
+                  ]}
+                >
+                  <Title
+                    level={5}
+                    style={{ margin: "0 0 8px 0", lineHeight: 1.4, color: "#0f172a" }}
+                    ellipsis={{ rows: 2 }}
+                  >
+                    {art.title}
+                  </Title>
+
+                  <Paragraph
+                    type="secondary"
+                    ellipsis={{ rows: 3 }}
+                    style={{ fontSize: 13, margin: "0 0 14px", lineHeight: 1.6 }}
+                  >
+                    {art.summary}
+                  </Paragraph>
+
+                  <div
                     style={{
-                      cursor: "pointer",
-                      padding: "10px 14px",
-                      borderRadius: 8,
-                      marginBottom: 4,
-                      background: isActive
-                        ? "linear-gradient(135deg, #0d9488 0%, #0284c7 100%)"
-                        : "transparent",
-                      color: isActive ? "#ffffff" : "#334155",
-                      fontWeight: isActive ? 600 : 500,
-                      transition: "all 0.2s ease",
-                      border: "none",
+                      marginTop: "auto",
+                      fontSize: 11,
+                      color: "#94a3b8",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      paddingTop: 8,
+                      borderTop: "1px solid #f1f5f9",
                     }}
                   >
-                    <Space>
-                      <BookOutlined style={{ color: isActive ? "#ffffff" : "#0d9488" }} />
-                      <span>{cat.name}</span>
-                    </Space>
-                  </List.Item>
-                );
-              }}
-            />
-          </Card>
-        </Col>
-
-        {/* Sisi Kanan: Grid Kartu Artikel dengan Animasi Scroll Reveal */}
-        <Col xs={24} md={17} lg={18}>
-          <Row gutter={[16, 16]}>
-            {filteredArticles.map((art, index) => {
-              const delayClass = `media-delay-${(index % 6) + 1}`;
-              return (
-                <Col xs={24} sm={12} key={art.id}>
-                  <Card
-                    hoverable
-                    bordered={false}
-                    className={`media-content-card media-card-animate ${delayClass}`}
-                    style={{ height: "100%", display: "flex", flexDirection: "column" }}
-                    cover={
-                      art.image ? (
-                        <div style={{ height: 160, overflow: "hidden", position: "relative" }}>
-                          <img
-                            alt={art.title}
-                            src={art.image}
-                            className="media-card-img"
-                          />
-                          <div
-                            style={{
-                              position: "absolute",
-                              top: 10,
-                              left: 10,
-                              background: "rgba(13, 148, 136, 0.85)",
-                              color: "#ffffff",
-                              fontSize: 10,
-                              fontWeight: 700,
-                              padding: "2px 8px",
-                              borderRadius: 4,
-                              backdropFilter: "blur(4px)",
-                            }}
-                          >
-                            {art.category?.name || "K3 ANRI"}
-                          </div>
-                        </div>
-                      ) : null
-                    }
-                    actions={[
-                      <Button
-                        key="view"
-                        type="link"
-                        onClick={() => navigate(`/media/edukasi/show/${art.id}`)}
-                        style={{ color: "#0d9488", fontWeight: 600 }}
-                      >
-                        Baca Artikel &rarr;
-                      </Button>,
-                      ...(canManage
-                        ? [
-                            <Button
-                              key="edit"
-                              type="link"
-                              icon={<EditOutlined />}
-                              onClick={() => navigate(`/media/edukasi/edit/${art.id}`)}
-                            />,
-                            <Popconfirm
-                              key="del"
-                              title="Hapus artikel ini?"
-                              onConfirm={() =>
-                                deleteArticle({
-                                  resource: "articles",
-                                  id: art.id,
-                                })
-                              }
-                            >
-                              <Button key="del-btn" type="link" danger icon={<DeleteOutlined />} />
-                            </Popconfirm>,
-                          ]
-                        : []),
-                    ]}
-                  >
-                    <Title
-                      level={5}
-                      style={{ margin: "0 0 8px 0", lineHeight: 1.4, color: "#0f172a" }}
-                      ellipsis={{ rows: 2 }}
-                    >
-                      {art.title}
-                    </Title>
-
-                    <Paragraph
-                      type="secondary"
-                      ellipsis={{ rows: 3 }}
-                      style={{ fontSize: 13, margin: "0 0 14px", lineHeight: 1.6 }}
-                    >
-                      {art.summary}
-                    </Paragraph>
-
-                    <div
-                      style={{
-                        marginTop: "auto",
-                        fontSize: 11,
-                        color: "#94a3b8",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        paddingTop: 8,
-                        borderTop: "1px solid #f1f5f9",
-                      }}
-                    >
-                      <span>
-                        <UserOutlined /> {art.author || "Tim K3"}
-                      </span>
-                      <span>
-                        <CalendarOutlined /> {art.createdAt?.substring(0, 10)}
-                      </span>
-                    </div>
-                  </Card>
-                </Col>
-              );
-            })}
-          </Row>
-        </Col>
+                    <span>
+                      <UserOutlined /> {art.author || "Tim K3"}
+                    </span>
+                    <span>
+                      <CalendarOutlined /> {art.createdAt?.substring(0, 10)}
+                    </span>
+                  </div>
+                </Card>
+              </Col>
+            );
+          })
+        )}
       </Row>
     </div>
   );

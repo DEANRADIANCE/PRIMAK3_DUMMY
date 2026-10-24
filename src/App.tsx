@@ -273,7 +273,13 @@ function App() {
                 projectId: "4BnHEe-xfFofG-OV2Om5",
                 title: {
                   text: "PRIMA K3",
-                  icon: undefined,
+                  icon: (
+                    <img
+                      src="/Logo-PrimaK3.png"
+                      alt="Logo PRIMA K3"
+                      style={{ width: 26, height: 26, objectFit: "contain", verticalAlign: "middle" }}
+                    />
+                  ),
                 },
               }}
             >

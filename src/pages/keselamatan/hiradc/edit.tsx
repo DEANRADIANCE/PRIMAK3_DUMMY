@@ -7,19 +7,32 @@ import {
   Select,
   Card,
   Typography,
-  Space,
   Row,
   Col,
-  Alert,
+  Tag,
 } from "antd";
-import { ArrowLeftOutlined, SaveOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, SaveOutlined, InfoCircleOutlined, EditOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router";
 import { useOne, useUpdate } from "@refinedev/core";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { IHiradc, calculateRiskLevel, RiskLevel } from "../../../types/hiradc";
 import { RiskMatrixModal } from "../../../components/common/RiskMatrixModal";
+import "../../../components/common/form-theme.css";
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
+
+interface FormValues {
+  activity: string;
+  unit: string;
+  location: string;
+  hazard: string;
+  risk: string;
+  category: string;
+  existingControl: string;
+  additionalControl: string;
+  responsiblePerson: string;
+  targetDate: Dayjs;
+}
 
 export const HiradcEdit: React.FC = () => {
   const { id } = useParams();
@@ -64,7 +77,7 @@ export const HiradcEdit: React.FC = () => {
     }
   }, [record, form]);
 
-  const onFinish = (values: any) => {
+  const onFinish = (values: FormValues) => {
     if (!record) return;
 
     updateHiradc(
@@ -93,139 +106,242 @@ export const HiradcEdit: React.FC = () => {
     );
   };
 
-  if (isLoading || !record) return <Card loading={true} />;
+  if (isLoading || !record) return <Card loading={true} style={{ borderRadius: 14 }} />;
 
   return (
-    <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 16,
-          flexWrap: "wrap",
-          gap: 12,
-        }}
-      >
-        <Space wrap>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/keselamatan/hiradc")} />
-          <div>
-            <Title level={4} style={{ margin: 0, color: "#262626" }}>
-              Ubah Data Penilaian HIRADC
-            </Title>
-            <Text type="secondary" style={{ fontSize: 13 }}>
-              {record.activity}
-            </Text>
-          </div>
-        </Space>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* 1. Header Banner Gradient */}
+      <div className="form-hero-banner form-banner-edit form-card-animate form-delay-1">
+        <Row align="middle" justify="space-between" gutter={[20, 20]}>
+          <Col xs={24} md={18}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <Tag
+                style={{
+                  background: "rgba(255, 255, 255, 0.2)",
+                  color: "#ffffff",
+                  border: "1px solid rgba(255,255,255,0.35)",
+                  borderRadius: 20,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  padding: "2px 10px",
+                }}
+              >
+                <EditOutlined /> PERBARUI PENILAIAN RISIKO
+              </Tag>
+              <span style={{ fontSize: 13, color: "#dbeafe" }}>ID: #{record.id}</span>
+            </div>
 
-        <Button icon={<InfoCircleOutlined />} onClick={() => setMatrixModalOpen(true)}>
-          Panduan Matriks Risiko
-        </Button>
+            <Title level={3} style={{ color: "#ffffff", margin: "0 0 8px 0", fontWeight: 800 }}>
+              Edit HIRADC: {record.activity}
+            </Title>
+            <Paragraph style={{ color: "#dbeafe", fontSize: 13.5, lineHeight: 1.6, margin: 0, opacity: 0.95 }}>
+              Perbarui analisis bahaya kerja, evaluasi ulang nilai kemungkinan dan dampak, serta tindakan mitigasi perbaikan.
+            </Paragraph>
+          </Col>
+
+          <Col xs={24} md={6} style={{ textAlign: "right" }}>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", flexWrap: "wrap" }}>
+              <Button
+                icon={<InfoCircleOutlined />}
+                onClick={() => setMatrixModalOpen(true)}
+                className="btn-form-cancel"
+                style={{ background: "rgba(255,255,255,0.15)", color: "#fff", borderColor: "rgba(255,255,255,0.3)" }}
+              >
+                Matriks 5×5
+              </Button>
+              <Button
+                icon={<ArrowLeftOutlined />}
+                onClick={() => navigate(`/keselamatan/hiradc/show/${record.id}`)}
+                className="btn-form-cancel"
+                style={{ background: "rgba(255,255,255,0.15)", color: "#fff", borderColor: "rgba(255,255,255,0.3)" }}
+              >
+                Batal
+              </Button>
+            </div>
+          </Col>
+        </Row>
       </div>
 
-      <Card
-        bordered={false}
-        style={{
-          borderRadius: 12,
-          border: "1px solid #e8e8e8",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-        }}
-      >
+      {/* 2. Main Form Card */}
+      <Card className="form-content-card form-card-animate form-delay-2" bordered={false}>
         <Form form={form} layout="vertical" onFinish={onFinish}>
+          <div className="form-section-title">
+            <span className="badge-num">1</span>
+            <span>Ubah Data Aktivitas & Potensi Bahaya</span>
+          </div>
+
           <Row gutter={24}>
             <Col xs={24} md={12}>
-              <Form.Item label="Aktivitas Kerja" name="activity" rules={[{ required: true }]}>
-                <Input size="large" />
+              <Form.Item
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Aktivitas / Proses Kerja</span>}
+                name="activity"
+                rules={[{ required: true }]}
+              >
+                <Input size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
-              <Form.Item label="Unit Kerja" name="unit" rules={[{ required: true }]}>
-                <Input size="large" />
+              <Form.Item
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Unit Kerja</span>}
+                name="unit"
+                rules={[{ required: true }]}
+              >
+                <Input size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
-              <Form.Item label="Potensi Bahaya" name="hazard" rules={[{ required: true }]}>
-                <Input size="large" />
+              <Form.Item
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Potensi Bahaya</span>}
+                name="hazard"
+                rules={[{ required: true }]}
+              >
+                <Input size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
-              <Form.Item label="Risiko Kejadian" name="risk" rules={[{ required: true }]}>
-                <Input size="large" />
+              <Form.Item
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Risiko / Dampak Kejadian</span>}
+                name="risk"
+                rules={[{ required: true }]}
+              >
+                <Input size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
-              <Form.Item label="Peluang (Likelihood 1 - 5)" name="likelihood">
-                <Select size="large" value={likelihood} onChange={(v) => setLikelihood(v)}>
-                  <Select.Option value={1}>1 - Sangat Jarang</Select.Option>
-                  <Select.Option value={2}>2 - Jarang</Select.Option>
-                  <Select.Option value={3}>3 - Sedang / Mungkin</Select.Option>
-                  <Select.Option value={4}>4 - Sering Terjadi</Select.Option>
-                  <Select.Option value={5}>5 - Sangat Sering</Select.Option>
+              <Form.Item label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Lokasi Spesifik</span>} name="location" rules={[{ required: true }]}>
+                <Input size="large" style={{ borderRadius: 8 }} />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Form.Item label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Kategori Bahaya</span>} name="category" rules={[{ required: true }]}>
+                <Select size="large" style={{ borderRadius: 8 }}>
+                  <Select.Option value="Bahaya Kimia dan Biologi">Bahaya Kimia dan Biologi</Select.Option>
+                  <Select.Option value="Bahaya Fisik / Mekanik">Bahaya Fisik / Mekanik</Select.Option>
+                  <Select.Option value="Bahaya Ergonomi">Bahaya Ergonomi</Select.Option>
+                  <Select.Option value="Bahaya Elektrikal">Bahaya Elektrikal</Select.Option>
+                  <Select.Option value="Bahaya Psikososial">Bahaya Psikososial</Select.Option>
                 </Select>
               </Form.Item>
             </Col>
 
-            <Col xs={24} md={12}>
-              <Form.Item label="Keparahan (Severity 1 - 5)" name="severity">
-                <Select size="large" value={severity} onChange={(v) => setSeverity(v)}>
-                  <Select.Option value={1}>1 - Tidak Signifikan</Select.Option>
-                  <Select.Option value={2}>2 - Ringan</Select.Option>
-                  <Select.Option value={3}>3 - Sedang</Select.Option>
-                  <Select.Option value={4}>4 - Berat</Select.Option>
-                  <Select.Option value={5}>5 - Katastropik</Select.Option>
-                </Select>
-              </Form.Item>
-            </Col>
-
+            {/* Skor Penilaian Risiko */}
             <Col xs={24}>
-              <Alert
-                message={`Nilai Risiko Terhitung: ${riskScore} (Level: ${riskLevel.toUpperCase()})`}
-                type={riskLevel === "extreme" ? "error" : riskLevel === "high" ? "warning" : "info"}
-                showIcon
-                style={{ marginBottom: 16 }}
-              />
-            </Col>
+              <div
+                style={{
+                  background: "#f8fafc",
+                  padding: "16px 20px",
+                  borderRadius: 12,
+                  border: "1px solid #e2e8f0",
+                  marginBottom: 24,
+                }}
+              >
+                <div style={{ fontWeight: 700, color: "#0f172a", marginBottom: 14 }}>
+                  Evaluasi Ulang Matriks Risiko (L × S):
+                </div>
 
+                <Row gutter={24} align="middle">
+                  <Col xs={24} md={8}>
+                    <Form.Item label={<span style={{ fontWeight: 600 }}>Peluang Terjadi (Likelihood 1 - 5)</span>} name="likelihood">
+                      <Select size="large" value={likelihood} onChange={(val) => setLikelihood(val)} style={{ borderRadius: 8 }}>
+                        <Select.Option value={1}>1 - Sangat Jarang</Select.Option>
+                        <Select.Option value={2}>2 - Jarang</Select.Option>
+                        <Select.Option value={3}>3 - Sedang / Mungkin</Select.Option>
+                        <Select.Option value={4}>4 - Sering Terjadi</Select.Option>
+                        <Select.Option value={5}>5 - Sangat Sering (Pasti)</Select.Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+
+                  <Col xs={24} md={8}>
+                    <Form.Item label={<span style={{ fontWeight: 600 }}>Tingkat Keparahan (Severity 1 - 5)</span>} name="severity">
+                      <Select size="large" value={severity} onChange={(val) => setSeverity(val)} style={{ borderRadius: 8 }}>
+                        <Select.Option value={1}>1 - Tidak Signifikan (P3K)</Select.Option>
+                        <Select.Option value={2}>2 - Ringan (&lt;3 hari istirahat)</Select.Option>
+                        <Select.Option value={3}>3 - Sedang (Rawat Medis)</Select.Option>
+                        <Select.Option value={4}>4 - Berat (Cacat Permanen)</Select.Option>
+                        <Select.Option value={5}>5 - Katastropik (Kematian/Fatal)</Select.Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+
+                  <Col xs={24} md={8}>
+                    <div style={{ textAlign: "center", padding: "6px 0" }}>
+                      <Text type="secondary" style={{ fontSize: 11, fontWeight: 600 }}>
+                        NILAI RISIKO TERBARU
+                      </Text>
+                      <div style={{ fontSize: 32, fontWeight: 800, color: "#0d9488", lineHeight: 1.2 }}>
+                        {riskScore}
+                      </div>
+                      <Tag color="cyan" style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", marginTop: 4 }}>
+                        Level: {riskLevel}
+                      </Tag>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            </Col>
+          </Row>
+
+          <div className="form-section-title">
+            <span className="badge-num">2</span>
+            <span>Ubah Pengendalian & Target Waktu</span>
+          </div>
+
+          <Row gutter={24}>
             <Col xs={24} md={12}>
-              <Form.Item label="Pengendalian Existing" name="existingControl" rules={[{ required: true }]}>
-                <Input.TextArea rows={3} />
+              <Form.Item
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Pengendalian yang Sudah Ada</span>}
+                name="existingControl"
+                rules={[{ required: true }]}
+              >
+                <Input.TextArea rows={3} style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
-              <Form.Item label="Pengendalian Tambahan" name="additionalControl" rules={[{ required: true }]}>
-                <Input.TextArea rows={3} />
+              <Form.Item
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Pengendalian Tambahan / Tindakan Perbaikan</span>}
+                name="additionalControl"
+                rules={[{ required: true }]}
+              >
+                <Input.TextArea rows={3} style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
-              <Form.Item label="Penanggung Jawab" name="responsiblePerson" rules={[{ required: true }]}>
-                <Input size="large" />
+              <Form.Item
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Penanggung Jawab (PIC)</span>}
+                name="responsiblePerson"
+                rules={[{ required: true }]}
+              >
+                <Input size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
-              <Form.Item label="Target Selesai" name="targetDate" rules={[{ required: true }]}>
-                <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" size="large" />
+              <Form.Item label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Target Waktu Penyelesaian</span>} name="targetDate" rules={[{ required: true }]}>
+                <DatePicker style={{ width: "100%", borderRadius: 8 }} format="DD/MM/YYYY" size="large" />
               </Form.Item>
             </Col>
           </Row>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
-            <Button onClick={() => navigate("/keselamatan/hiradc")}>Batal</Button>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 20, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
+            <Button className="btn-form-cancel" onClick={() => navigate(`/keselamatan/hiradc/show/${record.id}`)}>
+              Batal
+            </Button>
             <Button
               type="primary"
               htmlType="submit"
               icon={<SaveOutlined />}
               loading={isUpdating}
-              style={{ background: "#595959", borderColor: "#595959" }}
+              className="btn-form-submit"
             >
-              Simpan Perubahan
+              Simpan Perubahan Penilaian
             </Button>
           </div>
         </Form>

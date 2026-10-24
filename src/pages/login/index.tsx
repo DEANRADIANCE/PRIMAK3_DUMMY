@@ -100,31 +100,47 @@ export const LoginPage: React.FC = () => {
         {/* LEFT PANEL: HERO & BRANDING WITH DOCTOR ILLUSTRATION */}
         <div className="login-hero-panel">
           <div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-              <div className="hero-tag-badge">
-                <MedicineBoxOutlined style={{ color: "#34d399", fontSize: 14 }} />
-                <span>KLINIK PRATAMA & K3 ANRI</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+              <img
+                src="/Logo-PrimaK3.png"
+                alt="Logo PRIMA K3"
+                style={{
+                  width: 48,
+                  height: 48,
+                  objectFit: "contain",
+                  background: "#ffffff",
+                  borderRadius: 12,
+                  padding: 4,
+                  boxShadow: "0 8px 16px rgba(0,0,0,0.18)",
+                  flexShrink: 0,
+                }}
+              />
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flex: 1, gap: 8, flexWrap: "wrap" }}>
+                <div className="hero-tag-badge">
+                  <MedicineBoxOutlined style={{ color: "#34d399", fontSize: 14 }} />
+                  <span>KLINIK PRATAMA & K3 ANRI</span>
+                </div>
+                <Tooltip title="Tonton kembali animasi dokter membuka koper">
+                  <Button
+                    size="small"
+                    type="text"
+                    onClick={handleReplayIntro}
+                    style={{
+                      color: "#ffffff",
+                      backgroundColor: "rgba(255, 255, 255, 0.15)",
+                      borderRadius: 20,
+                      fontSize: 12,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                      padding: "2px 10px",
+                      border: "1px solid rgba(255,255,255,0.2)",
+                    }}
+                  >
+                    <PlayCircleOutlined /> Putar Animasi
+                  </Button>
+                </Tooltip>
               </div>
-              <Tooltip title="Tonton kembali animasi dokter membuka koper">
-                <Button
-                  size="small"
-                  type="text"
-                  onClick={handleReplayIntro}
-                  style={{
-                    color: "#ffffff",
-                    backgroundColor: "rgba(255, 255, 255, 0.15)",
-                    borderRadius: 20,
-                    fontSize: 12,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                    padding: "2px 10px",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                  }}
-                >
-                  <PlayCircleOutlined /> Putar Animasi
-                </Button>
-              </Tooltip>
             </div>
 
             <Title
@@ -207,8 +223,20 @@ export const LoginPage: React.FC = () => {
         <div className="login-form-panel">
           {/* Header Brand */}
           <div className="login-brand-header">
-            <div className="brand-icon-box">
-              <span style={{ letterSpacing: "-1px" }}>K3</span>
+            <div
+              className="brand-icon-box"
+              style={{
+                background: "#ffffff",
+                border: "1px solid #e2e8f0",
+                boxShadow: "0 6px 16px rgba(13, 148, 136, 0.15)",
+                padding: 4,
+              }}
+            >
+              <img
+                src="/Logo-PrimaK3.png"
+                alt="Logo PRIMA K3"
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              />
               <div
                 style={{
                   position: "absolute",
@@ -411,7 +439,10 @@ export const LoginPage: React.FC = () => {
               color: "#94a3b8",
             }}
           >
-            <span>© 2026 PRIMA K3 ANRI</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <img src="/Logo-PrimaK3.png" alt="Logo PRIMA K3" style={{ width: 16, height: 16, objectFit: "contain" }} />
+              © 2026 PRIMA K3 ANRI
+            </span>
             <button
               type="button"
               onClick={handleReplayIntro}

@@ -39,9 +39,8 @@ export const DashboardNewsTab: React.FC = () => {
     resource: "announcements",
   });
 
-  const newsList: IAnnouncement[] = (result?.data && result.data.length > 0)
-    ? (result.data as IAnnouncement[])
-    : initialAnnouncements;
+  const rawList = (result?.data as IAnnouncement[]) || [];
+  const newsList: IAnnouncement[] = rawList.length > 0 ? rawList : initialAnnouncements;
 
   // Filter pencarian dan kategori
   const filteredNews = newsList.filter((item) => {
@@ -71,6 +70,7 @@ export const DashboardNewsTab: React.FC = () => {
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       {/* 1. Header & Search Control Bar */}
       <div
+        className="dash-card-animate dash-delay-1"
         style={{
           background: "#ffffff",
           padding: "20px 24px",
@@ -128,7 +128,7 @@ export const DashboardNewsTab: React.FC = () => {
       </div>
 
       {/* 2. Quick Category Filter Pills */}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      <div className="dash-card-animate dash-delay-2" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         {[
           { key: "all", label: "Semua Informasi", count: newsList.length },
           { key: "mcu", label: "Medical Check-Up (MCU)", count: 1 },
@@ -155,7 +155,7 @@ export const DashboardNewsTab: React.FC = () => {
       {/* 3. Featured Hero News (Headline) */}
       {featuredNews && (
         <Card
-          className="news-hero-card"
+          className="news-hero-card dash-card-animate dash-delay-3"
           bodyStyle={{ padding: 0 }}
           onClick={() => setActiveModalItem(featuredNews)}
           style={{ cursor: "pointer" }}
@@ -271,10 +271,11 @@ export const DashboardNewsTab: React.FC = () => {
 
       {/* 4. Grid of Regular News Cards */}
       <Row gutter={[18, 18]}>
-        {regularNews.map((news) => (
+        {regularNews.map((news, idx) => (
           <Col xs={24} sm={12} lg={8} key={news.id}>
             <Card
-              className="news-grid-card"
+              className="news-grid-card dash-card-animate"
+              style={{ animationDelay: `${(idx % 6) * 0.08 + 0.05}s` }}
               hoverable
               bodyStyle={{ padding: "18px 20px", display: "flex", flexDirection: "column", flex: 1, justifyContent: "space-between" }}
               onClick={() => setActiveModalItem(news)}

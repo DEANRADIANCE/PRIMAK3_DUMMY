@@ -3,29 +3,43 @@ import {
   Form,
   Input,
   Button,
-  DatePicker,
   Card,
   Typography,
-  Space,
   Row,
   Col,
   Upload,
+  Tag,
 } from "antd";
-import { ArrowLeftOutlined, SaveOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  ArrowLeftOutlined,
+  SaveOutlined,
+  UploadOutlined,
+  BellOutlined,
+} from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import { useCreate, useGetIdentity } from "@refinedev/core";
 import dayjs from "dayjs";
+import { IUser } from "../../../types/user";
+import "../../../components/common/form-theme.css";
 
-const { Title, Text } = Typography;
+const { Title, Paragraph } = Typography;
+
+interface FormValues {
+  title: string;
+  eventDate: string;
+  location: string;
+  description: string;
+  content: string;
+}
 
 export const AnnouncementCreate: React.FC = () => {
   const navigate = useNavigate();
-  const { data: user } = useGetIdentity<any>();
+  const { data: user } = useGetIdentity<IUser>();
   const [form] = Form.useForm();
   const { mutate: createAnnouncement, mutation } = useCreate();
   const isLoading = mutation.isPending;
 
-  const onFinish = (values: any) => {
+  const onFinish = (values: FormValues) => {
     const formatted = {
       ...values,
       date: dayjs().format("YYYY-MM-DD"),
@@ -54,104 +68,136 @@ export const AnnouncementCreate: React.FC = () => {
   };
 
   return (
-    <div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          marginBottom: 16,
-          flexWrap: "wrap",
-        }}
-      >
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/media/pemberitahuan")} />
-        <div>
-          <Title level={4} style={{ margin: 0, color: "#262626" }}>
-            Buat Pemberitahuan / Informasi Kegiatan Baru
-          </Title>
-          <Text type="secondary" style={{ fontSize: 13 }}>
-            Informasikan agenda kegiatan K3, sosialisasi, atau simulasi evakuasi darurat
-          </Text>
-        </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* 1. Header Banner Gradient */}
+      <div className="form-hero-banner form-banner-create form-card-animate form-delay-1">
+        <Row align="middle" justify="space-between" gutter={[20, 20]}>
+          <Col xs={24} md={18}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <Tag
+                style={{
+                  background: "rgba(255, 255, 255, 0.2)",
+                  color: "#ffffff",
+                  border: "1px solid rgba(255,255,255,0.35)",
+                  borderRadius: 20,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  padding: "2px 10px",
+                }}
+              >
+                <BellOutlined /> AGENDA & PEMBERITAHUAN K3
+              </Tag>
+              <span style={{ fontSize: 13, color: "#ccfbf1" }}>Formulir Publikasi Baru</span>
+            </div>
+
+            <Title level={3} style={{ color: "#ffffff", margin: "0 0 8px 0", fontWeight: 800 }}>
+              Buat Pemberitahuan / Kegiatan K3 Baru
+            </Title>
+            <Paragraph style={{ color: "#ccfbf1", fontSize: 13.5, lineHeight: 1.6, margin: 0, opacity: 0.95 }}>
+              Publikasikan agenda simulasi tanggap darurat, pelatihan keselamatan, pemeriksaan kesehatan berkala, atau surat edaran K3 kepada seluruh pegawai ANRI.
+            </Paragraph>
+          </Col>
+
+          <Col xs={24} md={6} style={{ textAlign: "right" }}>
+            <Button
+              icon={<ArrowLeftOutlined />}
+              onClick={() => navigate("/media/pemberitahuan")}
+              className="btn-form-cancel"
+              style={{ background: "rgba(255,255,255,0.15)", color: "#fff", borderColor: "rgba(255,255,255,0.3)" }}
+            >
+              Kembali ke Daftar
+            </Button>
+          </Col>
+        </Row>
       </div>
 
-      <Card
-        bordered={false}
-        style={{
-          borderRadius: 12,
-          border: "1px solid #e8e8e8",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-        }}
-      >
+      {/* 2. Main Form Card */}
+      <Card className="form-content-card form-card-animate form-delay-2" bordered={false}>
         <Form form={form} layout="vertical" onFinish={onFinish}>
+          <div className="form-section-title">
+            <span className="badge-num">1</span>
+            <span>Informasi Pokok Kegiatan & Agenda</span>
+          </div>
+
           <Row gutter={24}>
             <Col xs={24}>
               <Form.Item
-                label="Judul Pemberitahuan / Kegiatan"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Judul Pemberitahuan / Agenda Kegiatan</span>}
                 name="title"
                 rules={[{ required: true, message: "Judul kegiatan wajib diisi!" }]}
               >
-                <Input placeholder="Contoh: Sosialisasi Pencegahan Kebakaran Gedung Arsip" size="large" />
+                <Input placeholder="Contoh: Sosialisasi Pencegahan Kebakaran Gedung Arsip" size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
               <Form.Item
-                label="Jadwal Pelaksanaan Kegiatan"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Jadwal Pelaksanaan Kegiatan</span>}
                 name="eventDate"
                 rules={[{ required: true, message: "Jadwal kegiatan wajib diisi!" }]}
               >
-                <Input placeholder="Contoh: 28 Maret 2026, Pukul 09.00 WIB" size="large" />
+                <Input placeholder="Contoh: 28 Maret 2026, Pukul 09.00 WIB" size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
               <Form.Item
-                label="Lokasi Kegiatan"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Lokasi Pelaksanaan</span>}
                 name="location"
                 rules={[{ required: true, message: "Lokasi kegiatan wajib diisi!" }]}
               >
-                <Input placeholder="Contoh: Auditorium Noerhadi Magetsari Gedung A Lantai 2" size="large" />
+                <Input placeholder="Contoh: Auditorium Noerhadi Magetsari Gedung A Lantai 2" size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24}>
               <Form.Item
-                label="Ringkasan Singkat"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Ringkasan Singkat (Tampil di Beranda/Banner)</span>}
                 name="description"
                 rules={[{ required: true, message: "Ringkasan wajib diisi!" }]}
               >
-                <Input.TextArea rows={2} placeholder="Keterangan singkat yang tampil pada kartu pengumuman..." />
+                <Input.TextArea rows={2} placeholder="Keterangan singkat yang tampil pada kartu pengumuman..." style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
+          </Row>
 
+          <div className="form-section-title" style={{ marginTop: 12 }}>
+            <span className="badge-num">2</span>
+            <span>Isi Pengumuman & Lampiran Dokumen</span>
+          </div>
+
+          <Row gutter={24}>
             <Col xs={24}>
               <Form.Item
-                label="Isi Pengumuman Lengkap / Surat Edaran"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Isi Pengumuman Lengkap / Surat Edaran</span>}
                 name="content"
                 rules={[{ required: true, message: "Isi pengumuman wajib diisi!" }]}
               >
-                <Input.TextArea rows={6} placeholder="Tuliskan isi surat edaran atau instruksi lengkap kegiatan..." />
+                <Input.TextArea rows={6} placeholder="Tuliskan isi surat edaran atau instruksi lengkap kegiatan..." style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24}>
-              <Form.Item label="Lampiran Dokumen (Surat / Brosur / Denah)">
+              <Form.Item label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Lampiran Dokumen (Surat / Brosur / Denah)</span>}>
                 <Upload beforeUpload={() => false}>
-                  <Button icon={<UploadOutlined />}>Unggah Berkas PDF / Gambar</Button>
+                  <Button icon={<UploadOutlined />} style={{ borderRadius: 8, height: 38 }}>
+                    Unggah Berkas PDF / Gambar
+                  </Button>
                 </Upload>
               </Form.Item>
             </Col>
           </Row>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
-            <Button onClick={() => navigate("/media/pemberitahuan")}>Batal</Button>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
+            <Button className="btn-form-cancel" onClick={() => navigate("/media/pemberitahuan")}>
+              Batal
+            </Button>
             <Button
               type="primary"
               htmlType="submit"
               icon={<SaveOutlined />}
               loading={isLoading}
-              style={{ background: "#595959", borderColor: "#595959" }}
+              className="btn-form-submit"
             >
               Publikasikan Pengumuman
             </Button>

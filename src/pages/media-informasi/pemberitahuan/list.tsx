@@ -26,6 +26,7 @@ import { useTable } from "@refinedev/antd";
 import { useDelete, useGetIdentity } from "@refinedev/core";
 import { IAnnouncement } from "../../../types/announcement";
 import { IUser } from "../../../types/user";
+import { initialAnnouncements } from "../../../mocks/announcements";
 import "../media.css";
 
 const { Title, Paragraph } = Typography;
@@ -44,7 +45,8 @@ export const AnnouncementList: React.FC = () => {
   const { mutate: deleteAnnouncement } = useDelete();
 
   const canManage = currentUser?.role === "admin" || currentUser?.role === "tim_k3";
-  const rawAnnouncements = (tableProps.dataSource || []) as IAnnouncement[];
+  const rawTableData = (tableProps.dataSource as IAnnouncement[]) || [];
+  const rawAnnouncements = rawTableData.length > 0 ? rawTableData : initialAnnouncements;
 
   // Filter pencarian dan kategori
   const filteredAnnouncements = rawAnnouncements.filter((item) => {

@@ -284,7 +284,34 @@ body {
   line-height: 1.2;
 }
 
-/* Responsive */
+/* Mobile & Zoom Header Buttons */
+.mobile-burger-btn {
+  display: none !important;
+}
+
+.mobile-header-brand {
+  display: none !important;
+}
+
+/* Responsive (Mobile & saat layout di-zoom) */
+@media (max-width: 992px) {
+  .prima-sider {
+    display: none !important;
+  }
+
+  .mobile-burger-btn {
+    display: inline-flex !important;
+  }
+
+  .mobile-header-brand {
+    display: inline-flex !important;
+  }
+
+  .prima-header {
+    padding: 0 16px !important;
+  }
+}
+
 @media (max-width: 768px) {
   .user-profile-info {
     display: none !important;
@@ -303,14 +330,9 @@ body {
   .stat-card .ant-card-body {
     padding: 12px;
   }
-}
 
-/* Mobile drawer override */
-@media (max-width: 992px) {
-  .prima-sider-mobile {
-    position: fixed !important;
-    z-index: 999;
-    height: 100vh;
+  .prima-footer-box {
+    padding: 10px 14px !important;
   }
 }
 

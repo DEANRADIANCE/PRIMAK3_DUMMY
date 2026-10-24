@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Row,
   Col,
@@ -58,6 +58,30 @@ export const DashboardPage: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState("03");
   const [selectedYear, setSelectedYear] = useState("2026");
   const [hoveredPoint, setHoveredPoint] = useState<{ index: number; month: string; count: number } | null>(null);
+
+  // Scroll & Entrance Reveal Observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+          }
+        });
+      },
+      {
+        threshold: 0.08,
+        rootMargin: "0px 0px -30px 0px",
+      }
+    );
+
+    const elements = document.querySelectorAll(".dash-scroll-reveal");
+    elements.forEach((el) => observer.observe(el));
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [activeTabKey]);
 
   // Ambil data dashboard via refine useCustom hook
   const { result } = useCustom<IDashboardSummary>({
@@ -199,7 +223,7 @@ export const DashboardPage: React.FC = () => {
       {/* ======================================================== */}
       {/* HERO WELCOME GREETING BANNER                             */}
       {/* ======================================================== */}
-      <div className="dashboard-hero-banner">
+      <div className="dashboard-hero-banner dash-animate-hero">
         <Row align="middle" justify="space-between" gutter={[20, 20]}>
           <Col xs={24} md={16}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
@@ -249,6 +273,7 @@ export const DashboardPage: React.FC = () => {
 
           <Col xs={24} md={8} style={{ textAlign: "right" }}>
             <div
+              className="dash-float-badge"
               style={{
                 display: "inline-flex",
                 flexDirection: "column",
@@ -280,7 +305,7 @@ export const DashboardPage: React.FC = () => {
       <Tabs
         activeKey={activeTabKey}
         onChange={(key) => setActiveTabKey(key)}
-        className="dashboard-tabs"
+        className="dashboard-tabs dash-animate-tabs"
         type="card"
         items={[
           {
@@ -294,6 +319,7 @@ export const DashboardPage: React.FC = () => {
               <div style={{ display: "flex", flexDirection: "column", gap: 24, marginTop: 8 }}>
                 {/* 1. Header Filter Bar */}
                 <div
+                  className="dash-card-animate dash-delay-1"
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
@@ -358,7 +384,7 @@ export const DashboardPage: React.FC = () => {
                   <Col xs={24} sm={12} lg={6}>
                     <Card
                       bordered={false}
-                      className="prima-stat-card card-accident"
+                      className="prima-stat-card card-accident dash-card-animate dash-delay-2"
                       style={{ height: "100%" }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -404,7 +430,7 @@ export const DashboardPage: React.FC = () => {
                   <Col xs={24} sm={12} lg={6}>
                     <Card
                       bordered={false}
-                      className="prima-stat-card card-clinic"
+                      className="prima-stat-card card-clinic dash-card-animate dash-delay-3"
                       style={{ height: "100%" }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -453,7 +479,7 @@ export const DashboardPage: React.FC = () => {
                   <Col xs={24} sm={12} lg={6}>
                     <Card
                       bordered={false}
-                      className="prima-stat-card card-hazard"
+                      className="prima-stat-card card-hazard dash-card-animate dash-delay-4"
                       style={{ height: "100%" }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -499,7 +525,7 @@ export const DashboardPage: React.FC = () => {
                   <Col xs={24} sm={12} lg={6}>
                     <Card
                       bordered={false}
-                      className="prima-stat-card card-compliance"
+                      className="prima-stat-card card-compliance dash-card-animate dash-delay-5"
                       style={{ height: "100%" }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -551,7 +577,7 @@ export const DashboardPage: React.FC = () => {
                 </Row>
 
                 {/* 3. Baris Grafik Garis Kunjungan / Laporan per Bulan & Bar Horizontal Tren Penyakit */}
-                <Row gutter={[16, 16]}>
+                <Row gutter={[16, 16]} className="dash-scroll-reveal">
                   {/* Grafik Garis Kunjungan / Laporan per Bulan Berwarna */}
                   <Col xs={24} lg={15}>
                     <Card
@@ -774,7 +800,7 @@ export const DashboardPage: React.FC = () => {
                 </Row>
 
                 {/* 4. Baris Donut Jenis Kecelakaan + Bar Statistik Kecelakaan Kerja per Bulan */}
-                <Row gutter={[16, 16]}>
+                <Row gutter={[16, 16]} className="dash-scroll-reveal">
                   {/* Donut Jenis Kecelakaan Berwarna */}
                   <Col xs={24} lg={10}>
                     <Card
@@ -953,7 +979,7 @@ export const DashboardPage: React.FC = () => {
                 </Row>
 
                 {/* 5. Baris 4 Metrik: Statistik Kesehatan, Gauge Pegawai, Kunjungan Psikolog, MCU */}
-                <Row gutter={[16, 16]}>
+                <Row gutter={[16, 16]} className="dash-scroll-reveal">
                   {/* Progress Bar Statistik Kesehatan */}
                   <Col xs={24} md={12} lg={6}>
                     <Card
@@ -1081,71 +1107,73 @@ export const DashboardPage: React.FC = () => {
                 </Row>
 
                 {/* 6. Quick Preview Widget Berita Terkini dengan tombol pindah tab */}
-                <Card
-                  title={
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <NotificationOutlined style={{ fontSize: 18, color: "#0d9488" }} />
-                      <span style={{ fontWeight: 700, fontSize: 15, color: "#0f172a" }}>
-                        Warta & Pengumuman K3 Terbaru
-                      </span>
-                    </div>
-                  }
-                  extra={
-                    <Button
-                      type="link"
-                      onClick={() => setActiveTabKey("news")}
-                      style={{ fontWeight: 700, color: "#0d9488", padding: 0 }}
-                    >
-                      Buka Tab Berita Lengkap &rarr;
-                    </Button>
-                  }
-                  bordered={false}
-                  style={{ borderRadius: 14, border: "1px solid #e2e8f0" }}
-                >
-                  <Row gutter={[16, 16]}>
-                    {latestAnnouncements.slice(0, 3).map((ann: { id: number; title: string; date: string; image?: string; description: string }) => (
-                      <Col xs={24} md={8} key={ann.id}>
-                        <Card
-                          hoverable
-                          size="small"
-                          onClick={() => setActiveTabKey("news")}
-                          style={{
-                            borderRadius: 10,
-                            border: "1px solid #f1f5f9",
-                            height: "100%",
-                          }}
-                          cover={
-                            <img
-                              alt={ann.title}
-                              src={ann.image}
-                              style={{ height: 130, objectFit: "cover" }}
-                            />
-                          }
-                        >
-                          <Tag color="cyan" style={{ fontSize: 10, marginBottom: 4 }}>
-                            <CalendarOutlined /> {ann.date}
-                          </Tag>
-                          <div
+                <div className="dash-card-animate" style={{ animationDelay: "0.2s" }}>
+                  <Card
+                    title={
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <NotificationOutlined style={{ fontSize: 18, color: "#0d9488" }} />
+                        <span style={{ fontWeight: 700, fontSize: 15, color: "#0f172a" }}>
+                          Warta & Pengumuman K3 Terbaru
+                        </span>
+                      </div>
+                    }
+                    extra={
+                      <Button
+                        type="link"
+                        onClick={() => setActiveTabKey("news")}
+                        style={{ fontWeight: 700, color: "#0d9488", padding: 0 }}
+                      >
+                        Buka Tab Berita Lengkap &rarr;
+                      </Button>
+                    }
+                    bordered={false}
+                    style={{ borderRadius: 14, border: "1px solid #e2e8f0" }}
+                  >
+                    <Row gutter={[16, 16]}>
+                      {latestAnnouncements.slice(0, 3).map((ann: { id: number; title: string; date: string; image?: string; description: string }) => (
+                        <Col xs={24} md={8} key={ann.id}>
+                          <Card
+                            hoverable
+                            size="small"
+                            onClick={() => setActiveTabKey("news")}
                             style={{
-                              fontWeight: 700,
-                              fontSize: 13,
-                              color: "#0f172a",
-                              lineHeight: 1.35,
-                              marginBottom: 6,
-                              height: 36,
-                              overflow: "hidden",
+                              borderRadius: 10,
+                              border: "1px solid #f1f5f9",
+                              height: "100%",
                             }}
+                            cover={
+                              <img
+                                alt={ann.title}
+                                src={ann.image}
+                                style={{ height: 130, objectFit: "cover" }}
+                              />
+                            }
                           >
-                            {ann.title}
-                          </div>
-                          <Paragraph type="secondary" ellipsis={{ rows: 2 }} style={{ fontSize: 12, margin: 0 }}>
-                            {ann.description}
-                          </Paragraph>
-                        </Card>
-                      </Col>
-                    ))}
-                  </Row>
-                </Card>
+                            <Tag color="cyan" style={{ fontSize: 10, marginBottom: 4 }}>
+                              <CalendarOutlined /> {ann.date}
+                            </Tag>
+                            <div
+                              style={{
+                                fontWeight: 700,
+                                fontSize: 13,
+                                color: "#0f172a",
+                                lineHeight: 1.35,
+                                marginBottom: 6,
+                                height: 36,
+                                overflow: "hidden",
+                              }}
+                            >
+                              {ann.title}
+                            </div>
+                            <Paragraph type="secondary" ellipsis={{ rows: 2 }} style={{ fontSize: 12, margin: 0 }}>
+                              {ann.description}
+                            </Paragraph>
+                          </Card>
+                        </Col>
+                      ))}
+                    </Row>
+                  </Card>
+                </div>
               </div>
             ),
           },

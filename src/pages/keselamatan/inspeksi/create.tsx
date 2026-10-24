@@ -13,22 +13,35 @@ import {
   Radio,
   Progress,
   InputNumber,
-  Divider,
+  Tag,
 } from "antd";
-import { ArrowLeftOutlined, SaveOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, SaveOutlined, FireOutlined } from "@ant-design/icons";
 import { useNavigate, useSearchParams } from "react-router";
 import { useCreate, useGetIdentity } from "@refinedev/core";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { ChecklistStatus, IChecklistItem, InspectionType } from "../../../types/inspection";
+import { IUser } from "../../../types/user";
+import "../../../components/common/form-theme.css";
 
 const { Title, Text, Paragraph } = Typography;
+
+interface FormValues {
+  type: InspectionType;
+  date: Dayjs;
+  inspector: string;
+  unit: string;
+  location: string;
+  findings: string;
+  followUp: string;
+  responsiblePerson: string;
+}
 
 export const InspectionCreate: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const defaultType = (searchParams.get("type") as InspectionType) || "environment";
 
-  const { data: user } = useGetIdentity<any>();
+  const { data: user } = useGetIdentity<IUser>();
   const [form] = Form.useForm();
   const { mutate: createInspection, mutation } = useCreate();
   const isLoading = mutation.isPending;
@@ -101,7 +114,6 @@ export const InspectionCreate: React.FC = () => {
   const handleMeasuredChange = (index: number, val: number | null) => {
     const updated = [...checklist];
     updated[index].measuredValue = val || 0;
-    // Auto check compliant vs threshold
     if (updated[index].threshold) {
       if (updated[index].item.includes("Kebisingan") || updated[index].item.includes("CO") || updated[index].item.includes("Kelembapan")) {
         updated[index].status = (val || 0) <= updated[index].threshold! ? "compliant" : "non_compliant";
@@ -117,7 +129,7 @@ export const InspectionCreate: React.FC = () => {
     setChecklist(defaultChecklists[type]);
   };
 
-  const onFinish = (values: any) => {
+  const onFinish = (values: FormValues) => {
     const formatted = {
       type: inspectionType,
       date: values.date ? values.date.format("YYYY-MM-DD") : dayjs().format("YYYY-MM-DD"),
@@ -152,25 +164,47 @@ export const InspectionCreate: React.FC = () => {
   };
 
   return (
-    <div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          marginBottom: 16,
-          flexWrap: "wrap",
-        }}
-      >
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/keselamatan/inspeksi")} />
-        <div>
-          <Title level={4} style={{ margin: 0, color: "#262626" }}>
-            Audit & Inspeksi K3 Baru
-          </Title>
-          <Text type="secondary" style={{ fontSize: 13 }}>
-            Lengkapi checklist pemeriksaan berkala dan pantau skor kepatuhan otomatis
-          </Text>
-        </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* 1. Header Banner Gradient */}
+      <div className="form-hero-banner form-banner-hazard form-card-animate form-delay-1">
+        <Row align="middle" justify="space-between" gutter={[20, 20]}>
+          <Col xs={24} md={18}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <Tag
+                style={{
+                  background: "rgba(255, 255, 255, 0.2)",
+                  color: "#ffffff",
+                  border: "1px solid rgba(255,255,255,0.35)",
+                  borderRadius: 20,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  padding: "2px 10px",
+                }}
+              >
+                <FireOutlined /> AUDIT & INSPEKSI LAPANGAN K3
+              </Tag>
+              <span style={{ fontSize: 13, color: "#fef3c7" }}>Formulir Checklist Berkala</span>
+            </div>
+
+            <Title level={3} style={{ color: "#ffffff", margin: "0 0 8px 0", fontWeight: 800 }}>
+              Audit & Inspeksi Lapangan K3 Baru
+            </Title>
+            <Paragraph style={{ color: "#fef3c7", fontSize: 13.5, lineHeight: 1.6, margin: 0, opacity: 0.95 }}>
+              Lakukan audit fisik kepatuhan APAR, sanitasi lingkungan, kedisiplinan APD, atau kelayakan mesin dengan penghitungan skor kepatuhan otomatis.
+            </Paragraph>
+          </Col>
+
+          <Col xs={24} md={6} style={{ textAlign: "right" }}>
+            <Button
+              icon={<ArrowLeftOutlined />}
+              onClick={() => navigate("/keselamatan/inspeksi")}
+              className="btn-form-cancel"
+              style={{ background: "rgba(255,255,255,0.15)", color: "#fff", borderColor: "rgba(255,255,255,0.3)" }}
+            >
+              Kembali ke Daftar
+            </Button>
+          </Col>
+        </Row>
       </div>
 
       <Form
@@ -186,20 +220,17 @@ export const InspectionCreate: React.FC = () => {
           responsiblePerson: "Ahmad Fauzi (Sarpras)",
         }}
       >
-        <Card
-          title="Data Umum Pelaksanaan Inspeksi"
-          bordered={false}
-          style={{
-            borderRadius: 12,
-            border: "1px solid #e8e8e8",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-            marginBottom: 20,
-          }}
-        >
+        {/* Data Umum */}
+        <Card className="form-content-card form-card-animate form-delay-2" bordered={false} style={{ marginBottom: 20 }}>
+          <div className="form-section-title">
+            <span className="badge-num">1</span>
+            <span>Data Umum Pelaksanaan Inspeksi</span>
+          </div>
+
           <Row gutter={24}>
             <Col xs={24} md={8}>
-              <Form.Item label="Jenis Tab Inspeksi K3" name="type" rules={[{ required: true }]}>
-                <Select size="large" value={inspectionType} onChange={handleTypeSelect}>
+              <Form.Item label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Jenis Parameter Inspeksi</span>} name="type" rules={[{ required: true }]}>
+                <Select size="large" value={inspectionType} onChange={handleTypeSelect} style={{ borderRadius: 8 }}>
                   <Select.Option value="environment">Pemantauan Lingkungan</Select.Option>
                   <Select.Option value="emergency">Sarpras Tanggap Darurat</Select.Option>
                   <Select.Option value="behavior">Perilaku Kerja</Select.Option>
@@ -211,40 +242,40 @@ export const InspectionCreate: React.FC = () => {
             </Col>
 
             <Col xs={24} md={8}>
-              <Form.Item label="Tanggal Inspeksi" name="date" rules={[{ required: true }]}>
-                <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" size="large" />
+              <Form.Item label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Tanggal Inspeksi</span>} name="date" rules={[{ required: true }]}>
+                <DatePicker style={{ width: "100%", borderRadius: 8 }} format="DD/MM/YYYY" size="large" />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={8}>
-              <Form.Item label="Auditor / Nama Inspektur" name="inspector" rules={[{ required: true }]}>
-                <Input size="large" />
+              <Form.Item label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Auditor / Inspektur</span>} name="inspector" rules={[{ required: true }]}>
+                <Input size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
-              <Form.Item label="Unit Kerja Sasaran" name="unit" rules={[{ required: true }]}>
-                <Input size="large" />
+              <Form.Item label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Unit Kerja Sasaran</span>} name="unit" rules={[{ required: true }]}>
+                <Input size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
-              <Form.Item label="Lokasi Area Inspeksi" name="location" rules={[{ required: true }]}>
-                <Input size="large" />
+              <Form.Item label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Lokasi Area Inspeksi</span>} name="location" rules={[{ required: true }]}>
+                <Input size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
           </Row>
         </Card>
 
         {/* Skor Kepatuhan Banner */}
-        <Card style={{ marginBottom: 20, backgroundColor: "#fafafa" }}>
+        <Card className="form-content-card form-card-animate form-delay-2" style={{ marginBottom: 20, backgroundColor: "#f8fafc" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
             <div>
-              <Title level={5} style={{ margin: 0 }}>
+              <div style={{ fontWeight: 700, fontSize: 16, color: "#0f172a" }}>
                 Kalkulasi Skor Kepatuhan Otomatis:
-              </Title>
+              </div>
               <Text type="secondary" style={{ fontSize: 13 }}>
-                {compliantItems.length} dari {validItems.length} item dinyatakan SESUAI standar K3
+                {compliantItems.length} dari {validItems.length} item dinyatakan <strong>SESUAI</strong> standar K3 ANRI
               </Text>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -252,9 +283,9 @@ export const InspectionCreate: React.FC = () => {
                 type="circle"
                 percent={autoScore}
                 width={65}
-                strokeColor={autoScore >= 80 ? "#52c41a" : "#faad14"}
+                strokeColor={autoScore >= 80 ? "#059669" : "#d97706"}
               />
-              <div style={{ fontSize: 24, fontWeight: 700, color: autoScore >= 80 ? "#52c41a" : "#faad14" }}>
+              <div style={{ fontSize: 26, fontWeight: 800, color: autoScore >= 80 ? "#059669" : "#d97706" }}>
                 {autoScore}%
               </div>
             </div>
@@ -262,44 +293,40 @@ export const InspectionCreate: React.FC = () => {
         </Card>
 
         {/* Checklist Tabel Form */}
-        <Card
-          title="Daftar Periksa (Checklist) Item K3"
-          bordered={false}
-          style={{
-            borderRadius: 12,
-            border: "1px solid #e8e8e8",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-            marginBottom: 20,
-          }}
-        >
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <Card className="form-content-card form-card-animate form-delay-3" bordered={false} style={{ marginBottom: 20 }}>
+          <div className="form-section-title">
+            <span className="badge-num">2</span>
+            <span>Daftar Periksa (Checklist) Parameter K3</span>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {checklist.map((item, index) => (
               <div
                 key={item.id}
                 style={{
-                  border: "1px solid #f0f0f0",
-                  borderRadius: 8,
+                  border: "1px solid #e2e8f0",
+                  borderRadius: 10,
                   padding: "16px",
-                  background: item.status === "compliant" ? "#f6ffed" : item.status === "non_compliant" ? "#fff1f0" : "#ffffff",
+                  background: item.status === "compliant" ? "#f0fdf4" : item.status === "non_compliant" ? "#fff1f2" : "#ffffff",
+                  transition: "all 0.25s ease",
                 }}
               >
                 <Row gutter={[16, 12]} align="middle">
                   <Col xs={24} md={10}>
-                    <Text strong style={{ fontSize: 14 }}>
+                    <Text strong style={{ fontSize: 13.5, color: "#0f172a" }}>
                       {index + 1}. {item.item}
                     </Text>
                     {item.threshold !== undefined && (
-                      <div style={{ fontSize: 12, color: "#8c8c8c", marginTop: 2 }}>
+                      <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
                         Nilai Ambang Standar: {item.threshold} {item.unit}
                       </div>
                     )}
                   </Col>
 
-                  {/* Jika tab environment: input nilai terukur */}
                   {item.threshold !== undefined && (
                     <Col xs={24} sm={10} md={5}>
                       <Space>
-                        <Text style={{ fontSize: 12 }}>Terukur:</Text>
+                        <Text style={{ fontSize: 12, fontWeight: 600 }}>Terukur:</Text>
                         <InputNumber
                           value={item.measuredValue}
                           onChange={(v) => handleMeasuredChange(index, v)}
@@ -324,8 +351,9 @@ export const InspectionCreate: React.FC = () => {
 
                   <Col xs={24}>
                     <Input
-                      placeholder="Catatan temuan / kondisi spesifik..."
+                      placeholder="Catatan temuan / kondisi spesifik di lapangan..."
                       value={item.notes}
+                      style={{ borderRadius: 6 }}
                       onChange={(e) => handleNotesChange(index, e.target.value)}
                     />
                   </Col>
@@ -336,61 +364,59 @@ export const InspectionCreate: React.FC = () => {
         </Card>
 
         {/* Temuan & Tindak Lanjut */}
-        <Card
-          title="Kesimpulan Temuan & Tindak Lanjut"
-          bordered={false}
-          style={{
-            borderRadius: 12,
-            border: "1px solid #e8e8e8",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-            marginBottom: 24,
-          }}
-        >
+        <Card className="form-content-card form-card-animate form-delay-4" bordered={false} style={{ marginBottom: 24 }}>
+          <div className="form-section-title">
+            <span className="badge-num">3</span>
+            <span>Rangkuman Temuan & Rekomendasi Tindak Lanjut</span>
+          </div>
+
           <Row gutter={24}>
             <Col xs={24} md={12}>
               <Form.Item
-                label="Catatan Temuan Umum"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Catatan Temuan Umum</span>}
                 name="findings"
                 rules={[{ required: true, message: "Catatan temuan wajib diisi!" }]}
               >
-                <Input.TextArea rows={3} placeholder="Rangkuman hasil inspeksi audit..." />
+                <Input.TextArea rows={3} placeholder="Rangkuman hasil inspeksi audit..." style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
               <Form.Item
-                label="Rekomendasi Tindak Lanjut Perbaikan"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Rekomendasi Tindak Lanjut Perbaikan</span>}
                 name="followUp"
                 rules={[{ required: true, message: "Tindak lanjut wajib diisi!" }]}
               >
-                <Input.TextArea rows={3} placeholder="Langkah perbaikan yang wajib dilakukan unit..." />
+                <Input.TextArea rows={3} placeholder="Langkah perbaikan yang wajib dilakukan unit..." style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
               <Form.Item
-                label="Penanggung Jawab Tindak Lanjut (PIC)"
+                label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Penanggung Jawab Tindak Lanjut (PIC)</span>}
                 name="responsiblePerson"
                 rules={[{ required: true, message: "PIC wajib diisi!" }]}
               >
-                <Input size="large" />
+                <Input size="large" style={{ borderRadius: 8 }} />
               </Form.Item>
             </Col>
           </Row>
-        </Card>
 
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
-          <Button onClick={() => navigate("/keselamatan/inspeksi")}>Batal</Button>
-          <Button
-            type="primary"
-            htmlType="submit"
-            icon={<SaveOutlined />}
-            loading={isLoading}
-            style={{ background: "#595959", borderColor: "#595959" }}
-          >
-            Simpan Hasil Audit Inspeksi
-          </Button>
-        </div>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 20, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
+            <Button className="btn-form-cancel" onClick={() => navigate("/keselamatan/inspeksi")}>
+              Batal
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              icon={<SaveOutlined />}
+              loading={isLoading}
+              className="btn-form-submit"
+            >
+              Simpan Hasil Audit Inspeksi
+            </Button>
+          </div>
+        </Card>
       </Form>
     </div>
   );
