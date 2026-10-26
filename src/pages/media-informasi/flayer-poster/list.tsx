@@ -37,10 +37,10 @@ export const PosterList: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
   const { tableProps } = useTable<IPoster>({
-    resource: "posters",
+    resource: "posters", 
     pagination: { pageSize: 12 },
   });
-
+ 
   const { mutate: deletePoster } = useDelete();
 
   const canManage = currentUser?.role === "admin" || currentUser?.role === "tim_k3";
