@@ -1,4 +1,52 @@
-import { IHazardReport } from "../types/hazard";
+import { IHazardReport, IHazardCategoryItem } from "../types/hazard";
+
+export const initialHazardCategories: IHazardCategoryItem[] = [
+  {
+    id: 1,
+    code: "near_miss",
+    name: "Near Miss (Hampir Celaka)",
+    description: "Insiden yang tidak mengakibatkan cedera fisik, penyakit, atau kerusakan parah, namun berpotensi fatal jika terulang.",
+    color: "orange",
+    createdAt: "2026-01-10T08:00:00Z",
+    updatedAt: "2026-01-10T08:00:00Z",
+  },
+  {
+    id: 2,
+    code: "unsafe_action",
+    name: "Unsafe Action (Tindakan Tidak Aman)",
+    description: "Perilaku berbahaya atau kelalaian individu pekerja yang tidak memenuhi prosedur atau standar keselamatan kerja.",
+    color: "volcano",
+    createdAt: "2026-01-10T08:00:00Z",
+    updatedAt: "2026-01-10T08:00:00Z",
+  },
+  {
+    id: 3,
+    code: "unsafe_condition",
+    name: "Unsafe Condition (Kondisi Tidak Aman)",
+    description: "Kondisi fisik lingkungan kerja, sarana kerja, fasilitas atau peralatan yang rusak/cacat dan berpotensi bahaya.",
+    color: "red",
+    createdAt: "2026-01-10T08:00:00Z",
+    updatedAt: "2026-01-10T08:00:00Z",
+  },
+  {
+    id: 4,
+    code: "fire_hazard",
+    name: "Fire Hazard (Bahaya Kebakaran)",
+    description: "Potensi pemicu api, bahan mudah terbakar yang tidak tersimpan aman, instalasi listrik rentan, atau jalur APAR terhalang.",
+    color: "magenta",
+    createdAt: "2026-01-15T08:00:00Z",
+    updatedAt: "2026-01-15T08:00:00Z",
+  },
+  {
+    id: 5,
+    code: "ergonomic_hazard",
+    name: "Ergonomic Hazard (Bahaya Ergonomi)",
+    description: "Desain stasiun kerja, posisi duduk statis berkepanjangan, atau tata cara angkat angkut beban yang berisiko cedera otot rangka.",
+    color: "blue",
+    createdAt: "2026-01-15T08:00:00Z",
+    updatedAt: "2026-01-15T08:00:00Z",
+  },
+];
 
 export const initialHazardReports: IHazardReport[] = [
   {

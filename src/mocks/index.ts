@@ -1,5 +1,5 @@
 import { initialUsers } from "./users";
-import { initialHazardReports } from "./hazardReports";
+import { initialHazardReports, initialHazardCategories } from "./hazardReports";
 import { initialHiradc } from "./hiradc";
 import { initialAccidents } from "./accidents";
 import { initialInvestigations } from "./investigations";
@@ -16,6 +16,7 @@ import { initialDashboardSummary } from "./dashboard";
 export const mockDb: Record<string, any[]> = {
   users: [...initialUsers],
   "hazard-reports": [...initialHazardReports],
+  "hazard-categories": [...initialHazardCategories],
   hiradc: [...initialHiradc],
   "accident-reports": [...initialAccidents],
   investigations: [...initialInvestigations],
@@ -33,6 +34,7 @@ export const mockDb: Record<string, any[]> = {
 export {
   initialUsers,
   initialHazardReports,
+  initialHazardCategories,
   initialHiradc,
   initialAccidents,
   initialInvestigations,

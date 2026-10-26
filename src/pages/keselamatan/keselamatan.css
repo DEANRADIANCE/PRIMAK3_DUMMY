@@ -239,3 +239,30 @@
   transform: translateY(-3px);
   box-shadow: 0 6px 16px rgba(13, 148, 136, 0.08);
 }
+
+/* Safety Module Main Navigation Tabs */
+.safety-main-tabs .ant-tabs-nav {
+  margin-bottom: 20px !important;
+  background: #ffffff;
+  padding: 8px 14px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.safety-main-tabs .ant-tabs-tab {
+  padding: 8px 18px !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  transition: all 0.2s ease !important;
+}
+
+.safety-main-tabs .ant-tabs-tab-active {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+}
+
+.safety-main-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #ffffff !important;
+}
+

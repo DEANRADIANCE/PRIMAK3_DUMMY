@@ -148,6 +148,15 @@ function App() {
                   },
                 },
                 {
+                  name: "hazard-categories",
+                  meta: {
+                    label: "Kategori Bahaya",
+                    parent: "keselamatan",
+                    hide: true,
+                    canDelete: true,
+                  },
+                },
+                {
                   name: "hiradc",
                   list: "/keselamatan/hiradc",
                   create: "/keselamatan/hiradc/create",

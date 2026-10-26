@@ -13,9 +13,9 @@ import {
 } from "antd";
 import { ArrowLeftOutlined, SaveOutlined, EditOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router";
-import { useOne, useUpdate, useGetIdentity } from "@refinedev/core";
+import { useOne, useUpdate, useGetIdentity, useList } from "@refinedev/core";
 import dayjs, { Dayjs } from "dayjs";
-import { IHazardReport, HazardCategory, HazardStatus } from "../../../types/hazard";
+import { IHazardReport, HazardCategory, HazardStatus, IHazardCategoryItem } from "../../../types/hazard";
 import { IUser } from "../../../types/user";
 import "../../../components/common/form-theme.css";
 
@@ -42,6 +42,11 @@ export const HazardReportEdit: React.FC = () => {
     resource: "hazard-reports",
     id: id || "1",
   });
+
+  const { query: categoryQuery } = useList<IHazardCategoryItem>({
+    resource: "hazard-categories",
+  });
+  const categories = (categoryQuery.data?.data || []) as IHazardCategoryItem[];
 
   const { mutate: updateReport, mutation } = useUpdate();
   const isUpdating = mutation.isPending;
@@ -170,9 +175,19 @@ export const HazardReportEdit: React.FC = () => {
                 rules={[{ required: true, message: "Kategori wajib dipilih!" }]}
               >
                 <Select size="large" style={{ borderRadius: 8 }}>
-                  <Select.Option value="near_miss">Near Miss (Hampir Celaka)</Select.Option>
-                  <Select.Option value="unsafe_action">Unsafe Action (Tindakan Tidak Aman)</Select.Option>
-                  <Select.Option value="unsafe_condition">Unsafe Condition (Kondisi Tidak Aman)</Select.Option>
+                  {categories.length > 0 ? (
+                    categories.map((cat) => (
+                      <Select.Option key={cat.code} value={cat.code}>
+                        {cat.name}
+                      </Select.Option>
+                    ))
+                  ) : (
+                    <>
+                      <Select.Option value="near_miss">Near Miss (Hampir Celaka)</Select.Option>
+                      <Select.Option value="unsafe_action">Unsafe Action (Tindakan Tidak Aman)</Select.Option>
+                      <Select.Option value="unsafe_condition">Unsafe Condition (Kondisi Tidak Aman)</Select.Option>
+                    </>
+                  )}
                 </Select>
               </Form.Item>
             </Col>

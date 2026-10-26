@@ -1,5 +1,22 @@
-export type HazardCategory = "near_miss" | "unsafe_action" | "unsafe_condition";
+export type HazardCategory =
+  | "near_miss"
+  | "unsafe_action"
+  | "unsafe_condition"
+  | "fire_hazard"
+  | "ergonomic_hazard"
+  | string;
+
 export type HazardStatus = "reported" | "verified" | "in_progress" | "resolved";
+
+export interface IHazardCategoryItem {
+  id: number;
+  code: string;
+  name: string;
+  description: string;
+  color: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 export interface IStatusHistory {
   status: string;

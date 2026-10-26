@@ -11,6 +11,10 @@ export const accessControlProvider: AccessControlProvider = {
       return { can: true };
     }
 
+    if (resource === "hazard-categories") {
+      return { can: true };
+    }
+
     // 2. Kepala Unit
     if (role === "kepala_unit") {
       // Kepala unit boleh ikut investigasi (list, show, edit, create)

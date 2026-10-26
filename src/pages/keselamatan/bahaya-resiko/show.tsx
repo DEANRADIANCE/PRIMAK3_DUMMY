@@ -18,8 +18,8 @@ import {
   WarningOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router";
-import { useOne, useGetIdentity } from "@refinedev/core";
-import { IHazardReport } from "../../../types/hazard";
+import { useOne, useGetIdentity, useList } from "@refinedev/core";
+import { IHazardReport, IHazardCategoryItem } from "../../../types/hazard";
 import { StatusStepper } from "../../../components/common/StatusStepper";
 
 const { Title, Text, Paragraph } = Typography;
@@ -34,6 +34,11 @@ export const HazardReportShow: React.FC = () => {
     id: id || "1",
   });
 
+  const { query: categoryQuery } = useList<IHazardCategoryItem>({
+    resource: "hazard-categories",
+  });
+  const categories = (categoryQuery.data?.data || []) as IHazardCategoryItem[];
+
   const report = query.data?.data;
   const isLoading = query.isLoading;
 
@@ -42,6 +47,15 @@ export const HazardReportShow: React.FC = () => {
   }
 
   const renderCategoryTag = (cat: string) => {
+    const matched = categories.find((c) => c.code === cat);
+    if (matched) {
+      return (
+        <Tag color={matched.color} style={{ borderRadius: 6, fontWeight: 600 }}>
+          {matched.name}
+        </Tag>
+      );
+    }
+
     switch (cat) {
       case "near_miss":
         return <Tag color="orange">Near Miss (Hampir Celaka)</Tag>;
