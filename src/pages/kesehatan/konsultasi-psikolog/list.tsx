@@ -11,23 +11,28 @@ import {
   Col,
   Input,
   Avatar,
+  Badge,
 } from "antd";
 import {
   PlusOutlined,
   LockOutlined,
   CalendarOutlined,
   HeartOutlined,
-  SmileOutlined,
   ClockCircleOutlined,
   SearchOutlined,
   UserOutlined,
   CheckCircleOutlined,
+  MedicineBoxOutlined,
+  CheckSquareOutlined,
+  CommentOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import { useTable } from "@refinedev/antd";
-import { useGetIdentity } from "@refinedev/core";
+import { useGetIdentity, useUpdate } from "@refinedev/core";
 import { IPsychologistBooking } from "../../../types/psychologist";
 import { IUser } from "../../../types/user";
+import { mockDb } from "../../../mocks";
+import { PsychologistFollowUpModal } from "./PsychologistFollowUpModal";
 import "../kesehatan.css";
 
 const { Title, Text, Paragraph } = Typography;
@@ -38,7 +43,12 @@ export const PsychologistList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const { tableProps } = useTable<IPsychologistBooking>({
+  const [selectedBooking, setSelectedBooking] = useState<IPsychologistBooking | null>(null);
+  const [isFollowUpModalOpen, setIsFollowUpModalOpen] = useState(false);
+
+  const { mutate: updateBooking } = useUpdate();
+
+  const { tableProps, tableQuery } = useTable<IPsychologistBooking>({
     resource: "psychologist-bookings",
     pagination: { pageSize: 10 },
   });
@@ -48,6 +58,10 @@ export const PsychologistList: React.FC = () => {
 
   const completedCount = allBookings.filter((b) => b.status === "completed").length;
   const confirmedCount = allBookings.filter((b) => b.status === "confirmed").length;
+  const followUpCount = allBookings.filter((b) => b.needsFollowUp === true).length;
+  const totalActiveTasks = allBookings.reduce((sum, b) => {
+    return sum + (b.tasks || []).filter((t) => t.status !== "completed").length;
+  }, 0);
 
   const filteredBookings = allBookings.filter((b) => {
     const matchSearch =
@@ -57,8 +71,37 @@ export const PsychologistList: React.FC = () => {
 
     if (!matchSearch) return false;
     if (statusFilter === "all") return true;
+    if (statusFilter === "needs_follow_up") return b.needsFollowUp === true;
     return b.status === statusFilter;
   });
+
+  const handleSaveBooking = (updated: IPsychologistBooking) => {
+    // Sinkronkan ke mockDb memori lokal
+    if (mockDb["psychologist-bookings"]) {
+      const idx = mockDb["psychologist-bookings"].findIndex((b) => b.id === updated.id);
+      if (idx !== -1) {
+        mockDb["psychologist-bookings"][idx] = { ...updated };
+      }
+    }
+
+    updateBooking(
+      {
+        resource: "psychologist-bookings",
+        id: updated.id,
+        values: updated,
+      },
+      {
+        onSuccess: () => {
+          tableQuery?.refetch();
+        },
+      }
+    );
+  };
+
+  const handleOpenFollowUp = (booking: IPsychologistBooking) => {
+    setSelectedBooking(booking);
+    setIsFollowUpModalOpen(true);
+  };
 
   const renderStatus = (st: string) => {
     switch (st) {
@@ -101,9 +144,9 @@ export const PsychologistList: React.FC = () => {
       title: "Nama Pasien / Pegawai",
       dataIndex: "patientName",
       key: "patientName",
-      width: 220,
+      width: 210,
       render: (val: string, record: IPsychologistBooking) => {
-        const isSelf = record.patientName.includes(currentUser?.name || "");
+        const isSelf = record.patientName.includes(currentUser?.name || "") || record.patientId === currentUser?.id;
         const displayName = !isPrivileged && !isSelf ? `Pegawai ANRI (${val.substring(0, 3)}***)` : val;
 
         return (
@@ -136,7 +179,7 @@ export const PsychologistList: React.FC = () => {
     {
       title: "Jadwal Sesi Konseling",
       key: "datetime",
-      width: 210,
+      width: 200,
       render: (_: unknown, record: IPsychologistBooking) => (
         <div>
           <Space>
@@ -150,29 +193,16 @@ export const PsychologistList: React.FC = () => {
       ),
     },
     {
-      title: "No. Kontak",
-      dataIndex: "contactNumber",
-      key: "contactNumber",
-      width: 150,
-      render: (val: string, record: IPsychologistBooking) => {
-        const isSelf = record.patientName.includes(currentUser?.name || "");
-        if (!isPrivileged && !isSelf) {
-          return <span style={{ color: "#94a3b8" }}>0812-****-****</span>;
-        }
-        return <span style={{ fontFamily: "monospace", fontWeight: 600 }}>{val}</span>;
-      },
-    },
-    {
-      title: "Alasan Konsultasi (Rahasia Medis)",
+      title: "Alasan Konsultasi (Keluhan)",
       dataIndex: "reason",
       key: "reason",
-      width: 280,
+      width: 240,
       render: (val: string, record: IPsychologistBooking) => {
-        const isSelf = record.patientName.includes(currentUser?.name || "");
+        const isSelf = record.patientName.includes(currentUser?.name || "") || record.patientId === currentUser?.id;
         if (isPrivileged || isSelf) {
           return (
             <Tooltip title={val}>
-              <Text ellipsis style={{ maxWidth: 260, fontSize: 12.5, color: "#334155" }}>
+              <Text ellipsis style={{ maxWidth: 220, fontSize: 12.5, color: "#334155" }}>
                 {val}
               </Text>
             </Tooltip>
@@ -191,8 +221,112 @@ export const PsychologistList: React.FC = () => {
       title: "Status Sesi",
       dataIndex: "status",
       key: "status",
-      width: 180,
+      width: 170,
       render: (val: string) => renderStatus(val),
+    },
+    {
+      title: "Tindak Lanjut & Penugasan",
+      key: "followUp",
+      width: 210,
+      render: (_: unknown, record: IPsychologistBooking) => {
+        const isSelf = record.patientName.includes(currentUser?.name || "") || record.patientId === currentUser?.id;
+        const canView = isPrivileged || isSelf;
+
+        if (!canView) {
+          return (
+            <Tag color="default" style={{ borderRadius: 6 }}>
+              Rahasia Medis
+            </Tag>
+          );
+        }
+
+        if (record.needsFollowUp === true) {
+          const tasks = record.tasks || [];
+          const completedTasks = tasks.filter((t) => t.status === "completed").length;
+          return (
+            <Space direction="vertical" size={2}>
+              <Tag color="purple" style={{ borderRadius: 6, fontWeight: 700, margin: 0 }}>
+                ● Perlu Tindak Lanjut
+              </Tag>
+              {tasks.length > 0 ? (
+                <div style={{ fontSize: 12, color: "#0d9488", fontWeight: 600 }}>
+                  <CheckSquareOutlined style={{ marginRight: 4 }} />
+                  {completedTasks}/{tasks.length} Penugasan Selesai
+                </div>
+              ) : (
+                <div style={{ fontSize: 11, color: "#d97706" }}>
+                  ⏳ Belum ada penugasan task
+                </div>
+              )}
+            </Space>
+          );
+        }
+
+        if (record.needsFollowUp === false) {
+          return (
+            <Tag color="green" style={{ borderRadius: 6, fontWeight: 600 }}>
+              ✔ Tidak Perlu (Mandiri)
+            </Tag>
+          );
+        }
+
+        return (
+          <Tag color="default" style={{ borderRadius: 6, color: "#64748b" }}>
+            Menunggu Evaluasi Sesi
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "Aksi & Feedback",
+      key: "action",
+      width: 190,
+      render: (_: unknown, record: IPsychologistBooking) => {
+        const isSelf = record.patientName.includes(currentUser?.name || "") || record.patientId === currentUser?.id;
+        const canInteract = isPrivileged || isSelf;
+        const taskCount = record.tasks?.length || 0;
+        const commentCount = (record.tasks || []).reduce(
+          (acc, t) => acc + (t.comments?.length || 0),
+          0
+        );
+
+        if (!canInteract) {
+          return (
+            <Tooltip title="Data rekam medis rahasia, hanya dapat diakses oleh Dokter Psikolog dan Pasien bersangkutan.">
+              <Button size="small" disabled style={{ borderRadius: 6, fontSize: 12 }}>
+                Privasi Medis
+              </Button>
+            </Tooltip>
+          );
+        }
+
+        return (
+          <Space>
+            <Button
+              type="primary"
+              size="small"
+              icon={isPrivileged ? <MedicineBoxOutlined /> : <CommentOutlined />}
+              onClick={() => handleOpenFollowUp(record)}
+              style={{
+                borderRadius: 6,
+                background: "#0d9488",
+                borderColor: "#0d9488",
+                fontWeight: 600,
+                fontSize: 12,
+              }}
+            >
+              {isPrivileged ? "Tindak Lanjut & Task" : "Tugas & Diskusi"}
+              {taskCount > 0 && ` (${taskCount})`}
+            </Button>
+
+            {commentCount > 0 && (
+              <Tooltip title={`${commentCount} pesan feedback/diskusi pada sesi ini`}>
+                <Badge count={commentCount} overflowCount={99} style={{ backgroundColor: "#0284c7" }} />
+              </Tooltip>
+            )}
+          </Space>
+        );
+      },
     },
   ];
 
@@ -223,7 +357,7 @@ export const PsychologistList: React.FC = () => {
               Layanan Konsultasi Psikolog Klinis ANRI
             </Title>
             <Paragraph style={{ color: "#e0e7ff", fontSize: 13.5, lineHeight: 1.6, margin: 0, opacity: 0.95 }}>
-              Konseling tatap muka empatik, penanganan stres kerja/burnout, serta pendampingan kesehatan mental profesional dengan jaminan kerahasiaan penuh kode etik klinis bagi seluruh pegawai ANRI.
+              Konseling tatap muka empatik, evaluasi tindak lanjut, penugasan terapi mandiri (self-care tasks), serta fitur feedback & komunikasi berkala antara psikolog dan pegawai untuk pemulihan kesehatan mental yang terukur.
             </Paragraph>
           </Col>
 
@@ -251,7 +385,7 @@ export const PsychologistList: React.FC = () => {
         </Row>
       </div>
 
-      {/* 2. Stat Metric Cards dengan Animasi Scroll Reveal */}
+      {/* 2. Stat Metric Cards dengan Animasi */}
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} lg={6}>
           <div className="health-stat-card health-card-animate health-delay-1">
@@ -279,6 +413,28 @@ export const PsychologistList: React.FC = () => {
           <div className="health-stat-card health-card-animate health-delay-2">
             <div
               className="health-stat-icon-wrapper"
+              style={{ background: "#f5f3ff", color: "#7c3aed" }}
+            >
+              <CheckSquareOutlined />
+            </div>
+            <div>
+              <Text type="secondary" style={{ fontSize: 12, fontWeight: 500 }}>
+                Perlu Tindak Lanjut
+              </Text>
+              <div style={{ fontSize: 22, fontWeight: 800, color: "#0f172a" }}>
+                {followUpCount} Kasus
+              </div>
+              <Text style={{ fontSize: 11.5, color: "#7c3aed", fontWeight: 600 }}>
+                {totalActiveTasks} Tugas Terapi Aktif
+              </Text>
+            </div>
+          </div>
+        </Col>
+
+        <Col xs={24} sm={12} lg={6}>
+          <div className="health-stat-card health-card-animate health-delay-3">
+            <div
+              className="health-stat-icon-wrapper"
               style={{ background: "#ecfdf5", color: "#059669" }}
             >
               <CheckCircleOutlined />
@@ -291,14 +447,14 @@ export const PsychologistList: React.FC = () => {
                 {completedCount} Sesi
               </div>
               <Text style={{ fontSize: 11.5, color: "#059669", fontWeight: 600 }}>
-                Tindak Lanjut Tuntas
+                Evaluasi Klinis Tuntas
               </Text>
             </div>
           </div>
         </Col>
 
         <Col xs={24} sm={12} lg={6}>
-          <div className="health-stat-card health-card-animate health-delay-3">
+          <div className="health-stat-card health-card-animate health-delay-4">
             <div
               className="health-stat-icon-wrapper"
               style={{ background: "#f0fdfa", color: "#0d9488" }}
@@ -318,29 +474,9 @@ export const PsychologistList: React.FC = () => {
             </div>
           </div>
         </Col>
-
-        <Col xs={24} sm={12} lg={6}>
-          <div className="health-stat-card health-card-animate health-delay-4">
-            <div
-              className="health-stat-icon-wrapper"
-              style={{ background: "#fdf2f8", color: "#db2777" }}
-            >
-              <SmileOutlined />
-            </div>
-            <div>
-              <Text type="secondary" style={{ fontSize: 12, fontWeight: 500 }}>
-                Biaya Layanan
-              </Text>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a" }}>Gratis (0,-)</div>
-              <Text style={{ fontSize: 11.5, color: "#db2777", fontWeight: 600 }}>
-                Fasilitas Pegawai ANRI
-              </Text>
-            </div>
-          </div>
-        </Col>
       </Row>
 
-      {/* 3. Control Bar: Filter, Pencarian & Tombol Booking Kontras */}
+      {/* 3. Control Bar: Filter, Pencarian & Tombol Booking */}
       <div
         className="health-card-animate health-delay-2"
         style={{
@@ -361,6 +497,7 @@ export const PsychologistList: React.FC = () => {
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             {[
               { key: "all", label: "Semua Jadwal" },
+              { key: "needs_follow_up", label: "Perlu Tindak Lanjut" },
               { key: "confirmed", label: "Dikonfirmasi" },
               { key: "completed", label: "Selesai" },
             ].map((st) => (
@@ -386,12 +523,12 @@ export const PsychologistList: React.FC = () => {
             placeholder="Cari pasien / tanggal..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ width: 200, borderRadius: 8 }}
+            style={{ width: 220, borderRadius: 8 }}
             allowClear
           />
         </div>
 
-        {/* Sisi Kanan: Tombol Booking Baru Bergradasi Kontras */}
+        {/* Sisi Kanan: Tombol Booking Baru */}
         <Button
           type="primary"
           size="large"
@@ -412,7 +549,7 @@ export const PsychologistList: React.FC = () => {
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <CalendarOutlined style={{ color: "#0d9488", fontSize: 18 }} />
             <span style={{ fontWeight: 700, color: "#0f172a" }}>
-              Agenda Sesi Konsultasi Psikolog Klinis
+              Agenda Sesi Konsultasi Psikolog & Penugasan Terapi
             </span>
           </div>
         }
@@ -427,7 +564,7 @@ export const PsychologistList: React.FC = () => {
           dataSource={filteredBookings}
           columns={columns}
           rowKey="id"
-          scroll={{ x: 920 }}
+          scroll={{ x: 1060 }}
           pagination={{
             ...tableProps.pagination,
             showSizeChanger: true,
@@ -436,13 +573,13 @@ export const PsychologistList: React.FC = () => {
         />
       </Card>
 
-      {/* 5. Alur Layanan Konseling Psikologis ANRI */}
+      {/* 5. Alur Layanan Konseling & Tindak Lanjut Psikologis ANRI */}
       <div className="health-card-animate health-delay-4">
         <Title level={4} style={{ margin: "10px 0 14px", color: "#0f172a", fontWeight: 700 }}>
-          🌿 Panduan & Alur Konsultasi Psikolog Klinis ANRI
+          🌿 Panduan & Alur Tindak Lanjut Konsultasi Psikolog Klinis ANRI
         </Title>
         <Row gutter={[16, 16]}>
-          <Col xs={24} md={8}>
+          <Col xs={24} md={6}>
             <div className="health-tip-card">
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
                 <div
@@ -460,17 +597,17 @@ export const PsychologistList: React.FC = () => {
                 >
                   1
                 </div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a" }}>
-                  Pilih Jadwal Sesi
+                <div style={{ fontWeight: 700, fontSize: 13.5, color: "#0f172a" }}>
+                  Sesi Konseling Private
                 </div>
               </div>
-              <Paragraph style={{ fontSize: 12.5, color: "#64748b", margin: 0, lineHeight: 1.6 }}>
-                Pilih tanggal dan slot waktu luang (Sesi Pagi 08:00 WIB atau Sesi Siang 13:00 WIB) sesuai kenyamanan Anda.
+              <Paragraph style={{ fontSize: 12, color: "#64748b", margin: 0, lineHeight: 1.6 }}>
+                Konsultasi tatap muka 50 menit di Klinik ANRI dengan jaminan kerahasiaan medis kode etik klinis.
               </Paragraph>
             </div>
           </Col>
 
-          <Col xs={24} md={8}>
+          <Col xs={24} md={6}>
             <div className="health-tip-card">
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
                 <div
@@ -488,17 +625,17 @@ export const PsychologistList: React.FC = () => {
                 >
                   2
                 </div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a" }}>
-                  Kerahasiaan Dijamin
+                <div style={{ fontWeight: 700, fontSize: 13.5, color: "#0f172a" }}>
+                  Evaluasi Tindak Lanjut
                 </div>
               </div>
-              <Paragraph style={{ fontSize: 12.5, color: "#64748b", margin: 0, lineHeight: 1.6 }}>
-                Keluhan Anda dienkripsi dan hanya dibaca oleh Psikolog Klinis. Atasan kerja maupun pihak luar tidak berhak mengaksesnya.
+              <Paragraph style={{ fontSize: 12, color: "#64748b", margin: 0, lineHeight: 1.6 }}>
+                Psikolog menentukan apakah kasus tuntas mandiri atau memerlukan tindak lanjut & pemantauan berkala.
               </Paragraph>
             </div>
           </Col>
 
-          <Col xs={24} md={8}>
+          <Col xs={24} md={6}>
             <div className="health-tip-card">
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
                 <div
@@ -506,7 +643,7 @@ export const PsychologistList: React.FC = () => {
                     width: 32,
                     height: 32,
                     borderRadius: "50%",
-                    background: "#6366f1",
+                    background: "#7c3aed",
                     color: "#fff",
                     display: "flex",
                     alignItems: "center",
@@ -516,17 +653,54 @@ export const PsychologistList: React.FC = () => {
                 >
                   3
                 </div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: "#0f172a" }}>
-                  Konseling Tatap Muka
+                <div style={{ fontWeight: 700, fontSize: 13.5, color: "#0f172a" }}>
+                  Penugasan Terapi Mandiri
                 </div>
               </div>
-              <Paragraph style={{ fontSize: 12.5, color: "#64748b", margin: 0, lineHeight: 1.6 }}>
-                Hadir 10 menit sebelum sesi di Ruang Konseling Klinik Pratama Lantai 1 untuk sesi private selama 50-60 menit.
+              <Paragraph style={{ fontSize: 12, color: "#64748b", margin: 0, lineHeight: 1.6 }}>
+                Jika ditindaklanjuti, dokter meresepkan task latihan (teknik napas, relaksasi, journaling, dsb) untuk dijalankan pasien.
+              </Paragraph>
+            </div>
+          </Col>
+
+          <Col xs={24} md={6}>
+            <div className="health-tip-card">
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: "50%",
+                    background: "#059669",
+                    color: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 700,
+                  }}
+                >
+                  4
+                </div>
+                <div style={{ fontWeight: 700, fontSize: 13.5, color: "#0f172a" }}>
+                  Feedback & Komunikasi
+                </div>
+              </div>
+              <Paragraph style={{ fontSize: 12, color: "#64748b", margin: 0, lineHeight: 1.6 }}>
+                Pasien melaporkan progres/kendala, dan psikolog memberikan feedback langsung pada setiap penugasan.
               </Paragraph>
             </div>
           </Col>
         </Row>
       </div>
+
+      {/* Modal Tindak Lanjut, Penugasan & Feedback Interaktif */}
+      <PsychologistFollowUpModal
+        open={isFollowUpModalOpen}
+        onClose={() => setIsFollowUpModalOpen(false)}
+        booking={selectedBooking}
+        currentUser={currentUser}
+        onSaveBooking={handleSaveBooking}
+      />
     </div>
   );
 };
