@@ -74,6 +74,7 @@ import { ArticleEdit } from "./pages/media-informasi/edukasi/edit";
 import { PosterList } from "./pages/media-informasi/flayer-poster/list";
 import { PosterCreate } from "./pages/media-informasi/flayer-poster/create";
 import { PosterShow } from "./pages/media-informasi/flayer-poster/show";
+import { ProfilePage } from "./pages/profile";
 
 // Ant Design theme
 const theme = {
@@ -368,6 +369,10 @@ function App() {
                     <Route path="create" element={<PosterCreate />} />
                     <Route path="show/:id" element={<PosterShow />} />
                   </Route>
+
+                  {/* Profil Pengguna */}
+                  <Route path="/profil" element={<ProfilePage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
 
                   <Route path="*" element={<ErrorComponent />} />
                 </Route>

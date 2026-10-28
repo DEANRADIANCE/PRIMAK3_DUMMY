@@ -8,7 +8,16 @@ export const getStoredUser = (): IUser | null => {
   const data = localStorage.getItem(STORAGE_KEY);
   if (!data) return null;
   try {
-    return JSON.parse(data);
+    const parsed = JSON.parse(data) as IUser;
+    // Sinkronisasi data awal jika ada field baru yang belum ada di local storage
+    const fallback = initialUsers.find((u) => u.id === parsed.id || u.role === parsed.role);
+    if (fallback) {
+      return {
+        ...fallback,
+        ...parsed,
+      };
+    }
+    return parsed;
   } catch {
     return null;
   }
@@ -22,8 +31,25 @@ export const setStoredUser = (user: IUser | null) => {
   }
 };
 
-// Catatan: Tidak melakukan auto-login default agar pengguna selalu disambut halaman login terlebih dahulu
-// export const setStoredUser...
+export const updateUserProfile = (updatedData: Partial<IUser>): IUser | null => {
+  const current = getStoredUser();
+  if (!current) return null;
+  const updated: IUser = {
+    ...current,
+    ...updatedData,
+  };
+  setStoredUser(updated);
+
+  // Perbarui mock user di memori
+  const idx = initialUsers.findIndex((u) => u.id === current.id || u.role === current.role);
+  if (idx !== -1) {
+    initialUsers[idx] = updated;
+  }
+
+  // Notifikasi event agar komponen lain (seperti header) merespon perubahan secara instan
+  window.dispatchEvent(new CustomEvent("prima_user_updated", { detail: updated }));
+  return updated;
+};
 
 export const switchRole = (role: UserRole) => {
   const targetUser = initialUsers.find((u) => u.role === role) || initialUsers[0];
@@ -96,6 +122,12 @@ export const authProvider: AuthProvider = {
       unit: user.unit,
       nip: user.nip,
       avatar: user.avatar,
+      phone: user.phone,
+      position: user.position,
+      gender: user.gender,
+      address: user.address,
+      bio: user.bio,
+      createdAt: user.createdAt,
     };
   },
 };

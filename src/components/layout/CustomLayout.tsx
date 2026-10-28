@@ -36,7 +36,7 @@ import { useNavigate, useLocation, Link } from "react-router";
 import { useGetIdentity, useLogout } from "@refinedev/core";
 import { IUser } from "../../types/user";
 import { EmergencyModal } from "../common/EmergencyModal";
-import { switchRole } from "../../providers/authProvider";
+import { switchRole, getStoredUser } from "../../providers/authProvider";
 
 const { Header, Sider, Content, Footer } = Layout;
 const { Text } = Typography;
@@ -54,6 +54,17 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
   const location = useLocation();
   const { data: user } = useGetIdentity<IUser>();
   const { mutate: logout } = useLogout();
+  const [currentUser, setCurrentUser] = useState<IUser | null>(getStoredUser());
+
+  React.useEffect(() => {
+    const handleUserUpdate = (e: any) => {
+      setCurrentUser(e.detail || getStoredUser());
+    };
+    window.addEventListener("prima_user_updated", handleUserUpdate);
+    return () => window.removeEventListener("prima_user_updated", handleUserUpdate);
+  }, []);
+
+  const activeUser = currentUser || user;
 
   // Mapping breadcrumbs
   const getBreadcrumbItems = () => {
@@ -108,6 +119,8 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
         items.push({ title: <Link to="/media/flayer-poster">Flayer & Poster</Link> });
         if (path.includes("/create")) items.push({ title: <span>Unggah Poster</span> });
       }
+    } else if (path.startsWith("/profil") || path.startsWith("/profile")) {
+      items.push({ title: <span>Edit Profil</span> });
     }
 
     return items;
@@ -238,16 +251,34 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
   const userDropdownItems = [
     {
       key: "user-info",
-      disabled: true,
+      onClick: () => navigate("/profil"),
       label: (
-        <div>
-          <Text strong>{user?.name || "Dr. Budi Santoso, M.K.K."}</Text>
+        <div style={{ padding: "4px 2px" }}>
+          <Text strong style={{ fontSize: 13, color: "#0f172a" }}>
+            {activeUser?.name || "Dr. Budi Santoso, M.K.K."}
+          </Text>
           <br />
           <Text type="secondary" style={{ fontSize: 12 }}>
-            {user?.unit || "Klinik Pratama ANRI"}
+            {activeUser?.unit || "Klinik Pratama ANRI"}
           </Text>
+          {activeUser?.nip && (
+            <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
+              NIP: {activeUser.nip}
+            </div>
+          )}
         </div>
       ),
+    },
+    { type: "divider" as const },
+    {
+      key: "edit-profile",
+      icon: <UserOutlined style={{ fontSize: 15, color: "#0d9488" }} />,
+      label: (
+        <span style={{ fontWeight: 600, color: "#0f766e" }}>
+          Edit Profil
+        </span>
+      ),
+      onClick: () => navigate("/profil"),
     },
     { type: "divider" as const },
     {
@@ -258,25 +289,25 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
     {
       key: "role-admin",
       icon: <SwapOutlined />,
-      label: <span style={{ fontWeight: user?.role === "admin" ? 600 : "normal" }}>Admin (Akses Penuh)</span>,
+      label: <span style={{ fontWeight: activeUser?.role === "admin" ? 600 : "normal" }}>Admin (Akses Penuh)</span>,
       onClick: () => switchRole("admin"),
     },
     {
       key: "role-tim_k3",
       icon: <SwapOutlined />,
-      label: <span style={{ fontWeight: user?.role === "tim_k3" ? 600 : "normal" }}>Tim K3 (Inspeksi & Tindakan)</span>,
+      label: <span style={{ fontWeight: activeUser?.role === "tim_k3" ? 600 : "normal" }}>Tim K3 (Inspeksi & Tindakan)</span>,
       onClick: () => switchRole("tim_k3"),
     },
     {
       key: "role-kepala_unit",
       icon: <SwapOutlined />,
-      label: <span style={{ fontWeight: user?.role === "kepala_unit" ? 600 : "normal" }}>Kepala Unit (Investigasi)</span>,
+      label: <span style={{ fontWeight: activeUser?.role === "kepala_unit" ? 600 : "normal" }}>Kepala Unit (Investigasi)</span>,
       onClick: () => switchRole("kepala_unit"),
     },
     {
       key: "role-pegawai",
       icon: <SwapOutlined />,
-      label: <span style={{ fontWeight: user?.role === "pegawai" ? 600 : "normal" }}>Pegawai (Pelapor & Booking)</span>,
+      label: <span style={{ fontWeight: activeUser?.role === "pegawai" ? 600 : "normal" }}>Pegawai (Pelapor & Booking)</span>,
       onClick: () => switchRole("pegawai"),
     },
     { type: "divider" as const },
@@ -473,16 +504,16 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
                 }}
               >
                 <Avatar
-                  src={user?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=Budi"}
+                  src={activeUser?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=Budi"}
                   icon={<UserOutlined />}
-                  style={{ backgroundColor: "#8c8c8c", flexShrink: 0 }}
+                  style={{ backgroundColor: "#0d9488", flexShrink: 0 }}
                 />
                 <div className="user-profile-info">
                   <Text strong style={{ fontSize: 13, whiteSpace: "nowrap" }}>
-                    {user?.name || "Dr. Budi Santoso, M.K.K."}
+                    {activeUser?.name || "Dr. Budi Santoso, M.K.K."}
                   </Text>
                   <Text type="secondary" style={{ fontSize: 11, whiteSpace: "nowrap" }}>
-                    {roleLabels[user?.role || "admin"]}
+                    {roleLabels[activeUser?.role || "admin"]}
                   </Text>
                 </div>
               </div>

@@ -10,6 +10,11 @@ export interface IUser {
   nip: string;
   avatar?: string;
   createdAt: string;
+  phone?: string;
+  position?: string;
+  gender?: "L" | "P" | string;
+  address?: string;
+  bio?: string;
 }
 
 export interface ILoginRequest {
