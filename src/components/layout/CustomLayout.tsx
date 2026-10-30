@@ -69,7 +69,7 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
   // Mapping breadcrumbs
   const getBreadcrumbItems = () => {
     const path = location.pathname;
-    const items = [{ title: <Link to="/">Dashboard</Link> }];
+    const items = [{ title: <Link to="/dashboard">Dashboard</Link> }];
 
     if (path.includes("/keselamatan")) {
       items.push({ title: <span>Keselamatan</span> });
@@ -128,10 +128,10 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
 
   const menuItems = [
     {
-      key: "/",
+      key: "/dashboard",
       icon: <DashboardOutlined style={{ fontSize: 16 }} />,
       label: "Dashboard",
-      onClick: () => navigate("/"),
+      onClick: () => navigate("/dashboard"),
     },
     {
       key: "keselamatan",
@@ -219,7 +219,7 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
   // Helper active menu keys
   const getSelectedKeys = () => {
     const p = location.pathname;
-    if (p === "/") return ["/"];
+    if (p === "/dashboard" || p === "/") return ["/dashboard"];
     if (p.startsWith("/keselamatan/bahaya-resiko")) return ["/keselamatan/bahaya-resiko"];
     if (p.startsWith("/keselamatan/hiradc")) return ["/keselamatan/hiradc"];
     if (p.startsWith("/keselamatan/investigasi")) return ["/keselamatan/investigasi"];

@@ -35,6 +35,13 @@ import { dataProvider } from "./providers/dataProvider";
 
 // Layout
 import { CustomLayout } from "./components/layout/CustomLayout";
+import { PublicLayout } from "./components/public";
+
+// Public Pages
+import { LandingPage } from "./pages/public/landing";
+import { BeritaListPage } from "./pages/public/berita";
+import { BeritaDetailPage } from "./pages/public/berita/detail";
+import { PosterListPage } from "./pages/public/poster";
 
 // Pages
 import { LoginPage } from "./pages/login";
@@ -122,10 +129,27 @@ function App() {
               resources={[
                 {
                   name: "dashboard",
-                  list: "/",
+                  list: "/dashboard",
                   meta: {
                     label: "Dashboard",
                     icon: <DashboardOutlined />,
+                  },
+                },
+                {
+                  name: "edukasi",
+                  list: "/berita",
+                  show: "/berita/:slug",
+                  meta: {
+                    label: "Edukasi K3",
+                    hide: true,
+                  },
+                },
+                {
+                  name: "poster",
+                  list: "/poster",
+                  meta: {
+                    label: "Poster K3",
+                    hide: true,
                   },
                 },
                 {
@@ -312,7 +336,7 @@ function App() {
                     </Authenticated>
                   }
                 >
-                  <Route index element={<DashboardPage />} />
+                  <Route path="/dashboard" element={<DashboardPage />} />
 
                   {/* Keselamatan */}
                   <Route path="/keselamatan/bahaya-resiko">
@@ -377,14 +401,22 @@ function App() {
                   <Route path="*" element={<ErrorComponent />} />
                 </Route>
 
-                {/* Public routes */}
+                {/* Halaman Publik (TIDAK dibungkus Authenticated) */}
+                <Route element={<PublicLayout />}>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/berita" element={<BeritaListPage />} />
+                  <Route path="/berita/:slug" element={<BeritaDetailPage />} />
+                  <Route path="/poster" element={<PosterListPage />} />
+                </Route>
+
+                {/* Login route */}
                 <Route
                   element={
                     <Authenticated
                       key="authenticated-outer"
                       fallback={<Outlet />}
                     >
-                      <NavigateToResource />
+                      <NavigateToResource resource="dashboard" />
                     </Authenticated>
                   }
                 >

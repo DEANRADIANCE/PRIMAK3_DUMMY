@@ -15,15 +15,34 @@ const applyFilters = (data: any[], filters?: CrudFilters) => {
     return filters.every((filter) => {
       if ("field" in filter) {
         const { field, operator, value } = filter;
-        const itemValue = item[field];
 
-        if (value === undefined || value === null || value === "") return true;
+        if (value === undefined || value === null || value === "" || value === "Semua" || value === "all") {
+          return true;
+        }
+
+        // Search global via field "q"
+        if (field === "q") {
+          const searchStr = String(value).toLowerCase().trim();
+          if (!searchStr) return true;
+          return (
+            String(item.title || "").toLowerCase().includes(searchStr) ||
+            String(item.excerpt || item.summary || "").toLowerCase().includes(searchStr) ||
+            String(item.description || "").toLowerCase().includes(searchStr) ||
+            String(item.content || "").toLowerCase().includes(searchStr) ||
+            String(typeof item.category === "object" ? item.category?.name : item.category || "").toLowerCase().includes(searchStr)
+          );
+        }
+
+        const rawItemValue = item[field];
+        const itemValue = typeof rawItemValue === "object" && rawItemValue !== null
+          ? (rawItemValue.name || rawItemValue.slug || "")
+          : rawItemValue;
 
         switch (operator) {
           case "eq":
-            return itemValue === value;
+            return String(itemValue || "").toLowerCase() === String(value).toLowerCase();
           case "ne":
-            return itemValue !== value;
+            return String(itemValue || "").toLowerCase() !== String(value).toLowerCase();
           case "contains":
             return String(itemValue || "")
               .toLowerCase()
@@ -33,9 +52,9 @@ const applyFilters = (data: any[], filters?: CrudFilters) => {
               .toLowerCase()
               .startsWith(String(value).toLowerCase());
           case "in":
-            return Array.isArray(value) && value.includes(itemValue);
+            return Array.isArray(value) && value.map((v) => String(v).toLowerCase()).includes(String(itemValue || "").toLowerCase());
           case "nin":
-            return Array.isArray(value) && !value.includes(itemValue);
+            return Array.isArray(value) && !value.map((v) => String(v).toLowerCase()).includes(String(itemValue || "").toLowerCase());
           case "null":
             return itemValue === null || itemValue === undefined;
           case "nnull":
@@ -112,7 +131,7 @@ export const dataProvider: DataProvider = {
 
   getOne: async <TData extends BaseRecord = BaseRecord>({ resource, id }: any) => {
     const list = mockDb[resource] || [];
-    const item = list.find((it) => String(it.id) === String(id));
+    const item = list.find((it) => String(it.id) === String(id) || (it.slug && it.slug === id));
 
     if (!item) {
       throw new Error(`Record with id ${id} not found in ${resource}`);

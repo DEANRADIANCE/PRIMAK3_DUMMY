@@ -11,3 +11,4 @@ export * from "./article";
 export * from "./poster";
 export * from "./dashboard";
 export * from "./settings";
+export * from "./public";

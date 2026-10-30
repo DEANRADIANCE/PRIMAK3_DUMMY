@@ -67,7 +67,7 @@ export const authProvider: AuthProvider = {
     setStoredUser(user);
     return {
       success: true,
-      redirectTo: "/",
+      redirectTo: "/dashboard",
       successNotification: {
         message: "Login Berhasil",
         description: `Selamat datang kembali, ${user.name} (${user.role.toUpperCase()})`,
@@ -79,7 +79,7 @@ export const authProvider: AuthProvider = {
     setStoredUser(null);
     return {
       success: true,
-      redirectTo: "/login",
+      redirectTo: "/",
       successNotification: {
         message: "Logout Berhasil",
         description: "Anda telah keluar dari sistem PRIMA K3.",

@@ -11,6 +11,7 @@ import { initialArticles, initialArticleCategories } from "./articles";
 import { initialPosters } from "./posters";
 import { initialSettings } from "./settings";
 import { initialDashboardSummary } from "./dashboard";
+import { initialPublicArticles, initialPublicPosters } from "./publicData";
 
 // In-memory data store yang mendukung mutasi (create/update/delete)
 export const mockDb: Record<string, any[]> = {
@@ -29,6 +30,8 @@ export const mockDb: Record<string, any[]> = {
   "article-categories": [...initialArticleCategories],
   posters: [...initialPosters],
   settings: [{ ...initialSettings }],
+  edukasi: [...initialPublicArticles],
+  poster: [...initialPublicPosters],
 };
 
 export {
@@ -49,4 +52,6 @@ export {
   initialPosters,
   initialSettings,
   initialDashboardSummary,
+  initialPublicArticles,
+  initialPublicPosters,
 };
