@@ -36,7 +36,7 @@ import { useNavigate, useLocation, Link } from "react-router";
 import { useGetIdentity, useLogout } from "@refinedev/core";
 import { IUser } from "../../types/user";
 import { EmergencyModal } from "../common/EmergencyModal";
-import { switchRole, getStoredUser } from "../../providers/authProvider";
+import { switchRole, getStoredUser, setStoredUser } from "../../providers/authProvider";
 
 const { Header, Sider, Content, Footer } = Layout;
 const { Text } = Typography;
@@ -65,6 +65,20 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
   }, []);
 
   const activeUser = currentUser || user;
+
+  const handleLogout = () => {
+    // 1. Bersihkan user dari local storage terlebih dahulu
+    setStoredUser(null);
+    window.dispatchEvent(new CustomEvent("prima_user_updated", { detail: null }));
+
+    // 2. Langsung arahkan ke halaman page awal (Landing Page /)
+    navigate("/", { replace: true });
+
+    // 3. Panggil logout refine untuk sinkronisasi auth state dan trigger notifikasi sukses
+    setTimeout(() => {
+      logout({ redirectPath: "/" });
+    }, 50);
+  };
 
   // Mapping breadcrumbs
   const getBreadcrumbItems = () => {
@@ -316,7 +330,7 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
       danger: true,
       icon: <LogoutOutlined />,
       label: "Keluar (Logout)",
-      onClick: () => logout(),
+      onClick: handleLogout,
     },
   ];
 
@@ -616,15 +630,31 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
           </div>
         }
       >
-        <div style={{ padding: "12px 0", height: "100%", overflowY: "auto" }}>
-          <Menu
-            mode="inline"
-            selectedKeys={getSelectedKeys()}
-            defaultOpenKeys={getOpenKeys()}
-            items={menuItems}
-            onClick={() => setMobileDrawerOpen(false)}
-            style={{ background: "transparent", borderRight: "none" }}
-          />
+        <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+          <div style={{ flex: 1, padding: "12px 0", overflowY: "auto" }}>
+            <Menu
+              mode="inline"
+              selectedKeys={getSelectedKeys()}
+              defaultOpenKeys={getOpenKeys()}
+              items={menuItems}
+              onClick={() => setMobileDrawerOpen(false)}
+              style={{ background: "transparent", borderRight: "none" }}
+            />
+          </div>
+          <div style={{ padding: "16px", borderTop: "1px solid #e8e8e8", background: "#f5f5f5" }}>
+            <Button
+              danger
+              block
+              icon={<LogoutOutlined />}
+              onClick={() => {
+                setMobileDrawerOpen(false);
+                handleLogout();
+              }}
+              style={{ borderRadius: 8, height: 40, fontWeight: 500 }}
+            >
+              Keluar (Logout)
+            </Button>
+          </div>
         </div>
       </Drawer>
 
