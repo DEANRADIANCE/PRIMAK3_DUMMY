@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   Row,
   Col,
@@ -43,19 +43,41 @@ export const EdukasiTab: React.FC = () => {
   // Debounced search state
   const [searchInput, setSearchInput] = useState(urlSearch);
   const [sortOption, setSortOption] = useState<string>(urlSort);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Modal form states
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState<IArticle | null>(null);
 
-  // Sync debounce search input to query params (400ms)
+  // Keep searchInput in sync if urlSearch changes externally (e.g. back button / reset)
   useEffect(() => {
-    const timer = setTimeout(() => {
+    setSearchInput(urlSearch);
+  }, [urlSearch]);
+
+  // Clean up debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimerRef.current) {
+        clearTimeout(searchTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Handle typing search with debounce without triggering on pagination
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setSearchInput(val);
+
+    if (searchTimerRef.current) {
+      clearTimeout(searchTimerRef.current);
+    }
+
+    searchTimerRef.current = setTimeout(() => {
       setSearchParams(
         (prev) => {
           const next = new URLSearchParams(prev);
-          if (searchInput.trim()) {
-            next.set("q", searchInput.trim());
+          if (val.trim()) {
+            next.set("q", val.trim());
           } else {
             next.delete("q");
           }
@@ -65,9 +87,7 @@ export const EdukasiTab: React.FC = () => {
         { replace: true }
       );
     }, 400);
-
-    return () => clearTimeout(timer);
-  }, [searchInput, setSearchParams]);
+  };
 
   const updateParam = (key: string, value: string | null) => {
     setSearchParams(
@@ -264,7 +284,7 @@ export const EdukasiTab: React.FC = () => {
             placeholder="Cari artikel edukasi..."
             allowClear
             value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
+            onChange={handleSearchChange}
             style={{ borderRadius: 10, height: 42, borderColor: "#cbd5e1" }}
           />
         </Col>
@@ -376,6 +396,9 @@ export const EdukasiTab: React.FC = () => {
               ghost
               style={{ borderColor: "#0d9488", color: "#0d9488", borderRadius: 8 }}
               onClick={() => {
+                if (searchTimerRef.current) {
+                  clearTimeout(searchTimerRef.current);
+                }
                 setSearchInput("");
                 setSearchParams({ tab: "edukasi" });
               }}
