@@ -1,4 +1,15 @@
 import { initialUsers } from "./users";
+import { initialManagedUsers, getStoredManagedUsers, saveStoredManagedUsers, resetStoredManagedUsers } from "./managedUsers";
+import {
+  SYSTEM_ROLES,
+  PERMISSION_DEFINITIONS,
+  DEFAULT_ROLE_PERMISSIONS,
+  getStoredRolePermissions,
+  saveStoredRolePermissions,
+  resetStoredRolePermissions,
+  hasRolePermission,
+  toSystemRole,
+} from "./rolePermissions";
 import { initialHazardReports, initialHazardCategories } from "./hazardReports";
 import { initialHiradc } from "./hiradc";
 import { initialAccidents } from "./accidents";
@@ -14,8 +25,11 @@ import { initialDashboardSummary } from "./dashboard";
 import { initialPublicArticles, initialPublicPosters } from "./publicData";
 
 // In-memory data store yang mendukung mutasi (create/update/delete)
+const currentManagedUsers = getStoredManagedUsers();
 export const mockDb: Record<string, any[]> = {
-  users: [...initialUsers],
+  users: currentManagedUsers,
+  "kelola-user-pengguna": currentManagedUsers,
+  "managed-users": currentManagedUsers,
   "hazard-reports": [...initialHazardReports],
   "hazard-categories": [...initialHazardCategories],
   hiradc: [...initialHiradc],
@@ -54,4 +68,16 @@ export {
   initialDashboardSummary,
   initialPublicArticles,
   initialPublicPosters,
+  initialManagedUsers,
+  getStoredManagedUsers,
+  saveStoredManagedUsers,
+  resetStoredManagedUsers,
+  SYSTEM_ROLES,
+  PERMISSION_DEFINITIONS,
+  DEFAULT_ROLE_PERMISSIONS,
+  getStoredRolePermissions,
+  saveStoredRolePermissions,
+  resetStoredRolePermissions,
+  hasRolePermission,
+  toSystemRole,
 };

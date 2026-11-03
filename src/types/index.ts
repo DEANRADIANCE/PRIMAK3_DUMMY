@@ -1,4 +1,5 @@
 export * from "./user";
+export * from "./userManagement";
 export * from "./hazard";
 export * from "./hiradc";
 export * from "./accident";

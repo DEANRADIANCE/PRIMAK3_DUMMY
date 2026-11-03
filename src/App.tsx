@@ -1,4 +1,4 @@
-import { Refine, Authenticated } from "@refinedev/core";
+import { Refine, Authenticated, CanAccess } from "@refinedev/core";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 import { useNotificationProvider, ErrorComponent } from "@refinedev/antd";
 import "@refinedev/antd/dist/reset.css";
@@ -26,6 +26,8 @@ import {
   BellOutlined,
   ReadOutlined,
   FileImageOutlined,
+  TeamOutlined,
+  UserAddOutlined,
 } from "@ant-design/icons";
 
 // Providers
@@ -82,6 +84,12 @@ import { PosterList } from "./pages/media-informasi/flayer-poster/list";
 import { PosterCreate } from "./pages/media-informasi/flayer-poster/create";
 import { PosterShow } from "./pages/media-informasi/flayer-poster/show";
 import { ProfilePage } from "./pages/profile";
+// Kelola User
+import {
+  UserListPage,
+  RolePermissionsPage,
+  ForbiddenPage,
+} from "./pages/kelola-user";
 
 // Ant Design theme
 const theme = {
@@ -300,6 +308,31 @@ function App() {
                     canDelete: true,
                   },
                 },
+                {
+                  name: "kelola-user",
+                  meta: {
+                    label: "Kelola User",
+                    icon: <TeamOutlined />,
+                  },
+                },
+                {
+                  name: "kelola-user-pengguna",
+                  list: "/kelola-user/pengguna",
+                  meta: {
+                    label: "Manajemen Pengguna",
+                    parent: "kelola-user",
+                    icon: <UserAddOutlined />,
+                  },
+                },
+                {
+                  name: "kelola-user-hak-akses",
+                  list: "/kelola-user/hak-akses",
+                  meta: {
+                    label: "Hak Akses User",
+                    parent: "kelola-user",
+                    icon: <SafetyCertificateOutlined />,
+                  },
+                },
               ]}
               options={{
                 syncWithLocation: true,
@@ -397,6 +430,32 @@ function App() {
                   {/* Profil Pengguna */}
                   <Route path="/profil" element={<ProfilePage />} />
                   <Route path="/profile" element={<ProfilePage />} />
+
+                  {/* Kelola User */}
+                  <Route
+                    path="/kelola-user/pengguna"
+                    element={
+                      <CanAccess
+                        resource="kelola-user-pengguna"
+                        action="list"
+                        fallback={<ForbiddenPage />}
+                      >
+                        <UserListPage />
+                      </CanAccess>
+                    }
+                  />
+                  <Route
+                    path="/kelola-user/hak-akses"
+                    element={
+                      <CanAccess
+                        resource="kelola-user-hak-akses"
+                        action="list"
+                        fallback={<ForbiddenPage />}
+                      >
+                        <RolePermissionsPage />
+                      </CanAccess>
+                    }
+                  />
 
                   <Route path="*" element={<ErrorComponent />} />
                 </Route>

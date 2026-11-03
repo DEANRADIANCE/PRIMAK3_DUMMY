@@ -5,7 +5,7 @@ import {
   CrudSorting,
   Pagination,
 } from "@refinedev/core";
-import { mockDb, initialDashboardSummary } from "../mocks";
+import { mockDb, initialDashboardSummary, saveStoredManagedUsers } from "../mocks";
 
 // Helper filtering
 const applyFilters = (data: any[], filters?: CrudFilters) => {
@@ -16,7 +16,15 @@ const applyFilters = (data: any[], filters?: CrudFilters) => {
       if ("field" in filter) {
         const { field, operator, value } = filter;
 
-        if (value === undefined || value === null || value === "" || value === "Semua" || value === "all") {
+        if (
+          value === undefined ||
+          value === null ||
+          value === "" ||
+          value === "Semua" ||
+          value === "all" ||
+          value === "Semua peran" ||
+          value === "Semua status"
+        ) {
           return true;
         }
 
@@ -25,6 +33,9 @@ const applyFilters = (data: any[], filters?: CrudFilters) => {
           const searchStr = String(value).toLowerCase().trim();
           if (!searchStr) return true;
           return (
+            String(item.name || "").toLowerCase().includes(searchStr) ||
+            String(item.email || "").toLowerCase().includes(searchStr) ||
+            String(item.unit || "").toLowerCase().includes(searchStr) ||
             String(item.title || "").toLowerCase().includes(searchStr) ||
             String(item.excerpt || item.summary || "").toLowerCase().includes(searchStr) ||
             String(item.description || "").toLowerCase().includes(searchStr) ||
@@ -170,6 +181,10 @@ export const dataProvider: DataProvider = {
 
     list.unshift(newRecord);
 
+    if (resource === "users" || resource === "kelola-user-pengguna" || resource === "managed-users") {
+      saveStoredManagedUsers(list);
+    }
+
     return {
       data: newRecord as unknown as TData,
     };
@@ -193,6 +208,10 @@ export const dataProvider: DataProvider = {
 
     list[index] = updatedRecord;
 
+    if (resource === "users" || resource === "kelola-user-pengguna" || resource === "managed-users") {
+      saveStoredManagedUsers(list);
+    }
+
     return {
       data: updatedRecord as unknown as TData,
     };
@@ -207,6 +226,10 @@ export const dataProvider: DataProvider = {
     }
 
     const deleted = list.splice(index, 1)[0];
+
+    if (resource === "users" || resource === "kelola-user-pengguna" || resource === "managed-users") {
+      saveStoredManagedUsers(list);
+    }
 
     return {
       data: deleted as unknown as TData,

@@ -31,12 +31,15 @@ import {
   AlertOutlined,
   SwapOutlined,
   AuditOutlined,
+  TeamOutlined,
+  UserAddOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation, Link } from "react-router";
 import { useGetIdentity, useLogout } from "@refinedev/core";
 import { IUser } from "../../types/user";
 import { EmergencyModal } from "../common/EmergencyModal";
 import { switchRole, getStoredUser, setStoredUser } from "../../providers/authProvider";
+import { toSystemRole, hasRolePermission } from "../../mocks/rolePermissions";
 
 const { Header, Sider, Content, Footer } = Layout;
 const { Text } = Typography;
@@ -133,12 +136,24 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
         items.push({ title: <Link to="/media/flayer-poster">Flayer & Poster</Link> });
         if (path.includes("/create")) items.push({ title: <span>Unggah Poster</span> });
       }
+    } else if (path.includes("/kelola-user")) {
+      items.push({ title: <span>Kelola User</span> });
+      if (path.includes("/pengguna")) {
+        items.push({ title: <Link to="/kelola-user/pengguna">Manajemen Pengguna</Link> });
+      } else if (path.includes("/hak-akses")) {
+        items.push({ title: <Link to="/kelola-user/hak-akses">Hak Akses Peran</Link> });
+      }
     } else if (path.startsWith("/profil") || path.startsWith("/profile")) {
       items.push({ title: <span>Edit Profil</span> });
     }
 
     return items;
   };
+
+  const userSystemRole = toSystemRole(activeUser?.role);
+  const canManageUsers = hasRolePermission(userSystemRole, "pengguna.kelola");
+  const canManagePermissions = hasRolePermission(userSystemRole, "hakakses.kelola");
+  const canAccessUserModule = canManageUsers || canManagePermissions;
 
   const menuItems = [
     {
@@ -228,6 +243,37 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
         },
       ],
     },
+    ...(canAccessUserModule
+      ? [
+          {
+            key: "kelola-user",
+            icon: <TeamOutlined style={{ fontSize: 16 }} />,
+            label: "Kelola User",
+            children: [
+              ...(canManageUsers
+                ? [
+                    {
+                      key: "/kelola-user/pengguna",
+                      icon: <UserAddOutlined />,
+                      label: "Manajemen Pengguna",
+                      onClick: () => navigate("/kelola-user/pengguna"),
+                    },
+                  ]
+                : []),
+              ...(canManagePermissions
+                ? [
+                    {
+                      key: "/kelola-user/hak-akses",
+                      icon: <SafetyCertificateOutlined />,
+                      label: "Hak Akses User",
+                      onClick: () => navigate("/kelola-user/hak-akses"),
+                    },
+                  ]
+                : []),
+            ],
+          },
+        ]
+      : []),
   ];
 
   // Helper active menu keys
@@ -244,6 +290,8 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
     if (p.startsWith("/media/pemberitahuan")) return ["/media/pemberitahuan"];
     if (p.startsWith("/media/edukasi")) return ["/media/edukasi"];
     if (p.startsWith("/media/flayer-poster")) return ["/media/flayer-poster"];
+    if (p.startsWith("/kelola-user/pengguna")) return ["/kelola-user/pengguna"];
+    if (p.startsWith("/kelola-user/hak-akses")) return ["/kelola-user/hak-akses"];
     return [p];
   };
 
@@ -252,14 +300,22 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
     if (p.startsWith("/keselamatan")) return ["keselamatan"];
     if (p.startsWith("/kesehatan")) return ["kesehatan"];
     if (p.startsWith("/media")) return ["media-informasi"];
-    return ["keselamatan", "kesehatan", "media-informasi"];
+    if (p.startsWith("/kelola-user")) return ["kelola-user"];
+    return ["keselamatan", "kesehatan", "media-informasi", "kelola-user"];
   };
 
   const roleLabels: Record<string, string> = {
-    admin: "Admin Prima K3 / Admin",
+    admin: "Admin Prima K3 / Admin Sistem",
+    "Admin Sistem": "Admin Prima K3 / Admin Sistem",
     tim_k3: "Tim K3 / Tim Keselamatan",
+    "Pengelola K3": "Tim K3 / Pengelola K3",
     kepala_unit: "Kepala Unit Kerja",
+    "Pimpinan Unit Kerja": "Pimpinan Unit Kerja",
+    "Kepala Biro KU": "Kepala Biro KU",
+    psikolog: "Layanan Konseling / Psikolog",
+    Psikolog: "Layanan Konseling / Psikolog",
     pegawai: "Pegawai ANRI",
+    Pegawai: "Pegawai ANRI",
   };
 
   const userDropdownItems = [
