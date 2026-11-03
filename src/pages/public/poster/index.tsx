@@ -8,6 +8,7 @@ import {
   CategoryChips,
   SearchToolbar,
 } from "../../../components/public";
+import { useScrollReveal } from "../useScrollReveal";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -86,6 +87,9 @@ export const PosterListPage: React.FC = () => {
   const isError = query.isError;
   const refetch = query.refetch;
 
+  // Aktifkan animasi scroll untuk daftar poster dan elemen interaktif
+  useScrollReveal([posters, isLoading, page, kategori, q, sort]);
+
   const handleResetFilters = () => {
     setSearchParams(new URLSearchParams());
   };
@@ -101,7 +105,7 @@ export const PosterListPage: React.FC = () => {
           textAlign: "center",
         }}
       >
-        <div style={{ maxWidth: 800, margin: "0 auto" }}>
+        <div className="pub-reveal" style={{ maxWidth: 800, margin: "0 auto" }}>
           <span
             style={{
               display: "inline-block",
@@ -146,21 +150,23 @@ export const PosterListPage: React.FC = () => {
       {/* Main Content Area */}
       <div style={{ maxWidth: 1240, margin: "0 auto", padding: "40px 20px 0 20px" }}>
         {/* Toolbar: Search input + Popover Filter + Sort Toggle */}
-        <SearchToolbar
-          placeholder="Cari poster K3..."
-          searchValue={q}
-          onSearchChange={(val) => updateQuery({ q: val })}
-          sortOrder={sort}
-          onSortChange={(order) => updateQuery({ sort: order })}
-          categories={POSTER_CATEGORIES}
-          selectedCategory={kategori}
-          onCategoryChange={(cat) => updateQuery({ kategori: cat })}
-          onResetFilters={handleResetFilters}
-          style={{ marginBottom: 20 }}
-        />
+        <div className="pub-reveal pub-delay-1">
+          <SearchToolbar
+            placeholder="Cari poster K3..."
+            searchValue={q}
+            onSearchChange={(val) => updateQuery({ q: val })}
+            sortOrder={sort}
+            onSortChange={(order) => updateQuery({ sort: order })}
+            categories={POSTER_CATEGORIES}
+            selectedCategory={kategori}
+            onCategoryChange={(cat) => updateQuery({ kategori: cat })}
+            onResetFilters={handleResetFilters}
+            style={{ marginBottom: 20 }}
+          />
+        </div>
 
         {/* Chip Kategori */}
-        <div style={{ marginBottom: 32 }}>
+        <div className="pub-reveal pub-delay-2" style={{ marginBottom: 32 }}>
           <CategoryChips
             categories={POSTER_CATEGORIES}
             selectedCategory={kategori}
@@ -189,7 +195,7 @@ export const PosterListPage: React.FC = () => {
         {isLoading && (
           <Row gutter={[24, 24]}>
             {[1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
-              <Col xs={24} sm={12} md={8} lg={6} key={idx}>
+              <Col xs={24} sm={12} md={8} lg={6} key={idx} className={`pub-reveal pub-delay-${(idx % 8) + 1}`}>
                 <div
                   style={{
                     backgroundColor: "#ffffff",
@@ -211,6 +217,7 @@ export const PosterListPage: React.FC = () => {
         {/* State Empty */}
         {!isLoading && !isError && posters.length === 0 && (
           <div
+            className="pub-reveal"
             style={{
               padding: "60px 20px",
               textAlign: "center",
@@ -237,8 +244,8 @@ export const PosterListPage: React.FC = () => {
         {!isLoading && !isError && posters.length > 0 && (
           <>
             <Row gutter={[24, 24]}>
-              {posters.map((poster) => (
-                <Col xs={24} sm={12} md={8} lg={6} key={poster.id}>
+              {posters.map((poster, idx) => (
+                <Col xs={24} sm={12} md={8} lg={6} key={poster.id} className={`pub-reveal pub-delay-${(idx % 8) + 1}`}>
                   <PosterCard poster={poster} />
                 </Col>
               ))}
@@ -246,6 +253,7 @@ export const PosterListPage: React.FC = () => {
 
             {/* Bawah Grid: Teks Dinamis & Pagination Ant Design */}
             <div
+              className="pub-reveal"
               style={{
                 marginTop: 48,
                 paddingTop: 24,

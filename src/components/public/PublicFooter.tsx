@@ -32,6 +32,7 @@ export const PublicFooter: React.FC = () => {
 
   return (
     <footer
+      className="pub-reveal"
       style={{
         backgroundColor: "#f8fafc",
         borderTop: "1px solid #e2e8f0",

@@ -12,6 +12,7 @@ import { useList } from "@refinedev/core";
 import dayjs from "dayjs";
 import { Article } from "../../../types/public";
 import { ArticleCard } from "../../../components/public";
+import { useScrollReveal } from "../useScrollReveal";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -60,6 +61,9 @@ export const BeritaDetailPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [article, slug]);
 
+  // Aktifkan animasi scroll untuk detail artikel dan artikel terkait
+  useScrollReveal([article, relatedArticles, isLoading]);
+
   if (isLoading) {
     return (
       <div style={{ maxWidth: 840, margin: "40px auto", padding: "0 20px" }}>
@@ -97,6 +101,7 @@ export const BeritaDetailPage: React.FC = () => {
     <div style={{ width: "100%", paddingBottom: 80, backgroundColor: "#ffffff" }}>
       {/* Top Navigation Bar */}
       <div
+        className="pub-reveal"
         style={{
           backgroundColor: "#f8fafc",
           borderBottom: "1px solid #e2e8f0",
@@ -118,7 +123,7 @@ export const BeritaDetailPage: React.FC = () => {
       {/* Main Article Container */}
       <article style={{ maxWidth: 880, margin: "0 auto", padding: "40px 20px 0 20px" }}>
         {/* Category & Date Header */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 14 }}>
+        <div className="pub-reveal pub-delay-1" style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 14 }}>
           <span
             style={{
               fontSize: 12,
@@ -145,6 +150,7 @@ export const BeritaDetailPage: React.FC = () => {
         {/* Title */}
         <Title
           level={1}
+          className="pub-reveal pub-delay-1"
           style={{
             fontSize: "clamp(24px, 3.6vw, 36px)",
             fontWeight: 800,
@@ -158,6 +164,7 @@ export const BeritaDetailPage: React.FC = () => {
 
         {/* Excerpt Lead */}
         <Paragraph
+          className="pub-reveal pub-delay-2"
           style={{
             fontSize: 17,
             color: "#475569",
@@ -173,6 +180,7 @@ export const BeritaDetailPage: React.FC = () => {
 
         {/* Hero Image */}
         <div
+          className="pub-reveal-scale pub-delay-2"
           style={{
             position: "relative",
             width: "100%",
@@ -192,6 +200,7 @@ export const BeritaDetailPage: React.FC = () => {
 
         {/* Article Body Content */}
         <div
+          className="pub-reveal"
           style={{
             fontSize: 16,
             lineHeight: 1.8,
@@ -204,6 +213,7 @@ export const BeritaDetailPage: React.FC = () => {
 
         {/* Article Footer Info */}
         <div
+          className="pub-reveal"
           style={{
             marginTop: 48,
             padding: "20px 24px",
@@ -250,14 +260,14 @@ export const BeritaDetailPage: React.FC = () => {
 
         {/* Artikel Terkait */}
         {relatedArticles.length > 0 && (
-          <div style={{ marginTop: 64 }}>
+          <div className="pub-reveal" style={{ marginTop: 64 }}>
             <Divider />
             <Title level={3} style={{ fontSize: 20, fontWeight: 700, color: "#1e293b", marginBottom: 24 }}>
               Artikel Edukasi Lainnya
             </Title>
             <Row gutter={[20, 20]}>
-              {relatedArticles.map((rel) => (
-                <Col xs={24} sm={12} md={8} key={rel.id}>
+              {relatedArticles.map((rel, idx) => (
+                <Col xs={24} sm={12} md={8} key={rel.id} className={`pub-reveal pub-delay-${idx + 1}`}>
                   <ArticleCard article={rel} />
                 </Col>
               ))}

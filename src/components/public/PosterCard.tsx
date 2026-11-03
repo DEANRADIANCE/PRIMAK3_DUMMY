@@ -50,6 +50,7 @@ export const PosterCard: React.FC<PosterCardProps> = ({ poster, style }) => {
     <>
       <Card
         hoverable
+        className="pub-hover-card"
         onClick={() => setPreviewOpen(true)}
         style={{
           height: "100%",

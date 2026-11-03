@@ -35,6 +35,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, style }) => {
   return (
     <Card
       hoverable
+      className="pub-hover-card"
       onClick={() => navigate(`/berita/${article.slug}`)}
       style={{
         height: "100%",
@@ -43,7 +44,6 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, style }) => {
         borderRadius: 12,
         overflow: "hidden",
         border: "1px solid #e2e8f0",
-        transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
         cursor: "pointer",
         ...style,
@@ -65,6 +65,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, style }) => {
           }}
         >
           <img
+            className="pub-zoom-image"
             src={article.thumbnail_url || "https://images.unsplash.com/photo-1527689368864-3a821dbccc34?auto=format&fit=crop&w=800&q=80"}
             alt={article.title}
             style={{
@@ -74,7 +75,6 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, style }) => {
               width: "100%",
               height: "100%",
               objectFit: "cover",
-              transition: "transform 0.4s ease",
             }}
             loading="lazy"
             onError={(e) => {

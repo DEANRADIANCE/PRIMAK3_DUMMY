@@ -14,6 +14,7 @@ import { Link, useNavigate, useLocation } from "react-router";
 import { useList, useIsAuthenticated } from "@refinedev/core";
 import { Article, Poster } from "../../../types/public";
 import { SectionHeader, ArticleCard, PosterCard } from "../../../components/public";
+import { useScrollReveal } from "../useScrollReveal";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -77,6 +78,9 @@ export const LandingPage: React.FC = () => {
   const articlesLoading = articlesQuery.isLoading;
   const postersLoading = postersQuery.isLoading;
 
+  // Aktifkan animasi scroll untuk seluruh section dan asynchronous content
+  useScrollReveal([latestArticles, latestPosters, articlesLoading, postersLoading]);
+
   return (
     <div style={{ width: "100%", overflowX: "hidden" }}>
       {/* 1. HERO SECTION (Latar Abu, 2 Kolom) */}
@@ -91,7 +95,7 @@ export const LandingPage: React.FC = () => {
           <Row gutter={[48, 48]} align="middle">
             {/* Kolom Kiri: Teks & Aksi */}
             <Col xs={24} lg={13}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div className="pub-reveal-left" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 {/* Badge Kecil */}
                 <div>
                   <span
@@ -198,6 +202,7 @@ export const LandingPage: React.FC = () => {
             {/* Kolom Kanan: Placeholder Ilustrasi Pegawai ANRI Bekerja dengan Aman (Rasio Tetap) */}
             <Col xs={24} lg={11}>
               <div
+                className="pub-reveal-right"
                 style={{
                   position: "relative",
                   width: "100%",
@@ -224,6 +229,7 @@ export const LandingPage: React.FC = () => {
                 />
                 {/* Floating Glassmorphic Badge */}
                 <div
+                  className="pub-float"
                   style={{
                     position: "absolute",
                     bottom: 20,
@@ -282,7 +288,7 @@ export const LandingPage: React.FC = () => {
       >
         <div style={{ maxWidth: 1240, margin: "0 auto" }}>
           {/* Eyebrow, Judul, Subjudul */}
-          <div style={{ maxWidth: 760, marginBottom: 48 }}>
+          <div className="pub-reveal" style={{ maxWidth: 760, marginBottom: 48 }}>
             <div style={{ marginBottom: 10 }}>
               <span
                 style={{
@@ -327,19 +333,20 @@ export const LandingPage: React.FC = () => {
           {/* 4 Kartu Fitur (Row/Col: 4 kolom di desktop, 2 tablet, 1 mobile) */}
           <Row gutter={[24, 24]}>
             {/* Kartu a: Pelaporan kecelakaan kerja */}
-            <Col xs={24} sm={12} lg={6}>
+            <Col xs={24} sm={12} lg={6} className="pub-reveal pub-delay-1">
               <Card
                 hoverable
+                className="pub-hover-card"
                 style={{
                   height: "100%",
                   borderRadius: 12,
                   border: "1px solid #e2e8f0",
                   boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
-                  transition: "all 0.3s ease",
                 }}
                 bodyStyle={{ padding: 24, display: "flex", flexDirection: "column", height: "100%" }}
               >
                 <div
+                  className="pub-icon-wrapper"
                   style={{
                     width: 52,
                     height: 52,
@@ -363,19 +370,20 @@ export const LandingPage: React.FC = () => {
             </Col>
 
             {/* Kartu b: Konseling psikologi */}
-            <Col xs={24} sm={12} lg={6}>
+            <Col xs={24} sm={12} lg={6} className="pub-reveal pub-delay-2">
               <Card
                 hoverable
+                className="pub-hover-card"
                 style={{
                   height: "100%",
                   borderRadius: 12,
                   border: "1px solid #e2e8f0",
                   boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
-                  transition: "all 0.3s ease",
                 }}
                 bodyStyle={{ padding: 24, display: "flex", flexDirection: "column", height: "100%" }}
               >
                 <div
+                  className="pub-icon-wrapper"
                   style={{
                     width: 52,
                     height: 52,
@@ -399,19 +407,20 @@ export const LandingPage: React.FC = () => {
             </Col>
 
             {/* Kartu c: Dashboard kesehatan pegawai */}
-            <Col xs={24} sm={12} lg={6}>
+            <Col xs={24} sm={12} lg={6} className="pub-reveal pub-delay-3">
               <Card
                 hoverable
+                className="pub-hover-card"
                 style={{
                   height: "100%",
                   borderRadius: 12,
                   border: "1px solid #e2e8f0",
                   boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
-                  transition: "all 0.3s ease",
                 }}
                 bodyStyle={{ padding: 24, display: "flex", flexDirection: "column", height: "100%" }}
               >
                 <div
+                  className="pub-icon-wrapper"
                   style={{
                     width: 52,
                     height: 52,
@@ -435,19 +444,20 @@ export const LandingPage: React.FC = () => {
             </Col>
 
             {/* Kartu d: Edukasi dan informasi K3 */}
-            <Col xs={24} sm={12} lg={6}>
+            <Col xs={24} sm={12} lg={6} className="pub-reveal pub-delay-4">
               <Card
                 hoverable
+                className="pub-hover-card"
                 style={{
                   height: "100%",
                   borderRadius: 12,
                   border: "1px solid #e2e8f0",
                   boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
-                  transition: "all 0.3s ease",
                 }}
                 bodyStyle={{ padding: 24, display: "flex", flexDirection: "column", height: "100%" }}
               >
                 <div
+                  className="pub-icon-wrapper"
                   style={{
                     width: 52,
                     height: 52,
@@ -508,16 +518,16 @@ export const LandingPage: React.FC = () => {
           {/* 3 Kartu Artikel */}
           <Row gutter={[24, 24]}>
             {articlesLoading ? (
-              [1, 2, 3].map((n) => (
-                <Col xs={24} md={12} lg={8} key={n}>
+              [1, 2, 3].map((n, idx) => (
+                <Col xs={24} md={12} lg={8} key={n} className={`pub-reveal pub-delay-${idx + 1}`}>
                   <Card style={{ borderRadius: 12, height: 360 }}>
                     <Skeleton active />
                   </Card>
                 </Col>
               ))
             ) : (
-              latestArticles.map((article) => (
-                <Col xs={24} md={12} lg={8} key={article.id}>
+              latestArticles.map((article, idx) => (
+                <Col xs={24} md={12} lg={8} key={article.id} className={`pub-reveal pub-delay-${idx + 1}`}>
                   <ArticleCard article={article} />
                 </Col>
               ))
@@ -560,16 +570,16 @@ export const LandingPage: React.FC = () => {
           {/* 4 Kartu Poster */}
           <Row gutter={[24, 24]}>
             {postersLoading ? (
-              [1, 2, 3, 4].map((n) => (
-                <Col xs={24} sm={12} lg={6} key={n}>
+              [1, 2, 3, 4].map((n, idx) => (
+                <Col xs={24} sm={12} lg={6} key={n} className={`pub-reveal pub-delay-${idx + 1}`}>
                   <Card style={{ borderRadius: 12, height: 380 }}>
                     <Skeleton active />
                   </Card>
                 </Col>
               ))
             ) : (
-              latestPosters.map((poster) => (
-                <Col xs={24} sm={12} lg={6} key={poster.id}>
+              latestPosters.map((poster, idx) => (
+                <Col xs={24} sm={12} lg={6} key={poster.id} className={`pub-reveal pub-delay-${idx + 1}`}>
                   <PosterCard poster={poster} />
                 </Col>
               ))

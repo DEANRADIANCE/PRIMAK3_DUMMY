@@ -1,0 +1,158 @@
+/* ======================================================== */
+/* PRIMA K3 - Public Pages Scroll Animation & Interactions  */
+/* ======================================================== */
+
+/* Keyframe Animations */
+@keyframes pubFloatSoft {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes pubPulseGlow {
+  0%, 100% {
+    box-shadow: 0 4px 14px rgba(15, 118, 110, 0.18);
+  }
+  50% {
+    box-shadow: 0 8px 26px rgba(15, 118, 110, 0.32);
+  }
+}
+
+@keyframes pubShimmerSlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ======================================================== */
+/* Scroll Reveal Base Classes                               */
+/* ======================================================== */
+
+/* Fade & Slide Up */
+.pub-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.68s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.68s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+/* Fade & Slide From Left */
+.pub-reveal-left {
+  opacity: 0;
+  transform: translateX(-36px);
+  transition: opacity 0.72s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.72s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+/* Fade & Slide From Right */
+.pub-reveal-right {
+  opacity: 0;
+  transform: translateX(36px);
+  transition: opacity 0.72s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.72s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+/* Fade & Scale Up */
+.pub-reveal-scale {
+  opacity: 0;
+  transform: scale(0.93) translateY(18px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+/* Triggered is-visible State */
+.pub-reveal.is-visible,
+.pub-reveal-left.is-visible,
+.pub-reveal-right.is-visible,
+.pub-reveal-scale.is-visible {
+  opacity: 1 !important;
+  transform: translate(0) scale(1) !important;
+}
+
+/* ======================================================== */
+/* Stagger Delays for Cascade Effects                       */
+/* ======================================================== */
+
+.pub-delay-1 { transition-delay: 0.06s; }
+.pub-delay-2 { transition-delay: 0.12s; }
+.pub-delay-3 { transition-delay: 0.18s; }
+.pub-delay-4 { transition-delay: 0.24s; }
+.pub-delay-5 { transition-delay: 0.30s; }
+.pub-delay-6 { transition-delay: 0.36s; }
+.pub-delay-7 { transition-delay: 0.42s; }
+.pub-delay-8 { transition-delay: 0.48s; }
+
+/* ======================================================== */
+/* Interactive Cards & Elements                             */
+/* ======================================================== */
+
+/* Smooth Card Hover with Lift & Glow */
+.pub-hover-card {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.3s ease !important;
+}
+
+.pub-hover-card:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 14px 30px -6px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(15, 118, 110, 0.08) !important;
+  border-color: #99f6e4 !important;
+}
+
+/* Floating Animation */
+.pub-float {
+  animation: pubFloatSoft 4s ease-in-out infinite;
+}
+
+/* Image Zoom on Parent Card Hover */
+.pub-zoom-image {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.pub-hover-card:hover .pub-zoom-image {
+  transform: scale(1.05) !important;
+}
+
+/* Subtle Glowing Ring on Feature Icons */
+.pub-icon-wrapper {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.pub-hover-card:hover .pub-icon-wrapper {
+  transform: scale(1.1) rotate(2deg);
+}
+
+/* ======================================================== */
+/* Accessibility: Reduced Motion                            */
+/* ======================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .pub-reveal,
+  .pub-reveal-left,
+  .pub-reveal-right,
+  .pub-reveal-scale {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .pub-float {
+    animation: none !important;
+  }
+  .pub-hover-card:hover {
+    transform: none !important;
+  }
+}

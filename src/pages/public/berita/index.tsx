@@ -8,6 +8,7 @@ import {
   CategoryChips,
   SearchToolbar,
 } from "../../../components/public";
+import { useScrollReveal } from "../useScrollReveal";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -86,6 +87,9 @@ export const BeritaListPage: React.FC = () => {
   const isError = query.isError;
   const refetch = query.refetch;
 
+  // Aktifkan animasi scroll untuk daftar artikel dan elemen interaktif
+  useScrollReveal([articles, isLoading, page, kategori, q, sort]);
+
   const handleResetFilters = () => {
     setSearchParams(new URLSearchParams());
   };
@@ -101,7 +105,7 @@ export const BeritaListPage: React.FC = () => {
           textAlign: "center",
         }}
       >
-        <div style={{ maxWidth: 800, margin: "0 auto" }}>
+        <div className="pub-reveal" style={{ maxWidth: 800, margin: "0 auto" }}>
           <span
             style={{
               display: "inline-block",
@@ -146,21 +150,23 @@ export const BeritaListPage: React.FC = () => {
       {/* Main Content Area */}
       <div style={{ maxWidth: 1240, margin: "0 auto", padding: "40px 20px 0 20px" }}>
         {/* Toolbar: Search input + Popover Filter + Sort Toggle */}
-        <SearchToolbar
-          placeholder="Cari artikel edukasi K3..."
-          searchValue={q}
-          onSearchChange={(val) => updateQuery({ q: val })}
-          sortOrder={sort}
-          onSortChange={(order) => updateQuery({ sort: order })}
-          categories={CATEGORIES}
-          selectedCategory={kategori}
-          onCategoryChange={(cat) => updateQuery({ kategori: cat })}
-          onResetFilters={handleResetFilters}
-          style={{ marginBottom: 20 }}
-        />
+        <div className="pub-reveal pub-delay-1">
+          <SearchToolbar
+            placeholder="Cari artikel edukasi K3..."
+            searchValue={q}
+            onSearchChange={(val) => updateQuery({ q: val })}
+            sortOrder={sort}
+            onSortChange={(order) => updateQuery({ sort: order })}
+            categories={CATEGORIES}
+            selectedCategory={kategori}
+            onCategoryChange={(cat) => updateQuery({ kategori: cat })}
+            onResetFilters={handleResetFilters}
+            style={{ marginBottom: 20 }}
+          />
+        </div>
 
         {/* Chip Kategori */}
-        <div style={{ marginBottom: 32 }}>
+        <div className="pub-reveal pub-delay-2" style={{ marginBottom: 32 }}>
           <CategoryChips
             categories={CATEGORIES}
             selectedCategory={kategori}
@@ -189,7 +195,7 @@ export const BeritaListPage: React.FC = () => {
         {isLoading && (
           <Row gutter={[24, 24]}>
             {[1, 2, 3, 4, 5, 6].map((idx) => (
-              <Col xs={24} md={12} lg={8} key={idx}>
+              <Col xs={24} md={12} lg={8} key={idx} className={`pub-reveal pub-delay-${(idx % 6) + 1}`}>
                 <div
                   style={{
                     backgroundColor: "#ffffff",
@@ -210,6 +216,7 @@ export const BeritaListPage: React.FC = () => {
         {/* State Empty */}
         {!isLoading && !isError && articles.length === 0 && (
           <div
+            className="pub-reveal"
             style={{
               padding: "60px 20px",
               textAlign: "center",
@@ -236,8 +243,8 @@ export const BeritaListPage: React.FC = () => {
         {!isLoading && !isError && articles.length > 0 && (
           <>
             <Row gutter={[24, 24]}>
-              {articles.map((article) => (
-                <Col xs={24} md={12} lg={8} key={article.id}>
+              {articles.map((article, idx) => (
+                <Col xs={24} md={12} lg={8} key={article.id} className={`pub-reveal pub-delay-${(idx % 6) + 1}`}>
                   <ArticleCard article={article} />
                 </Col>
               ))}
@@ -245,6 +252,7 @@ export const BeritaListPage: React.FC = () => {
 
             {/* Bawah Grid: Teks Dinamis & Pagination Ant Design */}
             <div
+              className="pub-reveal"
               style={{
                 marginTop: 48,
                 paddingTop: 24,

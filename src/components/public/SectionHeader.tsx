@@ -22,6 +22,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
 }) => {
   return (
     <div
+      className="pub-reveal"
       style={{
         display: "flex",
         flexDirection: action ? "row" : "column",

@@ -1,10 +1,17 @@
 import React, { useEffect } from "react";
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 import { notification } from "antd";
 import { PublicNavbar } from "./PublicNavbar";
 import { PublicFooter } from "./PublicFooter";
+import { useScrollReveal } from "../../pages/public/useScrollReveal";
+import "../../pages/public/public.css";
 
 export const PublicLayout: React.FC = () => {
+  const location = useLocation();
+
+  // Aktifkan animasi scroll observer untuk seluruh halaman publik
+  useScrollReveal([location.pathname, location.search]);
+
   useEffect(() => {
     const isLogoutSuccess = sessionStorage.getItem("prima_logout_success");
     if (isLogoutSuccess) {
