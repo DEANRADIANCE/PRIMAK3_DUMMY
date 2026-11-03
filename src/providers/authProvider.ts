@@ -77,6 +77,9 @@ export const authProvider: AuthProvider = {
 
   logout: async () => {
     setStoredUser(null);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("prima_logout_success", "true");
+    }
     return {
       success: true,
       redirectTo: "/",

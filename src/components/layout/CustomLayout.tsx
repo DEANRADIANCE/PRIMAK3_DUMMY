@@ -35,7 +35,7 @@ import {
   UserAddOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation, Link } from "react-router";
-import { useGetIdentity, useLogout } from "@refinedev/core";
+import { useGetIdentity } from "@refinedev/core";
 import { IUser } from "../../types/user";
 import { EmergencyModal } from "../common/EmergencyModal";
 import { switchRole, getStoredUser, setStoredUser } from "../../providers/authProvider";
@@ -56,7 +56,6 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: user } = useGetIdentity<IUser>();
-  const { mutate: logout } = useLogout();
   const [currentUser, setCurrentUser] = useState<IUser | null>(getStoredUser());
 
   React.useEffect(() => {
@@ -70,17 +69,15 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
   const activeUser = currentUser || user;
 
   const handleLogout = () => {
-    // 1. Bersihkan user dari local storage terlebih dahulu
+    // 1. Bersihkan session user dari local storage
     setStoredUser(null);
     window.dispatchEvent(new CustomEvent("prima_user_updated", { detail: null }));
 
-    // 2. Langsung arahkan ke halaman page awal (Landing Page /)
-    navigate("/", { replace: true });
+    // 2. Simpan tanda logout sukses untuk notifikasi di halaman utama
+    sessionStorage.setItem("prima_logout_success", "true");
 
-    // 3. Panggil logout refine untuk sinkronisasi auth state dan trigger notifikasi sukses
-    setTimeout(() => {
-      logout({ redirectPath: "/" });
-    }, 50);
+    // 3. Arahkan langsung ke halaman utama (Landing Page /)
+    window.location.href = "/";
   };
 
   // Mapping breadcrumbs

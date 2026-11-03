@@ -1,9 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Outlet } from "react-router";
+import { notification } from "antd";
 import { PublicNavbar } from "./PublicNavbar";
 import { PublicFooter } from "./PublicFooter";
 
 export const PublicLayout: React.FC = () => {
+  useEffect(() => {
+    const isLogoutSuccess = sessionStorage.getItem("prima_logout_success");
+    if (isLogoutSuccess) {
+      sessionStorage.removeItem("prima_logout_success");
+      notification.success({
+        message: "Logout Berhasil",
+        description: "Anda telah keluar dari sistem PRIMA K3.",
+        placement: "topRight",
+        duration: 3.5,
+      });
+    }
+  }, []);
+
   return (
     <div
       style={{
