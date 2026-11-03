@@ -12,6 +12,15 @@ export const PublicLayout: React.FC = () => {
   // Aktifkan animasi scroll observer untuk seluruh halaman publik
   useScrollReveal([location.pathname, location.search]);
 
+  // Seret ke paling atas saat berpindah rute publik (kecuali jika ada hash target seperti #tujuan-aplikasi)
+  useEffect(() => {
+    if (!location.hash) {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
+  }, [location.pathname]);
+
   useEffect(() => {
     const isLogoutSuccess = sessionStorage.getItem("prima_logout_success");
     if (isLogoutSuccess) {

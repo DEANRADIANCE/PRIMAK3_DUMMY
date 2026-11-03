@@ -51,15 +51,32 @@ export const BeritaDetailPage: React.FC = () => {
   const isLoading = query.isLoading;
   const isError = query.isError;
 
-  // Update SEO title
+  // Selalu seret/scroll ke paling atas setiap kali slug artikel berubah (pindah berita)
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    // Pastikan scroll tetap di paling atas setelah transisi render DOM baru
+    const rafId = requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    });
+
+    return () => cancelAnimationFrame(rafId);
+  }, [slug]);
+
+  // Update SEO title dan pastikan posisi tetap di atas setelah data artikel selesai dimuat
   useEffect(() => {
     if (article) {
       document.title = `${article.title} - Edukasi PRIMA K3 ANRI`;
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
     } else {
       document.title = "Detail Artikel - PRIMA K3 ANRI";
     }
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [article, slug]);
+  }, [article]);
 
   // Aktifkan animasi scroll untuk detail artikel dan artikel terkait
   useScrollReveal([article, relatedArticles, isLoading]);

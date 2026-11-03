@@ -32,11 +32,18 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, style }) => {
   const badgeTheme = getCategoryColor(article.category);
   const formattedDate = dayjs(article.published_at).format("D MMMM YYYY");
 
+  const handleCardClick = () => {
+    navigate(`/berita/${article.slug}`);
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
+
   return (
     <Card
       hoverable
       className="pub-hover-card"
-      onClick={() => navigate(`/berita/${article.slug}`)}
+      onClick={handleCardClick}
       style={{
         height: "100%",
         display: "flex",
