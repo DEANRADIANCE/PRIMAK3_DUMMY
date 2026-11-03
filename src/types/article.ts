@@ -14,6 +14,8 @@ export interface IArticle {
   image?: string;
   author: string;
   isPublished: boolean;
+  status?: "Terbit" | "Draf" | "Dijadwalkan" | string;
+  scheduledAt?: string;
   createdAt: string;
   updatedAt: string;
 }

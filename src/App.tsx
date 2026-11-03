@@ -5,7 +5,7 @@ import "@refinedev/antd/dist/reset.css";
 
 import { App as AntdApp, ConfigProvider, Spin } from "antd";
 import idID from "antd/locale/id_ID";
-import { BrowserRouter, Route, Routes, Outlet } from "react-router";
+import { BrowserRouter, Route, Routes, Outlet, Navigate } from "react-router";
 import routerProvider, {
   NavigateToResource,
   CatchAllNavigate,
@@ -76,13 +76,7 @@ import { AnnouncementList } from "./pages/media-informasi/pemberitahuan/list";
 import { AnnouncementCreate } from "./pages/media-informasi/pemberitahuan/create";
 import { AnnouncementShow } from "./pages/media-informasi/pemberitahuan/show";
 import { AnnouncementEdit } from "./pages/media-informasi/pemberitahuan/edit";
-import { ArticleList } from "./pages/media-informasi/edukasi/list";
-import { ArticleCreate } from "./pages/media-informasi/edukasi/create";
-import { ArticleShow } from "./pages/media-informasi/edukasi/show";
-import { ArticleEdit } from "./pages/media-informasi/edukasi/edit";
-import { PosterList } from "./pages/media-informasi/flayer-poster/list";
-import { PosterCreate } from "./pages/media-informasi/flayer-poster/create";
-import { PosterShow } from "./pages/media-informasi/flayer-poster/show";
+import { EdukasiPage } from "./pages/media/edukasi";
 import { ProfilePage } from "./pages/profile";
 // Kelola User
 import {
@@ -286,11 +280,8 @@ function App() {
                 {
                   name: "articles",
                   list: "/media/edukasi",
-                  create: "/media/edukasi/create",
-                  edit: "/media/edukasi/edit/:id",
-                  show: "/media/edukasi/show/:id",
                   meta: {
-                    label: "Edukasi K3",
+                    label: "Edukasi",
                     parent: "media-informasi",
                     icon: <ReadOutlined />,
                     canDelete: true,
@@ -298,14 +289,12 @@ function App() {
                 },
                 {
                   name: "posters",
-                  list: "/media/flayer-poster",
-                  create: "/media/flayer-poster/create",
-                  show: "/media/flayer-poster/show/:id",
                   meta: {
-                    label: "Flayer & Poster",
+                    label: "Poster",
                     parent: "media-informasi",
                     icon: <FileImageOutlined />,
                     canDelete: true,
+                    hide: true,
                   },
                 },
                 {
@@ -416,16 +405,13 @@ function App() {
                     <Route path="edit/:id" element={<AnnouncementEdit />} />
                   </Route>
                   <Route path="/media/edukasi">
-                    <Route index element={<ArticleList />} />
-                    <Route path="create" element={<ArticleCreate />} />
-                    <Route path="show/:id" element={<ArticleShow />} />
-                    <Route path="edit/:id" element={<ArticleEdit />} />
+                    <Route index element={<EdukasiPage />} />
+                    <Route path="create" element={<Navigate to="/media/edukasi?tab=edukasi" replace />} />
+                    <Route path="show/:id" element={<Navigate to="/media/edukasi?tab=edukasi" replace />} />
+                    <Route path="edit/:id" element={<Navigate to="/media/edukasi?tab=edukasi" replace />} />
                   </Route>
-                  <Route path="/media/flayer-poster">
-                    <Route index element={<PosterList />} />
-                    <Route path="create" element={<PosterCreate />} />
-                    <Route path="show/:id" element={<PosterShow />} />
-                  </Route>
+                  <Route path="/media/flayer-poster" element={<Navigate to="/media/edukasi?tab=poster" replace />} />
+                  <Route path="/media/flayer-poster/*" element={<Navigate to="/media/edukasi?tab=poster" replace />} />
 
                   {/* Profil Pengguna */}
                   <Route path="/profil" element={<ProfilePage />} />

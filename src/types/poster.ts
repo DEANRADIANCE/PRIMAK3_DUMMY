@@ -5,6 +5,7 @@ export interface IPoster {
   image: string;
   fileUrl: string;
   category: string;
+  status?: "Tayang" | "Draf" | "Diarsipkan" | string;
   createdBy: string;
   createdAt: string;
   updatedAt: string;

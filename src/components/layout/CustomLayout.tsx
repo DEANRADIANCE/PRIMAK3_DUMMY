@@ -125,13 +125,16 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
         items.push({ title: <Link to="/media/pemberitahuan">Pemberitahuan</Link> });
         if (path.includes("/create")) items.push({ title: <span>Buat Pemberitahuan</span> });
         if (path.includes("/show")) items.push({ title: <span>Detail Pemberitahuan</span> });
-      } else if (path.includes("/edukasi")) {
-        items.push({ title: <Link to="/media/edukasi">Edukasi K3</Link> });
-        if (path.includes("/create")) items.push({ title: <span>Tambah Artikel Edukasi</span> });
-        if (path.includes("/show")) items.push({ title: <span>Baca Artikel</span> });
-      } else if (path.includes("/flayer-poster")) {
-        items.push({ title: <Link to="/media/flayer-poster">Flayer & Poster</Link> });
-        if (path.includes("/create")) items.push({ title: <span>Unggah Poster</span> });
+      } else if (path.includes("/edukasi") || path.includes("/flayer-poster")) {
+        const searchParams = new URLSearchParams(location.search);
+        const isPoster = searchParams.get("tab") === "poster" || path.includes("/flayer-poster");
+        items.push({
+          title: isPoster ? (
+            <Link to="/media/edukasi?tab=poster">Poster</Link>
+          ) : (
+            <Link to="/media/edukasi?tab=edukasi">Edukasi</Link>
+          ),
+        });
       }
     } else if (path.includes("/kelola-user")) {
       items.push({ title: <span>Kelola User</span> });
@@ -229,14 +232,8 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
         {
           key: "/media/edukasi",
           icon: <ReadOutlined />,
-          label: "Edukasi K3",
+          label: "Edukasi",
           onClick: () => navigate("/media/edukasi"),
-        },
-        {
-          key: "/media/flayer-poster",
-          icon: <FileImageOutlined />,
-          label: "Flayer & Poster",
-          onClick: () => navigate("/media/flayer-poster"),
         },
       ],
     },
@@ -285,8 +282,7 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
     if (p.startsWith("/kesehatan/penyakit")) return ["/kesehatan/penyakit"];
     if (p.startsWith("/kesehatan/konsultasi")) return ["/kesehatan/konsultasi"];
     if (p.startsWith("/media/pemberitahuan")) return ["/media/pemberitahuan"];
-    if (p.startsWith("/media/edukasi")) return ["/media/edukasi"];
-    if (p.startsWith("/media/flayer-poster")) return ["/media/flayer-poster"];
+    if (p.startsWith("/media/edukasi") || p.startsWith("/media/flayer-poster")) return ["/media/edukasi"];
     if (p.startsWith("/kelola-user/pengguna")) return ["/kelola-user/pengguna"];
     if (p.startsWith("/kelola-user/hak-akses")) return ["/kelola-user/hak-akses"];
     return [p];

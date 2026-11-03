@@ -17,6 +17,7 @@ import { useCreate, useGetIdentity } from "@refinedev/core";
 import dayjs from "dayjs";
 import { initialArticleCategories } from "../../../mocks/articles";
 import { IUser } from "../../../types/user";
+// @ts-ignore CSS imports are handled by the bundler, not TypeScript.
 import "../../../components/common/form-theme.css";
 
 const { Title, Paragraph } = Typography;

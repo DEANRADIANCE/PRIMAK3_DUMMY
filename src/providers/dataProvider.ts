@@ -7,6 +7,42 @@ import {
 } from "@refinedev/core";
 import { mockDb, initialDashboardSummary, saveStoredManagedUsers } from "../mocks";
 
+// Helper sync mockDb["edukasi"] & mockDb["poster"] dengan data artikel/poster berstatus publik
+export const syncPublicMedia = () => {
+  if (mockDb["articles"]) {
+    mockDb["edukasi"] = mockDb["articles"]
+      .filter((a) => a.status === "Terbit" || (!a.status && a.isPublished))
+      .map((a) => ({
+        id: a.id,
+        slug: a.slug || `artikel-${a.id}`,
+        title: a.title,
+        excerpt: a.summary || a.excerpt || "",
+        content: a.content || "",
+        category: typeof a.category === "object" ? a.category?.name || "K3" : a.category || "K3",
+        thumbnail_url: a.image || a.thumbnail_url || "https://images.unsplash.com/photo-1527689368864-3a821dbccc34?auto=format&fit=crop&w=800&q=80",
+        published_at: a.createdAt || a.publishedAt || new Date().toISOString(),
+        status: a.status || "Terbit",
+      }));
+  }
+  if (mockDb["posters"]) {
+    mockDb["poster"] = mockDb["posters"]
+      .filter((p) => p.status === "Tayang" || (!p.status && p.status !== "Draf" && p.status !== "Diarsipkan"))
+      .map((p) => ({
+        id: p.id,
+        title: p.title,
+        description: p.description || "",
+        image_url: p.image || p.image_url || "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80",
+        category: p.category || "Budaya K3",
+        created_at: p.createdAt || new Date().toISOString(),
+        file_url: p.fileUrl || p.file_url || p.image || "",
+        status: p.status || "Tayang",
+      }));
+  }
+};
+
+// Panggil sync pertama kali
+syncPublicMedia();
+
 // Helper filtering
 const applyFilters = (data: any[], filters?: CrudFilters) => {
   if (!filters || filters.length === 0) return data;
@@ -184,6 +220,9 @@ export const dataProvider: DataProvider = {
     if (resource === "users" || resource === "kelola-user-pengguna" || resource === "managed-users") {
       saveStoredManagedUsers(list);
     }
+    if (resource === "articles" || resource === "posters") {
+      syncPublicMedia();
+    }
 
     return {
       data: newRecord as unknown as TData,
@@ -211,6 +250,9 @@ export const dataProvider: DataProvider = {
     if (resource === "users" || resource === "kelola-user-pengguna" || resource === "managed-users") {
       saveStoredManagedUsers(list);
     }
+    if (resource === "articles" || resource === "posters") {
+      syncPublicMedia();
+    }
 
     return {
       data: updatedRecord as unknown as TData,
@@ -229,6 +271,9 @@ export const dataProvider: DataProvider = {
 
     if (resource === "users" || resource === "kelola-user-pengguna" || resource === "managed-users") {
       saveStoredManagedUsers(list);
+    }
+    if (resource === "articles" || resource === "posters") {
+      syncPublicMedia();
     }
 
     return {
