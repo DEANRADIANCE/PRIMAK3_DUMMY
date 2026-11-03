@@ -388,7 +388,7 @@ export const UserListPage: React.FC = () => {
           {/* Tombol Primary Gelap + Tambah Pengguna */}
           <Button
             type="primary"
-            icon={<UserAddOutlined />}
+            // icon={<UserAddOutlined />}
             onClick={handleOpenCreateModal}
             style={{
               background: "#1f2937",
