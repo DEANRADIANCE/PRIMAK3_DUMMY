@@ -32,7 +32,9 @@ import {
   FolderOpenOutlined,
   BookOutlined,
   FireOutlined,
+  FilePdfOutlined,
 } from "@ant-design/icons";
+import { HazardReportPrintModal } from "../../../components/common/HazardReportPrintModal";
 import { useNavigate } from "react-router";
 import { useTable } from "@refinedev/antd";
 import { useCreate, useUpdate, useDelete, useGetIdentity } from "@refinedev/core";
@@ -73,6 +75,8 @@ export const HazardReportList: React.FC = () => {
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [activeReport, setActiveReport] = useState<IHazardReport | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [printItems, setPrintItems] = useState<IHazardReport[]>([]);
 
   // State untuk Kategori
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
@@ -355,6 +359,17 @@ export const HazardReportList: React.FC = () => {
           >
             Detail
           </Button>
+
+          <Button
+            size="small"
+            icon={<FilePdfOutlined />}
+            title="Format Cetak PDF"
+            style={{ borderRadius: 6, color: "#dc2626" }}
+            onClick={() => {
+              setPrintItems([record]);
+              setPrintModalOpen(true);
+            }}
+          />
 
           {canManageStatus && (
             <Button
@@ -725,16 +740,30 @@ export const HazardReportList: React.FC = () => {
                     </Select>
                   </div>
 
-                  <Button
-                    type="primary"
-                    size="large"
-                    icon={<PlusOutlined />}
-                    className="btn-safety-hazard"
-                    style={{ height: 40, padding: "0 20px" }}
-                    onClick={() => navigate("/keselamatan/bahaya-resiko/create")}
-                  >
-                    Lapor Bahaya Baru
-                  </Button>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    <Button
+                      icon={<FilePdfOutlined />}
+                      className="btn-safety-secondary"
+                      style={{ height: 40 }}
+                      onClick={() => {
+                        setPrintItems(allReports);
+                        setPrintModalOpen(true);
+                      }}
+                    >
+                      Cetak Rekapitulasi PDF
+                    </Button>
+
+                    <Button
+                      type="primary"
+                      size="large"
+                      icon={<PlusOutlined />}
+                      className="btn-safety-hazard"
+                      style={{ height: 40, padding: "0 20px" }}
+                      onClick={() => navigate("/keselamatan/bahaya-resiko/create")}
+                    >
+                      Lapor Bahaya Baru
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Content Card & Tabel Laporan */}
@@ -993,6 +1022,19 @@ export const HazardReportList: React.FC = () => {
             Tutup
           </Button>,
           <Button
+            key="print"
+            icon={<FilePdfOutlined />}
+            onClick={() => {
+              if (activeReport) {
+                setPrintItems([activeReport]);
+                setPrintModalOpen(true);
+              }
+            }}
+            style={{ borderRadius: 8 }}
+          >
+            Cetak PDF
+          </Button>,
+          <Button
             key="full-page"
             type="primary"
             className="btn-safety-primary"
@@ -1178,6 +1220,14 @@ export const HazardReportList: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* Modal Format Cetak Dokumen PDF & Text Editor */}
+      <HazardReportPrintModal
+        open={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+        items={printItems.length > 0 ? printItems : allReports}
+        documentTitle={printItems.length === 1 ? `Laporan Bahaya - ${printItems[0].reportNumber}` : "REKAPITULASI LAPORAN BAHAYA DAN RISIKO K3"}
+      />
     </div>
   );
 };

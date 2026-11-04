@@ -21,6 +21,7 @@ import { useNavigate, useParams } from "react-router";
 import { useOne, useGetIdentity, useList } from "@refinedev/core";
 import { IHazardReport, IHazardCategoryItem } from "../../../types/hazard";
 import { StatusStepper } from "../../../components/common/StatusStepper";
+import { HazardReportPrintModal } from "../../../components/common/HazardReportPrintModal";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -28,6 +29,7 @@ export const HazardReportShow: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: currentUser } = useGetIdentity<any>();
+  const [printModalOpen, setPrintModalOpen] = React.useState(false);
 
   const { query } = useOne<IHazardReport>({
     resource: "hazard-reports",
@@ -93,8 +95,8 @@ export const HazardReportShow: React.FC = () => {
         </Space>
 
         <Space wrap>
-          <Button icon={<FilePdfOutlined />} onClick={() => window.print()}>
-            Cetak Laporan
+          <Button icon={<FilePdfOutlined />} onClick={() => setPrintModalOpen(true)}>
+            Cetak Laporan (PDF)
           </Button>
           {(currentUser?.role === "admin" || currentUser?.role === "tim_k3") && (
             <Button
@@ -175,6 +177,14 @@ export const HazardReportShow: React.FC = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* Modal Format Cetak Dokumen PDF & Text Editor */}
+      <HazardReportPrintModal
+        open={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+        items={[report]}
+        documentTitle={`Laporan Bahaya - ${report.reportNumber}`}
+      />
     </div>
   );
 };
