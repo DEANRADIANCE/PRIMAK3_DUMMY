@@ -9,6 +9,12 @@ export const accessControlProvider: AccessControlProvider = {
   can: async ({ resource, action, params }) => {
     const user = getStoredUser();
     const systemRole = toSystemRole(user?.role);
+
+    // Super Admin selalu memiliki hak akses penuh ke seluruh resource dan aksi
+    if (systemRole === "Super Admin" || user?.role === "super_admin" || (user?.role as any) === "Super Admin") {
+      return { can: true };
+    }
+
     const rolePermissions = getStoredRolePermissions();
     const currentPermissions = rolePermissions[systemRole] || [];
 
@@ -66,10 +72,72 @@ export const accessControlProvider: AccessControlProvider = {
     // 4. Modul investigasi & laporan
     if (resource === "investigations") {
       if (action === "create" || action === "edit") {
-        const canEdit = currentPermissions.includes("investigasi.kelola");
+        const canEdit =
+          currentPermissions.includes("investigasi.kelola") ||
+          systemRole === "Pengelola K3" ||
+          user?.role === "tim_k3";
         return {
           can: canEdit,
-          reason: canEdit ? undefined : "Peran tidak memiliki izin mengelola investigasi.",
+          reason: canEdit
+            ? undefined
+            : "Hanya Pengelola K3 yang berwenang membuat atau mengubah data investigasi.",
+        };
+      }
+      if (action === "sahkan" || action === "periksa") {
+        const canSahkan =
+          currentPermissions.includes("laporan.periksa") ||
+          systemRole === "Kepala Biro KU" ||
+          systemRole === "Pengelola K3" ||
+          user?.role === "kepala_unit" ||
+          user?.role === "tim_k3";
+        return {
+          can: canSahkan,
+          reason: canSahkan
+            ? undefined
+            : "Hanya Kepala Biro KU dan Pengelola K3 yang berhak memeriksa & mengesahkan investigasi.",
+        };
+      }
+      if (action === "export" || action === "ekspor") {
+        const canExport =
+          currentPermissions.includes("laporan.ekspor") ||
+          systemRole === "Kepala Biro KU" ||
+          systemRole === "Pengelola K3" ||
+          systemRole === "Admin Sistem" ||
+          user?.role === "admin" ||
+          user?.role === "tim_k3" ||
+          user?.role === "kepala_unit";
+        return {
+          can: canExport,
+          reason: canExport
+            ? undefined
+            : "Peran tidak memiliki hak akses untuk ekspor PDF investigasi.",
+        };
+      }
+      if (action === "list" || action === "show") {
+        const canView =
+          currentPermissions.includes("laporan.lihat_semua") ||
+          systemRole === "Kepala Biro KU" ||
+          systemRole === "Pengelola K3" ||
+          systemRole === "Admin Sistem" ||
+          user?.role === "admin" ||
+          user?.role === "tim_k3" ||
+          user?.role === "kepala_unit";
+        return {
+          can: canView,
+          reason: canView
+            ? undefined
+            : "Peran tidak memiliki izin melihat data investigasi.",
+        };
+      }
+      if (action === "delete") {
+        const canDelete =
+          systemRole === "Pengelola K3" ||
+          systemRole === "Admin Sistem" ||
+          user?.role === "admin" ||
+          user?.role === "tim_k3";
+        return {
+          can: canDelete,
+          reason: canDelete ? undefined : "Tidak berwenang menghapus berkas investigasi.",
         };
       }
     }

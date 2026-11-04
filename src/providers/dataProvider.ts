@@ -6,6 +6,7 @@ import {
   Pagination,
 } from "@refinedev/core";
 import { mockDb, initialDashboardSummary, saveStoredManagedUsers } from "../mocks";
+import { fetchUsersFromApi } from "../services/userService";
 
 // Helper sync mockDb["edukasi"] & mockDb["poster"] dengan data artikel/poster berstatus publik
 export const syncPublicMedia = () => {
@@ -76,11 +77,29 @@ const applyFilters = (data: any[], filters?: CrudFilters) => {
             String(item.excerpt || item.summary || "").toLowerCase().includes(searchStr) ||
             String(item.description || "").toLowerCase().includes(searchStr) ||
             String(item.content || "").toLowerCase().includes(searchStr) ||
-            String(typeof item.category === "object" ? item.category?.name : item.category || "").toLowerCase().includes(searchStr)
+            String(typeof item.category === "object" ? item.category?.name : item.category || "").toLowerCase().includes(searchStr) ||
+            String(item.nomor || "").toLowerCase().includes(searchStr) ||
+            String(item.laporan_nomor || "").toLowerCase().includes(searchStr) ||
+            String(item.insiden?.judul || "").toLowerCase().includes(searchStr) ||
+            String(item.insiden?.lokasi || "").toLowerCase().includes(searchStr) ||
+            String(item.insiden?.unit || "").toLowerCase().includes(searchStr) ||
+            String(item.insiden?.jenis || "").toLowerCase().includes(searchStr) ||
+            String(item.investigasi?.ketua_tim || "").toLowerCase().includes(searchStr) ||
+            String(item.status || "").toLowerCase().includes(searchStr)
           );
         }
 
-        const rawItemValue = item[field];
+        // Support nested fields (e.g. "insiden.tingkat_keparahan")
+        let rawItemValue = item;
+        if (field.includes(".")) {
+          const parts = field.split(".");
+          for (const part of parts) {
+            rawItemValue = rawItemValue?.[part];
+          }
+        } else {
+          rawItemValue = item[field];
+        }
+
         const itemValue = typeof rawItemValue === "object" && rawItemValue !== null
           ? (rawItemValue.name || rawItemValue.slug || "")
           : rawItemValue;
@@ -102,6 +121,10 @@ const applyFilters = (data: any[], filters?: CrudFilters) => {
             return Array.isArray(value) && value.map((v) => String(v).toLowerCase()).includes(String(itemValue || "").toLowerCase());
           case "nin":
             return Array.isArray(value) && !value.map((v) => String(v).toLowerCase()).includes(String(itemValue || "").toLowerCase());
+          case "gte":
+            return itemValue !== undefined && itemValue !== null && String(itemValue) >= String(value);
+          case "lte":
+            return itemValue !== undefined && itemValue !== null && String(itemValue) <= String(value);
           case "null":
             return itemValue === null || itemValue === undefined;
           case "nnull":
@@ -159,6 +182,15 @@ const applyPagination = (data: any[], pagination?: Pagination) => {
 
 export const dataProvider: DataProvider = {
   getList: async <TData extends BaseRecord = BaseRecord>({ resource, pagination, filters, sorters }: any) => {
+    // Jika resource adalah manajemen pengguna, sinkronkan terlebih dahulu dari BE API bila tersedia
+    if (
+      resource === "users" ||
+      resource === "kelola-user-pengguna" ||
+      resource === "managed-users"
+    ) {
+      await fetchUsersFromApi(3500);
+    }
+
     const list = mockDb[resource] || [];
 
     // Filter
@@ -213,6 +245,9 @@ export const dataProvider: DataProvider = {
     }
     if (resource === "accident-reports" && !newRecord.reportNumber) {
       newRecord.reportNumber = `ACC-2026-${String(newId).padStart(3, "0")}`;
+    }
+    if (resource === "investigations" && !newRecord.nomor) {
+      newRecord.nomor = `INV-2026-${String(newId).padStart(3, "0")}`;
     }
 
     list.unshift(newRecord);

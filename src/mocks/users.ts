@@ -2,6 +2,21 @@ import { IUser } from "../types/user";
 
 export const initialUsers: IUser[] = [
   {
+    id: 99,
+    name: "Super Administrator K3",
+    email: "superadmin@anri.go.id",
+    role: "super_admin",
+    unit: "Direktorat Sistem Informasi & K3",
+    nip: "198001012000011001",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=SuperAdmin",
+    phone: "0811-0000-1111",
+    position: "Super Administrator Sistem PRIMA K3",
+    gender: "L",
+    address: "Jl. Ampera Raya No. 7, Cilandak Timur, Pasar Minggu, Jakarta Selatan",
+    bio: "Super Administrator dengan akses tertinggi di seluruh modul sistem PRIMA K3 ANRI.",
+    createdAt: "2024-01-01T00:00:00Z",
+  },
+  {
     id: 1,
     name: "Dr. Budi Santoso, M.K.K.",
     email: "admin@anri.go.id",

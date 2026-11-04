@@ -2,6 +2,16 @@ import { IManagedUser } from "../types/userManagement";
 
 export const initialManagedUsers: IManagedUser[] = [
   {
+    id: 99,
+    name: "Super Administrator K3",
+    email: "superadmin@anri.go.id",
+    unit: "Direktorat Sistem Informasi & K3",
+    role: "Super Admin",
+    status: "Aktif",
+    lastLogin: "2026-11-03T08:00:00Z",
+    createdAt: "2024-01-01T08:00:00Z",
+  },
+  {
     id: 1,
     name: "Pegawai A",
     email: "pegawai.a@contoh.go.id",

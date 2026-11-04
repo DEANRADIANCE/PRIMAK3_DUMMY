@@ -11,6 +11,13 @@ export const ROLE_CONFIG: Record<
   SystemRole,
   { color: string; label: string; bg?: string; text?: string; border?: string }
 > = {
+  "Super Admin": {
+    color: "red",
+    label: "Super Admin",
+    bg: "#fef2f2",
+    text: "#b91c1c",
+    border: "#fca5a5",
+  },
   Pegawai: {
     color: "default",
     label: "Pegawai",

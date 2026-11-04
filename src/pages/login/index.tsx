@@ -10,6 +10,7 @@ import {
   PlayCircleOutlined,
   ThunderboltOutlined,
   SafetyOutlined,
+  CrownOutlined,
 } from "@ant-design/icons";
 import { useLogin } from "@refinedev/core";
 import { initialUsers } from "../../mocks/users";
@@ -49,6 +50,14 @@ export const LoginPage: React.FC = () => {
   // Role metadata for colorful demo buttons
   const getRoleBadgeStyle = (role: string) => {
     switch (role) {
+      case "super_admin":
+        return {
+          class: "role-super_admin",
+          label: "Super Admin",
+          tagColor: "#dc2626",
+          tagBg: "#fee2e2",
+          icon: <CrownOutlined style={{ color: "#dc2626" }} />,
+        };
       case "admin":
         return {
           class: "role-admin",

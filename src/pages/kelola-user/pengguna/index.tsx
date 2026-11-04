@@ -11,6 +11,9 @@ import {
   Typography,
   Space,
   theme,
+  Tag,
+  Tooltip,
+  App as AntdApp,
 } from "antd";
 import {
   TeamOutlined,
@@ -19,6 +22,9 @@ import {
   StopOutlined,
   SearchOutlined,
   UserAddOutlined,
+  ReloadOutlined,
+  CloudSyncOutlined,
+  ApiOutlined,
 } from "@ant-design/icons";
 import { useTable } from "@refinedev/antd";
 import { useGetIdentity } from "@refinedev/core";
@@ -32,6 +38,7 @@ import { RoleTag } from "../components/RoleTag";
 import { StatusTag } from "../components/StatusTag";
 import { UserFormModal } from "../components/UserFormModal";
 import { IUser } from "../../../types/user";
+import { fetchUsersFromApi, getApiBaseUrl } from "../../../services/userService";
 
 dayjs.locale("id");
 
@@ -39,7 +46,14 @@ const { Title, Text, Paragraph } = Typography;
 
 export const UserListPage: React.FC = () => {
   const { token } = theme.useToken();
+  const { message } = AntdApp.useApp();
   const { data: identity } = useGetIdentity<IUser>();
+
+  // State sinkronisasi BE API
+  const [apiSyncing, setApiSyncing] = useState<boolean>(false);
+  const [apiSource, setApiSource] = useState<"api" | "local" | "idle">("idle");
+  const [apiMessage, setApiMessage] = useState<string>("");
+  const apiBaseUrl = useMemo(() => getApiBaseUrl(), []);
 
   // Refine useTable
   const { tableProps, setFilters, filters } = useTable<IManagedUser>({
@@ -52,6 +66,38 @@ export const UserListPage: React.FC = () => {
 
   // State untuk data ringkasan keseluruhan
   const [allUsers, setAllUsers] = useState<IManagedUser[]>(() => getStoredManagedUsers());
+
+  // Fungsi sinkronisasi pengguna dari BE API
+  const handleSyncApi = async (isManual = false) => {
+    setApiSyncing(true);
+    try {
+      const res = await fetchUsersFromApi(6000);
+      setApiSource(res.source);
+      setApiMessage(res.message || "");
+      if (res.users && res.users.length > 0) {
+        setAllUsers(res.users);
+      }
+      if (isManual) {
+        if (res.source === "api") {
+          message.success(res.message || "Data pengguna berhasil disinkronkan dari BE API.");
+        } else {
+          message.info(res.message || "BE API tidak terjangkau. Menggunakan data lokal.");
+        }
+      }
+    } catch (err: any) {
+      setApiSource("local");
+      if (isManual) {
+        message.warning("Gagal mengambil data dari BE API. Beralih ke data lokal.");
+      }
+    } finally {
+      setApiSyncing(false);
+    }
+  };
+
+  // Muat data dari BE API saat halaman pertama kali dibuka
+  useEffect(() => {
+    handleSyncApi(false);
+  }, []);
 
   // Modal form state
   const [modalOpen, setModalOpen] = useState(false);
@@ -165,7 +211,7 @@ export const UserListPage: React.FC = () => {
   };
 
   const handleModalSuccess = () => {
-    setAllUsers(getStoredManagedUsers());
+    handleSyncApi(false);
   };
 
   // Format tanggal login terakhir menggunakan dayjs lokal 'id'
@@ -241,13 +287,57 @@ export const UserListPage: React.FC = () => {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       {/* Header Halaman */}
-      <div>
-        <Title level={3} style={{ margin: "0 0 4px 0", color: "#111827", fontWeight: 700 }}>
-          Manajemen Pengguna
-        </Title>
-        <Paragraph type="secondary" style={{ margin: 0, fontSize: 14 }}>
-          Kelola akun pegawai, tetapkan peran, dan pantau status akses.
-        </Paragraph>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          flexWrap: "wrap",
+          gap: 12,
+        }}
+      >
+        <div>
+          <Title level={3} style={{ margin: "0 0 4px 0", color: "#111827", fontWeight: 700 }}>
+            Manajemen Pengguna
+          </Title>
+          <Paragraph type="secondary" style={{ margin: 0, fontSize: 14 }}>
+            Kelola akun pegawai, tetapkan peran (termasuk Super Admin), dan pantau status akses.
+          </Paragraph>
+        </div>
+
+        {/* Indikator Status BE API & Tombol Segarkan */}
+        <Space wrap>
+          {apiSource === "api" ? (
+            <Tooltip title={apiMessage || "Terhubung ke REST API backend"}>
+              <Tag
+                color="success"
+                icon={<CheckCircleOutlined />}
+                style={{ padding: "4px 10px", fontSize: 12, borderRadius: 6 }}
+              >
+                BE API Aktif
+              </Tag>
+            </Tooltip>
+          ) : (
+            <Tooltip title={apiMessage || `Endpoint API: ${apiBaseUrl || "Belum diset"}`}>
+              <Tag
+                color="orange"
+                icon={<CloudSyncOutlined />}
+                style={{ padding: "4px 10px", fontSize: 12, borderRadius: 6 }}
+              >
+                Data Mock / Lokal (BE Offline)
+              </Tag>
+            </Tooltip>
+          )}
+
+          <Button
+            icon={<ReloadOutlined spin={apiSyncing} />}
+            loading={apiSyncing}
+            onClick={() => handleSyncApi(true)}
+            style={{ fontWeight: 500 }}
+          >
+            Segarkan dari API
+          </Button>
+        </Space>
       </div>
 
       {/* 4 Kartu Ringkasan Statistik */}

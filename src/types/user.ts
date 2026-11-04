@@ -1,4 +1,4 @@
-export type UserRole = "admin" | "tim_k3" | "kepala_unit" | "pegawai";
+export type UserRole = "super_admin" | "admin" | "tim_k3" | "kepala_unit" | "pegawai";
 
 export interface IUser {
   id: number;

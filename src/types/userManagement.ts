@@ -1,4 +1,5 @@
 export type SystemRole =
+  | "Super Admin"
   | "Pegawai"
   | "Pimpinan Unit Kerja"
   | "Kepala Biro KU"

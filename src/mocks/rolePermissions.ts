@@ -5,6 +5,7 @@ import {
 } from "../types/userManagement";
 
 export const SYSTEM_ROLES: SystemRole[] = [
+  "Super Admin",
   "Pegawai",
   "Pimpinan Unit Kerja",
   "Kepala Biro KU",
@@ -93,6 +94,21 @@ export const PERMISSION_DEFINITIONS: IPermissionItem[] = [
 ];
 
 export const DEFAULT_ROLE_PERMISSIONS: RolePermissionsMatrix = {
+  "Super Admin": [
+    "laporan.lihat_semua",
+    "laporan.buat",
+    "investigasi.kelola",
+    "laporan.periksa",
+    "laporan.ekspor",
+    "konseling.ajukan",
+    "konseling.rujuk_wajib",
+    "konseling.atur_jadwal",
+    "konseling.lihat_catatan",
+    "pengumuman.kelola",
+    "dashboard.lihat_kesehatan",
+    "pengguna.kelola",
+    "hakakses.kelola",
+  ],
   Pegawai: [
     "laporan.buat",
     "konseling.ajukan",
@@ -146,6 +162,14 @@ export const toSystemRole = (role?: string | null): SystemRole => {
   if (!role) return "Pegawai";
   const normalized = role.toLowerCase().trim();
 
+  if (
+    normalized === "super admin" ||
+    normalized === "super_admin" ||
+    normalized === "superadmin" ||
+    normalized.includes("super")
+  ) {
+    return "Super Admin";
+  }
   if (normalized === "admin" || normalized === "admin sistem" || normalized === "admin_sistem") {
     return "Admin Sistem";
   }
@@ -178,11 +202,13 @@ export const toSystemRole = (role?: string | null): SystemRole => {
  */
 export const getStoredRolePermissions = (): RolePermissionsMatrix => {
   if (typeof window === "undefined") return { ...DEFAULT_ROLE_PERMISSIONS };
+
   const raw = localStorage.getItem(PERMISSIONS_STORAGE_KEY);
   if (!raw) {
     localStorage.setItem(PERMISSIONS_STORAGE_KEY, JSON.stringify(DEFAULT_ROLE_PERMISSIONS));
     return { ...DEFAULT_ROLE_PERMISSIONS };
   }
+
   try {
     const parsed = JSON.parse(raw);
     return {
@@ -203,8 +229,13 @@ export const saveStoredRolePermissions = (matrix: RolePermissionsMatrix): RolePe
   for (const role of SYSTEM_ROLES) {
     const list = new Set(sanitized[role] || []);
 
-    // 1. Aturan Khusus: konseling.lihat_catatan HANYA untuk Psikolog dan dikunci
-    if (role === "Psikolog") {
+    // 0. Aturan Khusus: Super Admin selalu memiliki semua hak akses
+    if (role === "Super Admin") {
+      PERMISSION_DEFINITIONS.forEach((p) => list.add(p.code));
+    }
+
+    // 1. Aturan Khusus: konseling.lihat_catatan HANYA untuk Psikolog dan dikunci (kecuali Super Admin)
+    if (role === "Psikolog" || role === "Super Admin") {
       list.add("konseling.lihat_catatan");
     } else {
       list.delete("konseling.lihat_catatan");

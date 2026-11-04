@@ -99,8 +99,9 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
         if (path.includes("/edit")) items.push({ title: <span>Ubah HIRADC</span> });
       } else if (path.includes("/investigasi")) {
         items.push({ title: <Link to="/keselamatan/investigasi">Investigasi</Link> });
-        if (path.includes("/create")) items.push({ title: <span>Investigasi Baru</span> });
-        if (path.includes("/show")) items.push({ title: <span>Form Investigasi Insiden</span> });
+        if (path.includes("/create")) items.push({ title: <span>Tambah Data</span> });
+        if (path.includes("/edit")) items.push({ title: <span>Ubah Data</span> });
+        if (path.includes("/show")) items.push({ title: <span>Detail Investigasi</span> });
       } else if (path.includes("/kecelakaan")) {
         items.push({ title: <Link to="/keselamatan/kecelakaan">Pelaporan Kecelakaan Kerja</Link> });
         if (path.includes("/create")) items.push({ title: <span>Lapor Kecelakaan</span> });
@@ -298,6 +299,8 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
   };
 
   const roleLabels: Record<string, string> = {
+    super_admin: "Super Admin PRIMA K3",
+    "Super Admin": "Super Admin PRIMA K3",
     admin: "Admin Prima K3 / Admin Sistem",
     "Admin Sistem": "Admin Prima K3 / Admin Sistem",
     tim_k3: "Tim K3 / Tim Keselamatan",
@@ -348,6 +351,21 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
       key: "switch-role-header",
       disabled: true,
       label: <Text type="secondary" style={{ fontSize: 11 }}>PILIH PERAN DEMO (RBAC):</Text>,
+    },
+    {
+      key: "role-super_admin",
+      icon: <SwapOutlined style={{ color: "#dc2626" }} />,
+      label: (
+        <span
+          style={{
+            fontWeight: activeUser?.role === "super_admin" ? 700 : "normal",
+            color: "#dc2626",
+          }}
+        >
+          Super Admin (Akses Tertinggi)
+        </span>
+      ),
+      onClick: () => switchRole("super_admin"),
     },
     {
       key: "role-admin",

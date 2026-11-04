@@ -104,6 +104,7 @@ export const PermissionMatrix: React.FC = () => {
   // Hitung jumlah pengguna per peran dinamis
   const userCountPerRole = useMemo(() => {
     const counts: Record<SystemRole, number> = {
+      "Super Admin": 0,
       Pegawai: 0,
       "Pimpinan Unit Kerja": 0,
       "Kepala Biro KU": 0,
@@ -122,6 +123,7 @@ export const PermissionMatrix: React.FC = () => {
   // Hitung jumlah hak akses per peran dinamis dari matriks saat ini
   const permissionsCountPerRole = useMemo(() => {
     const counts: Record<SystemRole, number> = {
+      "Super Admin": 0,
       Pegawai: 0,
       "Pimpinan Unit Kerja": 0,
       "Kepala Biro KU": 0,
@@ -341,20 +343,25 @@ export const PermissionMatrix: React.FC = () => {
         const isAllowed = rolePermissions.includes(code);
 
         // Aturan Kunci:
+        // 0. Super Admin selalu memiliki akses penuh ke seluruh modul
+        const isSuperAdmin = role === "Super Admin";
+
         // 1. konseling.lihat_catatan hanya untuk Psikolog dan dikunci (disabled)
         const isCatatanSesi = code === "konseling.lihat_catatan";
         const isCatatanPsikolog = isCatatanSesi && role === "Psikolog";
-        const isCatatanNonPsikolog = isCatatanSesi && role !== "Psikolog";
+        const isCatatanNonPsikolog = isCatatanSesi && role !== "Psikolog" && !isSuperAdmin;
 
         // 2. Admin Sistem wajib memiliki pengguna.kelola dan hakakses.kelola
         const isAdminLocked =
           role === "Admin Sistem" &&
           (code === "pengguna.kelola" || code === "hakakses.kelola");
 
-        const isDisabled = isCatatanSesi || isAdminLocked;
+        const isDisabled = isSuperAdmin || isCatatanSesi || isAdminLocked;
 
         let tooltipText = "";
-        if (isCatatanPsikolog) {
+        if (isSuperAdmin) {
+          tooltipText = "Super Admin selalu memiliki akses penuh ke seluruh modul sistem K3.";
+        } else if (isCatatanPsikolog) {
           tooltipText = "Catatan sesi konseling bersifat rahasia dan dikunci khusus untuk Psikolog.";
         } else if (isCatatanNonPsikolog) {
           tooltipText = "Catatan sesi konseling hanya dapat diakses oleh Psikolog.";

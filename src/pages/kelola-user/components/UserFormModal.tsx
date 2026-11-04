@@ -57,7 +57,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
     editingRecord != null &&
     (editingRecord.email?.toLowerCase() === currentUserEmail?.toLowerCase() ||
       editingRecord.id === currentUserId ||
-      (editingRecord.role === "Admin Sistem" &&
+      ((editingRecord.role === "Admin Sistem" || editingRecord.role === "Super Admin") &&
         (currentUserEmail?.includes("admin") || currentUserId === 1 || currentUserId === 6)));
 
   useEffect(() => {
@@ -83,7 +83,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
 
       // Validasi perlindungan diri admin
       if (isSelf) {
-        if (values.role !== "Admin Sistem") {
+        if (values.role !== "Admin Sistem" && values.role !== "Super Admin") {
           message.error("Anda tidak diperbolehkan menurunkan peran akun Anda sendiri.");
           setLoading(false);
           return;

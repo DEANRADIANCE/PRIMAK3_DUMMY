@@ -59,6 +59,7 @@ import { HiradcShow } from "./pages/keselamatan/hiradc/show";
 import { HiradcEdit } from "./pages/keselamatan/hiradc/edit";
 import { InvestigationList } from "./pages/keselamatan/investigasi/list";
 import { InvestigationCreate } from "./pages/keselamatan/investigasi/create";
+import { InvestigationEdit } from "./pages/keselamatan/investigasi/edit";
 import { InvestigationShow } from "./pages/keselamatan/investigasi/show";
 import { AccidentReportList } from "./pages/keselamatan/kecelakaan-kerja/list";
 import { AccidentReportCreate } from "./pages/keselamatan/kecelakaan-kerja/create";
@@ -200,6 +201,7 @@ function App() {
                   name: "investigations",
                   list: "/keselamatan/investigasi",
                   create: "/keselamatan/investigasi/create",
+                  edit: "/keselamatan/investigasi/edit/:id",
                   show: "/keselamatan/investigasi/show/:id",
                   meta: {
                     label: "Investigasi",
@@ -376,6 +378,7 @@ function App() {
                   <Route path="/keselamatan/investigasi">
                     <Route index element={<InvestigationList />} />
                     <Route path="create" element={<InvestigationCreate />} />
+                    <Route path="edit/:id" element={<InvestigationEdit />} />
                     <Route path="show/:id" element={<InvestigationShow />} />
                   </Route>
                   <Route path="/keselamatan/kecelakaan">

@@ -3,6 +3,7 @@ import { IUser, UserRole } from "../types/user";
 import { initialUsers } from "../mocks/users";
 
 const STORAGE_KEY = "prima_k3_current_user";
+const TOKEN_KEY = "prima_k3_auth_token";
 
 export const getStoredUser = (): IUser | null => {
   const data = localStorage.getItem(STORAGE_KEY);
@@ -28,6 +29,18 @@ export const setStoredUser = (user: IUser | null) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
   } else {
     localStorage.removeItem(STORAGE_KEY);
+  }
+};
+
+export const getAuthToken = (): string | null => {
+  return localStorage.getItem(TOKEN_KEY);
+};
+
+export const setAuthToken = (token: string | null) => {
+  if (token) {
+    localStorage.setItem(TOKEN_KEY, token);
+  } else {
+    localStorage.removeItem(TOKEN_KEY);
   }
 };
 
@@ -58,13 +71,97 @@ export const switchRole = (role: UserRole) => {
 };
 
 export const authProvider: AuthProvider = {
-  login: async ({ email }) => {
-    // Cari user berdasarkan email demo, bila tidak cocok gunakan admin sebagai fallback
+  login: async ({ email, password }) => {
+    const rawApiUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, "") || "";
+
+    // 1. Jika VITE_API_URL diset dan menunjuk ke endpoint eksternal (misal ngrok)
+    if (rawApiUrl && rawApiUrl.startsWith("http")) {
+      try {
+        const response = await fetch(`${rawApiUrl}/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const resData = await response.json();
+
+          if (response.ok) {
+            const token =
+              resData.token ||
+              resData.access_token ||
+              resData.data?.token ||
+              resData.data?.access_token ||
+              resData.data?.jwt;
+
+            if (token) {
+              setAuthToken(token);
+            }
+
+            const remoteUser =
+              resData.user ||
+              resData.data?.user ||
+              (resData.data && !resData.data.token ? resData.data : null);
+
+            if (remoteUser && typeof remoteUser === "object") {
+              const formattedUser: IUser = {
+                id: remoteUser.id || 1,
+                name: remoteUser.name || email,
+                email: remoteUser.email || email,
+                role: remoteUser.role || "pegawai",
+                unit: remoteUser.unit || "Klinik Pratama ANRI",
+                nip: remoteUser.nip || "",
+                createdAt: remoteUser.createdAt || remoteUser.created_at || new Date().toISOString(),
+                avatar:
+                  remoteUser.avatar ||
+                  `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
+                    remoteUser.name || email
+                  )}`,
+                phone: remoteUser.phone || "",
+                position: remoteUser.position || "",
+              };
+              setStoredUser(formattedUser);
+              return {
+                success: true,
+                redirectTo: "/dashboard",
+                successNotification: {
+                  message: "Login Berhasil (API)",
+                  description: `Selamat datang kembali, ${formattedUser.name}`,
+                },
+              };
+            }
+          } else if (response.status === 401 || response.status === 403) {
+            const isDemoUser = initialUsers.some(
+              (u) => u.email.toLowerCase() === email?.toLowerCase()
+            );
+            if (!isDemoUser) {
+              return {
+                success: false,
+                error: {
+                  name: "Login Error",
+                  message: resData.message || "Email atau kata sandi tidak valid.",
+                },
+              };
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Backend API tidak dapat dijangkau (fallback ke akun demo/lokal):", err);
+      }
+    }
+
+    // 2. Fallback jika offline / ngrok belum menyala / login akun demo
     const user =
       initialUsers.find((u) => u.email.toLowerCase() === email?.toLowerCase()) ||
       initialUsers[0];
 
     setStoredUser(user);
+    setAuthToken("demo-token-" + Date.now());
+
     return {
       success: true,
       redirectTo: "/dashboard",
@@ -77,6 +174,7 @@ export const authProvider: AuthProvider = {
 
   logout: async () => {
     setStoredUser(null);
+    setAuthToken(null);
     if (typeof window !== "undefined") {
       sessionStorage.setItem("prima_logout_success", "true");
     }
