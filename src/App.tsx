@@ -28,6 +28,7 @@ import {
   FileImageOutlined,
   TeamOutlined,
   UserAddOutlined,
+  DatabaseOutlined,
 } from "@ant-design/icons";
 
 // Providers
@@ -85,6 +86,8 @@ import {
   RolePermissionsPage,
   ForbiddenPage,
 } from "./pages/kelola-user";
+// Master Data (Khusus Super Admin)
+import { MasterDataPage } from "./pages/master-data";
 
 // Ant Design theme
 const theme = {
@@ -324,6 +327,14 @@ function App() {
                     icon: <SafetyCertificateOutlined />,
                   },
                 },
+                {
+                  name: "master-data",
+                  list: "/master-data",
+                  meta: {
+                    label: "Master Data",
+                    icon: <DatabaseOutlined />,
+                  },
+                },
               ]}
               options={{
                 syncWithLocation: true,
@@ -360,54 +371,124 @@ function App() {
                     </Authenticated>
                   }
                 >
-                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <CanAccess resource="dashboard" action="list" fallback={<ForbiddenPage />}>
+                        <DashboardPage />
+                      </CanAccess>
+                    }
+                  />
 
                   {/* Keselamatan */}
-                  <Route path="/keselamatan/bahaya-resiko">
+                  <Route
+                    path="/keselamatan/bahaya-resiko"
+                    element={
+                      <CanAccess resource="hazard-reports" action="list" fallback={<ForbiddenPage />}>
+                        <Outlet />
+                      </CanAccess>
+                    }
+                  >
                     <Route index element={<HazardReportList />} />
                     <Route path="create" element={<HazardReportCreate />} />
                     <Route path="show/:id" element={<HazardReportShow />} />
                     <Route path="edit/:id" element={<HazardReportEdit />} />
                   </Route>
-                  <Route path="/keselamatan/hiradc">
+                  <Route
+                    path="/keselamatan/hiradc"
+                    element={
+                      <CanAccess resource="hiradc" action="list" fallback={<ForbiddenPage />}>
+                        <Outlet />
+                      </CanAccess>
+                    }
+                  >
                     <Route index element={<HiradcList />} />
                     <Route path="create" element={<HiradcCreate />} />
                     <Route path="show/:id" element={<HiradcShow />} />
                     <Route path="edit/:id" element={<HiradcEdit />} />
                   </Route>
-                  <Route path="/keselamatan/investigasi">
+                  <Route
+                    path="/keselamatan/investigasi"
+                    element={
+                      <CanAccess resource="investigations" action="list" fallback={<ForbiddenPage />}>
+                        <Outlet />
+                      </CanAccess>
+                    }
+                  >
                     <Route index element={<InvestigationList />} />
                     <Route path="create" element={<InvestigationCreate />} />
                     <Route path="edit/:id" element={<InvestigationEdit />} />
                     <Route path="show/:id" element={<InvestigationShow />} />
                   </Route>
-                  <Route path="/keselamatan/kecelakaan">
+                  <Route
+                    path="/keselamatan/kecelakaan"
+                    element={
+                      <CanAccess resource="accident-reports" action="list" fallback={<ForbiddenPage />}>
+                        <Outlet />
+                      </CanAccess>
+                    }
+                  >
                     <Route index element={<AccidentReportList />} />
                     <Route path="create" element={<AccidentReportCreate />} />
                     <Route path="show/:id" element={<AccidentReportShow />} />
                     <Route path="edit/:id" element={<AccidentReportEdit />} />
                   </Route>
-                  <Route path="/keselamatan/inspeksi">
+                  <Route
+                    path="/keselamatan/inspeksi"
+                    element={
+                      <CanAccess resource="inspections" action="list" fallback={<ForbiddenPage />}>
+                        <Outlet />
+                      </CanAccess>
+                    }
+                  >
                     <Route index element={<InspectionList />} />
                     <Route path="create" element={<InspectionCreate />} />
                     <Route path="show/:id" element={<InspectionShow />} />
                   </Route>
 
                   {/* Kesehatan */}
-                  <Route path="/kesehatan/penyakit" element={<DiseasePage />} />
-                  <Route path="/kesehatan/konsultasi">
+                  <Route
+                    path="/kesehatan/penyakit"
+                    element={
+                      <CanAccess resource="diseases" action="list" fallback={<ForbiddenPage />}>
+                        <DiseasePage />
+                      </CanAccess>
+                    }
+                  />
+                  <Route
+                    path="/kesehatan/konsultasi"
+                    element={
+                      <CanAccess resource="psychologist-bookings" action="list" fallback={<ForbiddenPage />}>
+                        <Outlet />
+                      </CanAccess>
+                    }
+                  >
                     <Route index element={<PsychologistList />} />
                     <Route path="create" element={<PsychologistCreate />} />
                   </Route>
 
                   {/* Media & Informasi */}
-                  <Route path="/media/pemberitahuan">
+                  <Route
+                    path="/media/pemberitahuan"
+                    element={
+                      <CanAccess resource="announcements" action="list" fallback={<ForbiddenPage />}>
+                        <Outlet />
+                      </CanAccess>
+                    }
+                  >
                     <Route index element={<AnnouncementList />} />
                     <Route path="create" element={<AnnouncementCreate />} />
                     <Route path="show/:id" element={<AnnouncementShow />} />
                     <Route path="edit/:id" element={<AnnouncementEdit />} />
                   </Route>
-                  <Route path="/media/edukasi">
+                  <Route
+                    path="/media/edukasi"
+                    element={
+                      <CanAccess resource="articles" action="list" fallback={<ForbiddenPage />}>
+                        <Outlet />
+                      </CanAccess>
+                    }
+                  >
                     <Route index element={<EdukasiPage />} />
                     <Route path="create" element={<Navigate to="/media/edukasi?tab=edukasi" replace />} />
                     <Route path="show/:id" element={<Navigate to="/media/edukasi?tab=edukasi" replace />} />
@@ -444,6 +525,28 @@ function App() {
                         <RolePermissionsPage />
                       </CanAccess>
                     }
+                  />
+                  {/* Master Data (Khusus Super Admin - Halaman Sendiri di Luar Kelola User) */}
+                  <Route
+                    path="/master-data"
+                    element={
+                      <CanAccess
+                        resource="master-data"
+                        action="list"
+                        fallback={
+                          <ForbiddenPage
+                            title="403 - Akses Ditolak"
+                            subTitle="Halaman Master Data hanya dapat diakses secara eksklusif oleh Super Admin PRIMA K3."
+                          />
+                        }
+                      >
+                        <MasterDataPage />
+                      </CanAccess>
+                    }
+                  />
+                  <Route
+                    path="/kelola-user/master-data"
+                    element={<Navigate to="/master-data" replace />}
                   />
 
                   <Route path="*" element={<ErrorComponent />} />

@@ -13,7 +13,7 @@ export const RolePermissionsPage: React.FC = () => {
           Hak Akses Peran
         </Title>
         <Paragraph type="secondary" style={{ margin: 0, fontSize: 14 }}>
-          Atur fitur apa saja yang boleh dibuka oleh setiap peran.
+          Atur hak akses per halaman (Keselamatan, Bahaya & Resiko, HIRADC, dll.) serta fitur operasional untuk setiap peran pengguna.
         </Paragraph>
       </div>
 

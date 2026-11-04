@@ -3,6 +3,7 @@ import { getStoredUser } from "./authProvider";
 import {
   toSystemRole,
   getStoredRolePermissions,
+  hasRolePermission,
 } from "../mocks/rolePermissions";
 
 export const accessControlProvider: AccessControlProvider = {
@@ -11,7 +12,11 @@ export const accessControlProvider: AccessControlProvider = {
     const systemRole = toSystemRole(user?.role);
 
     // Super Admin selalu memiliki hak akses penuh ke seluruh resource dan aksi
-    if (systemRole === "Super Admin" || user?.role === "super_admin" || (user?.role as any) === "Super Admin") {
+    if (
+      systemRole === "Super Admin" ||
+      user?.role === "super_admin" ||
+      (user?.role as any) === "Super Admin"
+    ) {
       return { can: true };
     }
 
@@ -23,78 +28,78 @@ export const accessControlProvider: AccessControlProvider = {
       const allowed = currentPermissions.includes(params.permission);
       return {
         can: allowed,
-        reason: allowed ? undefined : `Izin '${params.permission}' tidak diberikan untuk peran ${systemRole}`,
-      };
-    }
-
-    // 1. Modul Kelola User: Manajemen Pengguna (izin 'pengguna.kelola')
-    if (
-      resource === "kelola-user-pengguna" ||
-      resource === "users" ||
-      resource === "managed-users"
-    ) {
-      const canManage = currentPermissions.includes("pengguna.kelola");
-      return {
-        can: canManage,
-        reason: canManage
+        reason: allowed
           ? undefined
-          : "Hanya Admin Sistem (izin 'Kelola pengguna') yang berhak mengakses Manajemen Pengguna.",
+          : `Izin '${params.permission}' tidak diberikan untuk peran ${systemRole}`,
       };
     }
 
-    // 2. Modul Kelola User: Hak Akses Peran (izin 'hakakses.kelola')
-    if (
-      resource === "kelola-user-hak-akses" ||
-      resource === "hak-akses"
-    ) {
-      const canManage = currentPermissions.includes("hakakses.kelola");
-      return {
-        can: canManage,
-        reason: canManage
-          ? undefined
-          : "Hanya Admin Sistem (izin 'Kelola hak akses') yang berhak mengakses Hak Akses Peran.",
-      };
+    // 1. Pemetaan Hak Akses Halaman (Page Permissions)
+    const resourcePagePermissionMap: Record<string, string> = {
+      dashboard: "page.dashboard",
+      keselamatan: "page.keselamatan",
+      "hazard-reports": "page.bahaya_resiko",
+      hiradc: "page.hiradc",
+      investigations: "page.investigasi",
+      "accident-reports": "page.kecelakaan",
+      inspections: "page.inspeksi",
+      kesehatan: "page.kesehatan",
+      diseases: "page.penyakit",
+      "psychologist-bookings": "page.konsultasi",
+      "media-informasi": "page.media_informasi",
+      announcements: "page.pemberitahuan",
+      articles: "page.edukasi",
+      posters: "page.edukasi",
+      edukasi: "page.edukasi",
+      "kelola-user": "page.kelola_user",
+      "kelola-user-pengguna": "pengguna.kelola",
+      "managed-users": "pengguna.kelola",
+      users: "pengguna.kelola",
+      "kelola-user-hak-akses": "hakakses.kelola",
+      "hak-akses": "hakakses.kelola",
+      "kelola-user-master-data": "masterdata.kelola",
+      "master-data": "masterdata.kelola",
+    };
+
+    const requiredPagePerm = resourcePagePermissionMap[resource || ""];
+    if (requiredPagePerm) {
+      if (requiredPagePerm === "masterdata.kelola") {
+        return {
+          can: false,
+          reason: "Halaman Master Data hanya dapat diakses secara eksklusif oleh Super Admin.",
+        };
+      }
+      if (!currentPermissions.includes(requiredPagePerm)) {
+        return {
+          can: false,
+          reason: `Peran ${systemRole} tidak memiliki hak akses untuk halaman ini (${requiredPagePerm}).`,
+        };
+      }
     }
 
-    // 3. Parent Resource "kelola-user"
-    if (resource === "kelola-user") {
-      const canAccess =
-        currentPermissions.includes("pengguna.kelola") ||
-        currentPermissions.includes("hakakses.kelola");
-      return {
-        can: canAccess,
-        reason: canAccess
-          ? undefined
-          : "Hanya Admin Sistem yang berhak mengakses menu Kelola User.",
-      };
-    }
-
-    // 4. Modul investigasi & laporan
+    // 2. Modul Investigasi (Pemeriksaan Aksi Khusus)
     if (resource === "investigations") {
       if (action === "create" || action === "edit") {
         const canEdit =
           currentPermissions.includes("investigasi.kelola") ||
-          systemRole === "Pengelola K3" ||
-          user?.role === "tim_k3";
+          systemRole === "Pengelola K3";
         return {
           can: canEdit,
           reason: canEdit
             ? undefined
-            : "Hanya Pengelola K3 yang berwenang membuat atau mengubah data investigasi.",
+            : "Hanya peran dengan izin 'Susun & ubah investigasi' yang berwenang mengubah investigasi.",
         };
       }
       if (action === "sahkan" || action === "periksa") {
         const canSahkan =
           currentPermissions.includes("laporan.periksa") ||
           systemRole === "Kepala Biro KU" ||
-          systemRole === "Pengelola K3" ||
-          user?.role === "kepala_unit" ||
-          user?.role === "tim_k3";
+          systemRole === "Pengelola K3";
         return {
           can: canSahkan,
           reason: canSahkan
             ? undefined
-            : "Hanya Kepala Biro KU dan Pengelola K3 yang berhak memeriksa & mengesahkan investigasi.",
+            : "Hanya peran dengan izin 'Periksa & sahkan laporan' yang berhak memeriksa & mengesahkan.",
         };
       }
       if (action === "export" || action === "ekspor") {
@@ -102,125 +107,87 @@ export const accessControlProvider: AccessControlProvider = {
           currentPermissions.includes("laporan.ekspor") ||
           systemRole === "Kepala Biro KU" ||
           systemRole === "Pengelola K3" ||
-          systemRole === "Admin Sistem" ||
-          user?.role === "admin" ||
-          user?.role === "tim_k3" ||
-          user?.role === "kepala_unit";
+          systemRole === "Admin Sistem";
         return {
           can: canExport,
           reason: canExport
             ? undefined
-            : "Peran tidak memiliki hak akses untuk ekspor PDF investigasi.",
-        };
-      }
-      if (action === "list" || action === "show") {
-        const canView =
-          currentPermissions.includes("laporan.lihat_semua") ||
-          systemRole === "Kepala Biro KU" ||
-          systemRole === "Pengelola K3" ||
-          systemRole === "Admin Sistem" ||
-          user?.role === "admin" ||
-          user?.role === "tim_k3" ||
-          user?.role === "kepala_unit";
-        return {
-          can: canView,
-          reason: canView
-            ? undefined
-            : "Peran tidak memiliki izin melihat data investigasi.",
+            : "Peran tidak memiliki izin untuk mengekspor PDF laporan investigasi.",
         };
       }
       if (action === "delete") {
         const canDelete =
-          systemRole === "Pengelola K3" ||
-          systemRole === "Admin Sistem" ||
-          user?.role === "admin" ||
-          user?.role === "tim_k3";
+          systemRole === "Pengelola K3" || systemRole === "Admin Sistem";
         return {
           can: canDelete,
-          reason: canDelete ? undefined : "Tidak berwenang menghapus berkas investigasi.",
+          reason: canDelete
+            ? undefined
+            : "Tidak berwenang menghapus berkas investigasi.",
         };
       }
     }
 
-    const role = user?.role || "pegawai";
-
-    // 5. Admin & Tim K3 default fallback untuk resource keselamatan & lainnya
-    if (role === "admin" || role === "tim_k3" || systemRole === "Admin Sistem" || systemRole === "Pengelola K3") {
-      return { can: true };
-    }
-
-    if (resource === "hazard-categories") {
-      return { can: true };
-    }
-
-    // 6. Kepala Unit
-    if (role === "kepala_unit" || systemRole === "Pimpinan Unit Kerja" || systemRole === "Kepala Biro KU") {
-      if (resource === "investigations") {
-        return { can: true };
-      }
-      if (
-        resource === "dashboard" ||
-        resource === "hazard-reports" ||
-        resource === "hiradc" ||
-        resource === "accident-reports" ||
-        resource === "inspections" ||
-        resource === "announcements" ||
-        resource === "articles" ||
-        resource === "posters" ||
-        resource === "diseases"
-      ) {
-        if (action === "list" || action === "show" || action === "edit") {
-          return { can: true };
-        }
-      }
-      if (resource === "psychologist-bookings") {
-        return { can: true };
-      }
+    // 3. Modul Pembuatan Laporan (Bahaya & Kecelakaan)
+    if (
+      (resource === "hazard-reports" || resource === "accident-reports") &&
+      action === "create"
+    ) {
+      const canCreate = currentPermissions.includes("laporan.buat");
       return {
-        can: false,
-        reason: "Akses terbatas untuk Kepala Unit Kerja",
+        can: canCreate,
+        reason: canCreate
+          ? undefined
+          : "Peran Anda tidak memiliki izin untuk membuat laporan baru.",
       };
     }
 
-    // 7. Pegawai
-    if (role === "pegawai" || systemRole === "Pegawai") {
-      if (resource === "dashboard") {
-        return { can: true };
-      }
-      if (resource === "hazard-reports") {
+    // 4. Modul Konseling / Psikolog (Aksi Khusus)
+    if (resource === "psychologist-bookings") {
+      if (action === "rujuk_wajib") {
+        const canRefer = currentPermissions.includes("konseling.rujuk_wajib");
         return {
-          can: action === "list" || action === "create" || action === "show",
-          reason: action === "edit" || action === "delete" ? "Hanya Tim K3 yang berwenang mengubah status" : undefined,
+          can: canRefer,
+          reason: canRefer ? undefined : "Hanya pimpinan yang dapat merujuk konseling wajib.",
         };
       }
-      if (resource === "psychologist-bookings") {
-        return { can: true };
-      }
-      if (
-        resource === "announcements" ||
-        resource === "articles" ||
-        resource === "posters" ||
-        resource === "diseases"
-      ) {
+      if (action === "atur_jadwal") {
+        const canSchedule = currentPermissions.includes("konseling.atur_jadwal");
         return {
-          can: action === "list" || action === "show",
-          reason: action === "create" || action === "edit" || action === "delete" ? "Hanya Admin/Tim K3 yang berwenang mengelola konten" : undefined,
+          can: canSchedule,
+          reason: canSchedule ? undefined : "Tidak berwenang mengatur jadwal konseling.",
         };
       }
-      if (resource === "hiradc" || resource === "accident-reports") {
+      if (action === "lihat_catatan") {
+        const canViewNotes =
+          currentPermissions.includes("konseling.lihat_catatan") &&
+          systemRole === "Psikolog";
         return {
-          can: action === "list" || action === "show" || action === "create",
+          can: canViewNotes,
+          reason: canViewNotes
+            ? undefined
+            : "Catatan sesi konseling hanya dapat dilihat oleh Psikolog.",
         };
       }
-      if (resource === "investigations" || resource === "inspections") {
-        return {
-          can: action === "list" || action === "show",
-          reason: "Hanya Tim K3 yang dapat melakukan audit inspeksi",
-        };
-      }
-      return { can: false };
     }
 
+    // 5. Modul Media & Informasi (Aksi Kelola Konten)
+    if (
+      (resource === "announcements" ||
+        resource === "articles" ||
+        resource === "posters" ||
+        resource === "edukasi") &&
+      (action === "create" || action === "edit" || action === "delete")
+    ) {
+      const canManageMedia = currentPermissions.includes("pengumuman.kelola");
+      return {
+        can: canManageMedia,
+        reason: canManageMedia
+          ? undefined
+          : "Hanya pengelola yang memiliki izin kelola konten pengumuman/edukasi.",
+      };
+    }
+
+    // Default: Izinkan jika hak akses halaman sudah terpenuhi
     return { can: true };
   },
 };

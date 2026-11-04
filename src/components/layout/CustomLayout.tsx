@@ -33,6 +33,7 @@ import {
   AuditOutlined,
   TeamOutlined,
   UserAddOutlined,
+  DatabaseOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation, Link } from "react-router";
 import { useGetIdentity } from "@refinedev/core";
@@ -57,13 +58,21 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
   const location = useLocation();
   const { data: user } = useGetIdentity<IUser>();
   const [currentUser, setCurrentUser] = useState<IUser | null>(getStoredUser());
+  const [, setPermissionsTick] = useState(0);
 
   React.useEffect(() => {
     const handleUserUpdate = (e: any) => {
       setCurrentUser(e.detail || getStoredUser());
     };
+    const handlePermissionsUpdate = () => {
+      setPermissionsTick((t) => t + 1);
+    };
     window.addEventListener("prima_user_updated", handleUserUpdate);
-    return () => window.removeEventListener("prima_user_updated", handleUserUpdate);
+    window.addEventListener("prima_permissions_updated", handlePermissionsUpdate);
+    return () => {
+      window.removeEventListener("prima_user_updated", handleUserUpdate);
+      window.removeEventListener("prima_permissions_updated", handlePermissionsUpdate);
+    };
   }, []);
 
   const activeUser = currentUser || user;
@@ -144,6 +153,8 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
       } else if (path.includes("/hak-akses")) {
         items.push({ title: <Link to="/kelola-user/hak-akses">Hak Akses Peran</Link> });
       }
+    } else if (path.startsWith("/master-data")) {
+      items.push({ title: <Link to="/master-data">Master Data</Link> });
     } else if (path.startsWith("/profil") || path.startsWith("/profile")) {
       items.push({ title: <span>Edit Profil</span> });
     }
@@ -152,120 +163,206 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
   };
 
   const userSystemRole = toSystemRole(activeUser?.role);
+
+  // 1. Dashboard
+  const canAccessDashboard = hasRolePermission(userSystemRole, "page.dashboard");
+
+  // 2. Keselamatan
+  const canAccessKeselamatanMod = hasRolePermission(userSystemRole, "page.keselamatan");
+  const keselamatanChildren = [
+    ...(hasRolePermission(userSystemRole, "page.bahaya_resiko")
+      ? [
+          {
+            key: "/keselamatan/bahaya-resiko",
+            icon: <WarningOutlined style={{ color: "#d97706" }} />,
+            label: "Bahaya dan Resiko",
+            onClick: () => navigate("/keselamatan/bahaya-resiko"),
+          },
+        ]
+      : []),
+    ...(hasRolePermission(userSystemRole, "page.hiradc")
+      ? [
+          {
+            key: "/keselamatan/hiradc",
+            icon: <SafetyCertificateOutlined style={{ color: "#059669" }} />,
+            label: "HIRADC",
+            onClick: () => navigate("/keselamatan/hiradc"),
+          },
+        ]
+      : []),
+    ...(hasRolePermission(userSystemRole, "page.investigasi")
+      ? [
+          {
+            key: "/keselamatan/investigasi",
+            icon: <SearchOutlined style={{ color: "#4f46e5" }} />,
+            label: "Investigasi",
+            onClick: () => navigate("/keselamatan/investigasi"),
+          },
+        ]
+      : []),
+    ...(hasRolePermission(userSystemRole, "page.kecelakaan")
+      ? [
+          {
+            key: "/keselamatan/kecelakaan",
+            icon: <FileProtectOutlined style={{ color: "#dc2626" }} />,
+            label: "Pelaporan Kecelakaan Kerja",
+            onClick: () => navigate("/keselamatan/kecelakaan"),
+          },
+        ]
+      : []),
+    ...(hasRolePermission(userSystemRole, "page.inspeksi")
+      ? [
+          {
+            key: "/keselamatan/inspeksi",
+            icon: <FireOutlined style={{ color: "#e11d48" }} />,
+            label: "Inspeksi K3",
+            onClick: () => navigate("/keselamatan/inspeksi"),
+          },
+        ]
+      : []),
+  ];
+
+  // 3. Kesehatan
+  const canAccessKesehatanMod = hasRolePermission(userSystemRole, "page.kesehatan");
+  const kesehatanChildren = [
+    ...(hasRolePermission(userSystemRole, "page.penyakit")
+      ? [
+          {
+            key: "/kesehatan/penyakit",
+            icon: <MedicineBoxOutlined style={{ color: "#0891b2" }} />,
+            label: "Penyakit",
+            onClick: () => navigate("/kesehatan/penyakit"),
+          },
+        ]
+      : []),
+    ...(hasRolePermission(userSystemRole, "page.konsultasi")
+      ? [
+          {
+            key: "/kesehatan/konsultasi",
+            icon: <AuditOutlined style={{ color: "#7c3aed" }} />,
+            label: "Konsultasi Psikolog",
+            onClick: () => navigate("/kesehatan/konsultasi"),
+          },
+        ]
+      : []),
+  ];
+
+  // 4. Media & Informasi
+  const canAccessMediaMod = hasRolePermission(userSystemRole, "page.media_informasi");
+  const mediaChildren = [
+    ...(hasRolePermission(userSystemRole, "page.pemberitahuan")
+      ? [
+          {
+            key: "/media/pemberitahuan",
+            icon: <BellOutlined style={{ color: "#0284c7" }} />,
+            label: "Pemberitahuan",
+            onClick: () => navigate("/media/pemberitahuan"),
+          },
+        ]
+      : []),
+    ...(hasRolePermission(userSystemRole, "page.edukasi")
+      ? [
+          {
+            key: "/media/edukasi",
+            icon: <ReadOutlined style={{ color: "#65a30d" }} />,
+            label: "Edukasi",
+            onClick: () => navigate("/media/edukasi"),
+          },
+        ]
+      : []),
+  ];
+
+  // 5. Kelola User
+  const canAccessUserMod = hasRolePermission(userSystemRole, "page.kelola_user");
   const canManageUsers = hasRolePermission(userSystemRole, "pengguna.kelola");
   const canManagePermissions = hasRolePermission(userSystemRole, "hakakses.kelola");
-  const canAccessUserModule = canManageUsers || canManagePermissions;
+
+  // 6. Master Data (Khusus Super Admin - Di luar Kelola User)
+  const canManageMasterData =
+    userSystemRole === "Super Admin" ||
+    hasRolePermission(userSystemRole, "masterdata.kelola");
+
+  const userChildren = [
+    ...(canManageUsers
+      ? [
+          {
+            key: "/kelola-user/pengguna",
+            icon: <UserAddOutlined style={{ color: "#16a34a" }} />,
+            label: "Manajemen Pengguna",
+            onClick: () => navigate("/kelola-user/pengguna"),
+          },
+        ]
+      : []),
+    ...(canManagePermissions
+      ? [
+          {
+            key: "/kelola-user/hak-akses",
+            icon: <SafetyCertificateOutlined style={{ color: "#7c3aed" }} />,
+            label: "Hak Akses User",
+            onClick: () => navigate("/kelola-user/hak-akses"),
+          },
+        ]
+      : []),
+  ];
 
   const menuItems = [
-    {
-      key: "/dashboard",
-      icon: <DashboardOutlined style={{ fontSize: 16 }} />,
-      label: "Dashboard",
-      onClick: () => navigate("/dashboard"),
-    },
-    {
-      key: "keselamatan",
-      icon: <MedicineBoxOutlined style={{ fontSize: 16 }} />,
-      label: "Keselamatan",
-      children: [
-        {
-          key: "/keselamatan/bahaya-resiko",
-          icon: <WarningOutlined />,
-          label: "Bahaya dan Resiko",
-          onClick: () => navigate("/keselamatan/bahaya-resiko"),
-        },
-        {
-          key: "/keselamatan/hiradc",
-          icon: <SafetyCertificateOutlined />,
-          label: "HIRADC",
-          onClick: () => navigate("/keselamatan/hiradc"),
-        },
-        {
-          key: "/keselamatan/investigasi",
-          icon: <SearchOutlined />,
-          label: "Investigasi",
-          onClick: () => navigate("/keselamatan/investigasi"),
-        },
-        {
-          key: "/keselamatan/kecelakaan",
-          icon: <FileProtectOutlined />,
-          label: "Pelaporan Kecelakaan Kerja",
-          onClick: () => navigate("/keselamatan/kecelakaan"),
-        },
-        {
-          key: "/keselamatan/inspeksi",
-          icon: <FireOutlined />,
-          label: "Inspeksi K3",
-          onClick: () => navigate("/keselamatan/inspeksi"),
-        },
-      ],
-    },
-    {
-      key: "kesehatan",
-      icon: <HeartOutlined style={{ fontSize: 16 }} />,
-      label: "Kesehatan",
-      children: [
-        {
-          key: "/kesehatan/penyakit",
-          icon: <MedicineBoxOutlined />,
-          label: "Penyakit",
-          onClick: () => navigate("/kesehatan/penyakit"),
-        },
-        {
-          key: "/kesehatan/konsultasi",
-          icon: <AuditOutlined />,
-          label: "Konsultasi Psikolog",
-          onClick: () => navigate("/kesehatan/konsultasi"),
-        },
-      ],
-    },
-    {
-      key: "media-informasi",
-      icon: <NotificationOutlined style={{ fontSize: 16 }} />,
-      label: "Media dan Informasi",
-      children: [
-        {
-          key: "/media/pemberitahuan",
-          icon: <BellOutlined />,
-          label: "Pemberitahuan",
-          onClick: () => navigate("/media/pemberitahuan"),
-        },
-        {
-          key: "/media/edukasi",
-          icon: <ReadOutlined />,
-          label: "Edukasi",
-          onClick: () => navigate("/media/edukasi"),
-        },
-      ],
-    },
-    ...(canAccessUserModule
+    ...(canAccessDashboard
+      ? [
+          {
+            key: "/dashboard",
+            icon: <DashboardOutlined style={{ fontSize: 16, color: "#2563eb" }} />,
+            label: "Dashboard",
+            onClick: () => navigate("/dashboard"),
+          },
+        ]
+      : []),
+    ...(canAccessKeselamatanMod && keselamatanChildren.length > 0
+      ? [
+          {
+            key: "keselamatan",
+            icon: <MedicineBoxOutlined style={{ fontSize: 16, color: "#ea580c" }} />,
+            label: "Keselamatan",
+            children: keselamatanChildren,
+          },
+        ]
+      : []),
+    ...(canAccessKesehatanMod && kesehatanChildren.length > 0
+      ? [
+          {
+            key: "kesehatan",
+            icon: <HeartOutlined style={{ fontSize: 16, color: "#db2777" }} />,
+            label: "Kesehatan",
+            children: kesehatanChildren,
+          },
+        ]
+      : []),
+    ...(canAccessMediaMod && mediaChildren.length > 0
+      ? [
+          {
+            key: "media-informasi",
+            icon: <NotificationOutlined style={{ fontSize: 16, color: "#0d9488" }} />,
+            label: "Media dan Informasi",
+            children: mediaChildren,
+          },
+        ]
+      : []),
+    ...(canAccessUserMod && userChildren.length > 0
       ? [
           {
             key: "kelola-user",
-            icon: <TeamOutlined style={{ fontSize: 16 }} />,
+            icon: <TeamOutlined style={{ fontSize: 16, color: "#4f46e5" }} />,
             label: "Kelola User",
-            children: [
-              ...(canManageUsers
-                ? [
-                    {
-                      key: "/kelola-user/pengguna",
-                      icon: <UserAddOutlined />,
-                      label: "Manajemen Pengguna",
-                      onClick: () => navigate("/kelola-user/pengguna"),
-                    },
-                  ]
-                : []),
-              ...(canManagePermissions
-                ? [
-                    {
-                      key: "/kelola-user/hak-akses",
-                      icon: <SafetyCertificateOutlined />,
-                      label: "Hak Akses User",
-                      onClick: () => navigate("/kelola-user/hak-akses"),
-                    },
-                  ]
-                : []),
-            ],
+            children: userChildren,
+          },
+        ]
+      : []),
+    ...(canManageMasterData
+      ? [
+          {
+            key: "/master-data",
+            icon: <DatabaseOutlined style={{ fontSize: 16, color: "#d97706" }} />,
+            label: "Master Data",
+            onClick: () => navigate("/master-data"),
           },
         ]
       : []),
@@ -286,6 +383,7 @@ export const CustomLayout: React.FC<CustomLayoutProps> = ({ children }) => {
     if (p.startsWith("/media/edukasi") || p.startsWith("/media/flayer-poster")) return ["/media/edukasi"];
     if (p.startsWith("/kelola-user/pengguna")) return ["/kelola-user/pengguna"];
     if (p.startsWith("/kelola-user/hak-akses")) return ["/kelola-user/hak-akses"];
+    if (p.startsWith("/master-data") || p.startsWith("/kelola-user/master-data")) return ["/master-data"];
     return [p];
   };
 

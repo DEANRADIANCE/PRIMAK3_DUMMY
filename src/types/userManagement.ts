@@ -22,15 +22,19 @@ export interface IManagedUser {
 }
 
 export type PermissionCategory =
-  | "INVESTIGASI"
-  | "KONSELING"
-  | "PENGUMUMAN & DASHBOARD"
+  | "DASHBOARD"
+  | "KESELAMATAN"
+  | "KESEHATAN"
+  | "MEDIA & INFORMASI"
   | "ADMINISTRASI";
 
 export interface IPermissionItem {
   code: string;
   name: string;
   category: PermissionCategory;
+  isPage?: boolean;
+  pageRoute?: string;
+  description?: string;
   isLocked?: boolean;
   lockedRoles?: SystemRole[];
   requiredRoles?: SystemRole[];

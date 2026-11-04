@@ -3,7 +3,15 @@ import { Result, Button, Card } from "antd";
 import { SafetyCertificateOutlined, DashboardOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 
-export const ForbiddenPage: React.FC = () => {
+export interface ForbiddenPageProps {
+  title?: string;
+  subTitle?: string;
+}
+
+export const ForbiddenPage: React.FC<ForbiddenPageProps> = ({
+  title = "403 - Akses Ditolak",
+  subTitle = "Peran Anda saat ini tidak memiliki hak akses yang diperlukan untuk membuka halaman ini. Hubungi Admin Sistem jika Anda memerlukan izin tambahan.",
+}) => {
   const navigate = useNavigate();
 
   return (
@@ -18,8 +26,8 @@ export const ForbiddenPage: React.FC = () => {
       <Result
         status="403"
         icon={<SafetyCertificateOutlined style={{ color: "#ef4444", fontSize: 64 }} />}
-        title="403 - Akses Ditolak"
-        subTitle="Halaman ini hanya dapat diakses oleh Admin Sistem dengan izin 'Kelola pengguna' dan 'Kelola hak akses'."
+        title={title}
+        subTitle={subTitle}
         extra={
           <Button
             type="primary"
