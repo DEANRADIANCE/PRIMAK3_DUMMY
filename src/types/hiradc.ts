@@ -7,16 +7,100 @@ export type ActivityType = "Rutin (R)" | "Non Rutin (NR)";
 export type HazardClassification = "Health (H)" | "Safety (S)" | "Environment (E)";
 export type ControlStatus = "Open" | "Close";
 export type NfrRiskLevel = "Rendah" | "Sedang" | "Tinggi" | "Sangat Tinggi";
+export type HazardCategoryType = "Fisika" | "Kimia" | "Biologi" | "Ergonomi" | "Psikososial";
+export type ControlHierarchyType = "Eliminasi" | "Subtitusi" | "Engineering Control" | "Administrasi" | "APD";
+
+export interface IHazardDetailItem {
+  id: string;
+  deskripsi: string;
+  risikoList: string[]; // Bisa lebih dari 1 risiko
+  dampakList: string[]; // Bisa lebih dari 1 dampak
+}
+
+// Tabel baris Deskripsi Bahaya ke bawah (1 deskripsi bisa pilih > 1 jenis bahaya)
+export interface IHazardDetailRow {
+  id: string;
+  deskripsi: string;
+  jenisBahaya: HazardCategoryType[]; // Bisa centang lebih dari 1 jenis bahaya!
+  risikoList: string[]; // Bisa lebih dari 1 risiko
+  dampakList: string[]; // Bisa lebih dari 1 dampak
+}
+
+export type HazardDetailsMap = {
+  [key in HazardCategoryType]?: IHazardDetailItem[];
+};
+
+export interface IHiradcSubActivity {
+  id: string; // ID unik tahapan proses kerja, misal "step-1"
+  activity: string; // Aktivitas / Proses Kerja spesifik (contoh: "Mengambil arsip dari brankas")
+  location?: string; // Lokasi proses kerja
+  activityType?: ActivityType; // Rutin (R) / Non Rutin (NR)
+  hazardClassification?: HazardClassification[]; // Health (H), Safety (S), Environment (E)
+
+  // Tabel baris Deskripsi Bahaya ke bawah
+  hazardRows?: IHazardDetailRow[];
+
+  // Pilihan Jenis Bahaya (Centang-centang, bisa lebih dari 1)
+  selectedHazardTypes?: HazardCategoryType[];
+  // Rincian Deskripsi Bahaya, Risiko & Dampak per Jenis Bahaya
+  hazardDetails?: HazardDetailsMap;
+
+  // Identifikasi 5 Faktor Bahaya (kompatibilitas ringkasan string)
+  hazardPhysics?: string; // Bahaya Fisika
+  hazardChemical?: string; // Bahaya Kimia
+  hazardBiology?: string; // Bahaya Biologi
+  hazardErgonomics?: string; // Bahaya Ergonomi
+  hazardPsychosocial?: string; // Bahaya Psikososial
+  riskImpact: string; // Risiko / Penyakit Yang Ditimbulkan
+
+  // Pengendalian (Existing Control - 5 Hirarki K3 Sesuai Spreadsheet)
+  controlDescription?: string; // Deskripsi Pengendalian
+  selectedControls?: ControlHierarchyType[]; // Pilihan hirarki yang dicentang
+  currentElimination?: string;
+  currentSubstitution?: string;
+  currentEngineering?: string;
+  currentAdministrative?: string;
+  currentApd?: string;
+  currentLikelihood: number; // L (1 - 5)
+  currentSeverity: number; // S (1 - 5)
+  currentNfr: number; // Nilai Faktor Risiko (L × S)
+  currentRiskLevel: NfrRiskLevel;
+
+  // Pengendalian Lanjutan (Determining / Residual Control - 5 Hirarki K3)
+  residualSelectedControls?: ControlHierarchyType[];
+  residualElimination?: string;
+  residualSubstitution?: string;
+  residualEngineering?: string;
+  residualAdministrative?: string;
+  residualApd?: string;
+  residualLikelihood?: number; // L (1 - 5)
+  residualSeverity?: number; // S (1 - 5)
+  residualNfr?: number; // Nilai Faktor Risiko (L × S)
+  residualRiskLevel?: NfrRiskLevel;
+
+  // Durasi, Status, PIC & Target
+  controlDuration?: string;
+  controlStatus?: ControlStatus;
+  responsiblePerson?: string;
+  targetDate?: string;
+}
 
 export interface IHiradc {
   id: number;
-  activity: string; // Aktivitas / Proses Kerja
+  parentActivity?: string; // Judul Kegiatan (Induk / Ibu, contoh: "Menata Arsip")
+  activity: string; // Aktivitas / Proses Kerja (atau ringkasan kegiatan)
+  subActivities?: IHiradcSubActivity[]; // Daftar tahapan proses kerja yang dinilai
   unit: string; // Unit Kerja
   location: string; // Lokasi
   activityType?: ActivityType; // Rutin (R) / Non Rutin (NR)
   hazardClassification?: HazardClassification[]; // Health (H), Safety (S), Environment (E)
   assessor?: string; // Pemeriksa / Tim Penilai
   assessmentDate?: string; // Tanggal Penilaian
+
+  // Pilihan Jenis Bahaya (Centang-centang) & Rincian
+  hazardRows?: IHazardDetailRow[];
+  selectedHazardTypes?: HazardCategoryType[];
+  hazardDetails?: HazardDetailsMap;
 
   // Identifikasi 5 Faktor Bahaya (Sesuai Form Excel)
   hazardPhysics?: string; // Bahaya Fisika (Bising, Getaran, Suhu, Radiasi, Pencahayaan)
@@ -27,6 +111,8 @@ export interface IHiradc {
   riskImpact?: string; // Risiko / Penyakit Yang Ditimbulkan
 
   // Pengendalian Saat Ini (Existing Control - 5 Hirarki K3)
+  controlDescription?: string; // Deskripsi Pengendalian
+  selectedControls?: ControlHierarchyType[];
   currentElimination?: string; // Eliminasi
   currentSubstitution?: string; // Substitusi
   currentEngineering?: string; // Engineering Control
@@ -38,6 +124,7 @@ export interface IHiradc {
   currentRiskLevel: NfrRiskLevel;
 
   // Pengendalian Lanjutan (Determining / Residual Control - 5 Hirarki K3)
+  residualSelectedControls?: ControlHierarchyType[];
   residualElimination?: string; // Eliminasi
   residualSubstitution?: string; // Substitusi
   residualEngineering?: string; // Engineering Control

@@ -11,6 +11,8 @@ import {
   Popconfirm,
   Row,
   Col,
+  message,
+  Tooltip,
 } from "antd";
 import {
   PlusOutlined,
@@ -25,12 +27,17 @@ import {
   CheckCircleOutlined,
   AimOutlined,
   FilePdfOutlined,
+  ApartmentOutlined,
+  OrderedListOutlined,
+  DownOutlined,
+  RightOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router";
 import { useTable } from "@refinedev/antd";
-import { useDelete, useGetIdentity } from "@refinedev/core";
+import { useDelete, useUpdate, useGetIdentity } from "@refinedev/core";
 import {
   IHiradc,
+  IHiradcSubActivity,
   calculateNfrRiskLevel,
   getNfrTagColor,
 } from "../../../types/hiradc";
@@ -55,15 +62,133 @@ export const HiradcList: React.FC = () => {
   });
 
   const { mutate: deleteHiradc } = useDelete();
+  const { mutate: updateHiradc } = useUpdate();
   const canEdit = currentUser?.role === "admin" || currentUser?.role === "tim_k3" || currentUser?.role === "super_admin";
 
+  // Handler untuk menghapus tahapan proses kerja tertentu dari record kegiatan
+  const handleDeleteSubActivity = (record: IHiradc, targetIndexOrId: string | number) => {
+    const currentSubs: IHiradcSubActivity[] =
+      record.subActivities && record.subActivities.length > 0
+        ? [...record.subActivities]
+        : [
+            {
+              id: `sub-single-${record.id}`,
+              activity: record.activity,
+              location: record.location,
+              activityType: record.activityType,
+              hazardClassification: record.hazardClassification,
+              riskImpact: record.riskImpact || record.risk || "-",
+              controlDescription: record.controlDescription,
+              selectedControls: record.selectedControls,
+              currentLikelihood: record.currentLikelihood,
+              currentSeverity: record.currentSeverity,
+              currentNfr: record.currentNfr,
+              currentRiskLevel: record.currentRiskLevel,
+              residualLikelihood: record.residualLikelihood,
+              residualSeverity: record.residualSeverity,
+              residualNfr: record.residualNfr,
+              residualRiskLevel: record.residualRiskLevel,
+              controlDuration: record.controlDuration,
+              controlStatus: record.controlStatus,
+              responsiblePerson: record.responsiblePerson,
+              targetDate: record.targetDate,
+            } as IHiradcSubActivity,
+          ];
+
+    if (currentSubs.length <= 1) {
+      message.warning("Kegiatan minimal harus memiliki 1 tahapan proses kerja!");
+      return;
+    }
+
+    const updatedSubs = currentSubs.filter((sub, idx) => {
+      if (typeof targetIndexOrId === "number") {
+        return idx !== targetIndexOrId;
+      }
+      return (sub.id || `sub-${idx}`) !== targetIndexOrId;
+    });
+
+    updateHiradc(
+      {
+        resource: "hiradc",
+        id: record.id,
+        values: {
+          ...record,
+          subActivities: updatedSubs,
+        },
+      },
+      {
+        onSuccess: () => {
+          message.success("Tahapan proses kerja berhasil dihapus!");
+        },
+        onError: (err: any) => {
+          message.error("Gagal menghapus proses kerja: " + (err?.message || "Terjadi kesalahan"));
+        },
+      }
+    );
+  };
+
   const allHiradc = (tableProps.dataSource || []) as IHiradc[];
+
+  // Hitung jumlah proses kerja keseluruhan
+  const totalSubActivitiesCount = allHiradc.reduce((sum, h) => {
+    return sum + (h.subActivities && h.subActivities.length > 0 ? h.subActivities.length : 1);
+  }, 0);
+
+  // Helper menghitung akumulasi nilai dari jumlah NFR Sisa tiap proses kerja,
+  // atau jika belum ada nilai NFR Sisa, diambil dari akumulasi jumlah NFR Awal detail proses kerja.
+  const getAccumulatedNfrInfo = (record: IHiradc) => {
+    if (record.subActivities && record.subActivities.length > 0) {
+      const sumResidual = record.subActivities.reduce((sum, s) => {
+        const res =
+          typeof s.residualNfr === "number" && s.residualNfr > 0
+            ? s.residualNfr
+            : s.residualLikelihood && s.residualSeverity
+            ? s.residualLikelihood * s.residualSeverity
+            : 0;
+        return sum + res;
+      }, 0);
+
+      const sumCurrent = record.subActivities.reduce((sum, s) => {
+        const cur =
+          typeof s.currentNfr === "number" && s.currentNfr > 0
+            ? s.currentNfr
+            : s.currentLikelihood && s.currentSeverity
+            ? s.currentLikelihood * s.currentSeverity
+            : 0;
+        return sum + cur;
+      }, 0);
+
+      // Jika ada akumulasi NFR Sisa, gunakan NFR Sisa. Jika belum ada, gunakan NFR Awal.
+      if (sumResidual > 0) {
+        return { nfr: sumResidual, isResidual: true, typeLabel: "NFR Sisa" };
+      }
+      return { nfr: sumCurrent, isResidual: false, typeLabel: "NFR Awal" };
+    }
+
+    // Fallback untuk record tunggal
+    const res =
+      record.residualNfr ??
+      (record.residualLikelihood && record.residualSeverity
+        ? record.residualLikelihood * record.residualSeverity
+        : 0);
+    if (res > 0) {
+      return { nfr: res, isResidual: true, typeLabel: "NFR Sisa" };
+    }
+    const cur =
+      record.currentNfr ??
+      record.riskScore ??
+      ((record.likelihood || 1) * (record.severity || 1));
+    return { nfr: cur, isResidual: false, typeLabel: "NFR Awal" };
+  };
+
+  const getAccumulatedNfr = (record: IHiradc) => getAccumulatedNfrInfo(record).nfr;
+
   const highRiskCount = allHiradc.filter((h) => {
-    const nfr = h.currentNfr ?? h.riskScore ?? 0;
+    const nfr = getAccumulatedNfr(h);
     return nfr >= 5;
   }).length;
   const lowRiskCount = allHiradc.filter((h) => {
-    const nfr = h.currentNfr ?? h.riskScore ?? 0;
+    const nfr = getAccumulatedNfr(h);
     return nfr < 5;
   }).length;
 
@@ -78,96 +203,104 @@ export const HiradcList: React.FC = () => {
       ),
     },
     {
-      title: "Aktivitas & Karakter",
-      dataIndex: "activity",
-      key: "activity",
-      width: 240,
-      render: (val: string, record: IHiradc) => (
-        <div>
-          <a
-            onClick={() => navigate(`/keselamatan/hiradc/show/${record.id}`)}
-            style={{ fontWeight: 700, color: "#0284c7", fontSize: 13.5, display: "block", marginBottom: 4 }}
-          >
-            {val}
-          </a>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-            {record.activityType && (
-              <Tag
-                color={record.activityType.includes("Non") ? "volcano" : "blue"}
-                style={{ fontSize: 11, borderRadius: 4, margin: 0 }}
-              >
-                {record.activityType}
-              </Tag>
-            )}
-            <Text type="secondary" style={{ fontSize: 11.5 }}>
-              {record.unit}
-            </Text>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Identifikasi Bahaya & Dampak Risiko",
-      key: "hazard_risk",
-      width: 260,
+      title: "Judul Kegiatan",
+      key: "parent_activity",
       render: (_: unknown, record: IHiradc) => {
-        // Cek jika ada salah satu dari 5 faktor bahaya
-        const activeFactors: string[] = [];
-        if (record.hazardPhysics && record.hazardPhysics !== "-") activeFactors.push(`Fisika: ${record.hazardPhysics}`);
-        if (record.hazardChemical && record.hazardChemical !== "-") activeFactors.push(`Kimia: ${record.hazardChemical}`);
-        if (record.hazardBiology && record.hazardBiology !== "-") activeFactors.push(`Biologi: ${record.hazardBiology}`);
-        if (record.hazardErgonomics && record.hazardErgonomics !== "-") activeFactors.push(`Ergonomi: ${record.hazardErgonomics}`);
-        if (record.hazardPsychosocial && record.hazardPsychosocial !== "-") activeFactors.push(`Psikososial: ${record.hazardPsychosocial}`);
-
-        const hazardText = activeFactors.length > 0 ? activeFactors.join("; ") : record.hazard || "-";
-        const riskText = record.riskImpact || record.risk || "-";
+        const parentTitle = record.parentActivity || record.activity;
 
         return (
           <div>
-            <div style={{ fontSize: 12.5 }}>
-              <span style={{ fontWeight: 700, color: "#0f172a" }}>Bahaya: </span>
-              <span style={{ color: "#334155" }}>{hazardText}</span>
+            <div style={{ marginBottom: 4 }}>
+              <a
+                onClick={() => navigate(`/keselamatan/hiradc/show/${record.id}`)}
+                style={{ fontWeight: 700, color: "#0284c7", fontSize: 14, lineHeight: 1.4 }}
+              >
+                {parentTitle}
+              </a>
             </div>
-            <div style={{ color: "#dc2626", fontSize: 12, marginTop: 4, fontWeight: 500 }}>
-              <span style={{ fontWeight: 700, color: "#991b1b" }}>Risiko: </span>
-              {riskText}
+
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+              {record.activityType && (
+                <Tag
+                  color={record.activityType.includes("Non") ? "volcano" : "blue"}
+                  style={{ fontSize: 11, borderRadius: 4, margin: 0 }}
+                >
+                  {record.activityType}
+                </Tag>
+              )}
+              <Text type="secondary" style={{ fontSize: 11.5 }}>
+                {record.unit} • {record.location}
+              </Text>
             </div>
           </div>
         );
       },
     },
     {
-      title: "NFR Awal",
-      key: "current_nfr",
-      width: 110,
+      title: "Jumlah Proses Kerja",
+      key: "sub_activities_count",
+      width: 170,
       align: "center" as const,
       render: (_: unknown, record: IHiradc) => {
-        const nfr = record.currentNfr ?? record.riskScore ?? ((record.likelihood || 3) * (record.severity || 3));
-        const level = record.currentRiskLevel ?? calculateNfrRiskLevel(nfr);
+        const count = record.subActivities && record.subActivities.length > 0 ? record.subActivities.length : 1;
         return (
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontWeight: 800, fontSize: 15, color: "#0f172a" }}>{nfr}</div>
-            <Tag color={getNfrTagColor(level)} style={{ borderRadius: 4, fontSize: 11, fontWeight: 700, margin: 0 }}>
-              {level}
-            </Tag>
-          </div>
+          <Tag
+            color="cyan"
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              padding: "4px 10px",
+              borderRadius: 12,
+              margin: 0,
+              border: "1px solid #a5f3fc",
+              color: "#0e7490",
+              background: "#ecfeff",
+            }}
+          >
+            {count} Proses Kerja
+          </Tag>
         );
       },
     },
     {
-      title: "NFR Sisa",
-      key: "residual_nfr",
-      width: 110,
+      title: "NFR",
+      key: "accumulated_nfr",
+      width: 130,
       align: "center" as const,
+      sorter: (a: IHiradc, b: IHiradc) => getAccumulatedNfr(a) - getAccumulatedNfr(b),
       render: (_: unknown, record: IHiradc) => {
-        const nfr = record.residualNfr ?? (record.residualLikelihood && record.residualSeverity ? record.residualLikelihood * record.residualSeverity : Math.max(1, Math.round((record.currentNfr || record.riskScore || 6) * 0.4)));
-        const level = record.residualRiskLevel ?? calculateNfrRiskLevel(nfr);
+        const { nfr, isResidual, typeLabel } = getAccumulatedNfrInfo(record);
+        const level = calculateNfrRiskLevel(nfr);
         return (
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontWeight: 800, fontSize: 15, color: "#059669" }}>{nfr}</div>
-            <Tag color={getNfrTagColor(level)} style={{ borderRadius: 4, fontSize: 11, fontWeight: 700, margin: 0 }}>
-              {level}
-            </Tag>
+            <div
+              style={{
+                fontWeight: 800,
+                fontSize: 16,
+                color: isResidual ? "#059669" : "#0f172a",
+                lineHeight: 1.2,
+              }}
+            >
+              {nfr}
+            </div>
+            <div style={{ marginTop: 3 }}>
+              <Tag
+                color={getNfrTagColor(level)}
+                style={{ borderRadius: 4, fontSize: 11, fontWeight: 700, margin: 0 }}
+              >
+                {level}
+              </Tag>
+            </div>
+            <div
+              style={{
+                fontSize: 10,
+                color: isResidual ? "#059669" : "#64748b",
+                marginTop: 2,
+                fontWeight: 600,
+              }}
+            >
+              {typeLabel}
+            </div>
           </div>
         );
       },
@@ -175,28 +308,39 @@ export const HiradcList: React.FC = () => {
     {
       title: "Durasi & Status",
       key: "control_status",
-      width: 130,
+      width: 140,
+      align: "center" as const,
       render: (_: unknown, record: IHiradc) => (
-        <div>
+        <div style={{ textAlign: "center" }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 3 }}>
             ⏱ {record.controlDuration || "30 Hari"}
           </div>
-          <Tag color={record.controlStatus === "Close" ? "green" : "orange"} style={{ borderRadius: 4, fontWeight: 700, margin: 0 }}>
+          <Tag
+            color={record.controlStatus === "Close" ? "green" : "orange"}
+            style={{ borderRadius: 4, fontWeight: 700, margin: 0 }}
+          >
             {record.controlStatus || "Open"}
           </Tag>
         </div>
       ),
     },
     {
-      title: "PIC & Target",
-      key: "pic_target",
-      width: 150,
+      title: "PIC",
+      key: "pic",
+      width: 140,
       render: (_: unknown, record: IHiradc) => (
-        <div>
-          <div style={{ fontWeight: 600, fontSize: 12.5, color: "#0f172a" }}>{record.responsiblePerson}</div>
-          <Text type="secondary" style={{ fontSize: 11.5 }}>
-            Target: {record.targetDate}
-          </Text>
+        <div style={{ fontWeight: 600, fontSize: 12.5, color: "#0f172a" }}>
+          {record.responsiblePerson || "-"}
+        </div>
+      ),
+    },
+    {
+      title: "Target",
+      key: "target",
+      width: 140,
+      render: (_: unknown, record: IHiradc) => (
+        <div style={{ fontSize: 12, color: "#334155", fontWeight: 500 }}>
+          {record.targetDate ? `📅 ${record.targetDate}` : "-"}
         </div>
       ),
     },
@@ -251,6 +395,154 @@ export const HiradcList: React.FC = () => {
     },
   ];
 
+  // Render sub-table saat baris di-expand
+  const expandedRowRender = (record: IHiradc) => {
+    const subList: IHiradcSubActivity[] = (record.subActivities && record.subActivities.length > 0)
+      ? record.subActivities
+      : [
+          {
+            id: `sub-single-${record.id}`,
+            activity: record.activity,
+            activityType: record.activityType,
+            riskImpact: record.riskImpact || record.risk || "-",
+            currentNfr: record.currentNfr ?? 9,
+            currentRiskLevel: record.currentRiskLevel ?? "Sedang",
+            residualNfr: record.residualNfr ?? 3,
+            residualRiskLevel: record.residualRiskLevel ?? "Sedang",
+            currentEngineering: record.currentEngineering,
+            residualEngineering: record.residualEngineering,
+            controlDuration: record.controlDuration,
+            controlStatus: record.controlStatus,
+            responsiblePerson: record.responsiblePerson,
+          } as IHiradcSubActivity,
+        ];
+
+    return (
+      <div style={{ background: "#f8fafc", padding: "12px 16px", borderRadius: 8, border: "1px dashed #cbd5e1" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+          <OrderedListOutlined style={{ color: "#0284c7" }} />
+          <Text strong style={{ color: "#0f172a", fontSize: 13 }}>
+            Rincian Tahapan Proses Kerja ({subList.length} Proses) di Bawah Kegiatan "{record.parentActivity || record.activity}":
+          </Text>
+        </div>
+
+        <Table
+          dataSource={subList}
+          rowKey={(s, i) => s.id || `sub-${i}`}
+          pagination={false}
+          size="small"
+          bordered
+          columns={[
+            {
+              title: "Tahap #",
+              width: 70,
+              align: "center",
+              render: (_, __, i) => <Tag color="blue" style={{ fontWeight: 700 }}>#{i + 1}</Tag>,
+            },
+            {
+              title: "Nama Aktivitas / Proses Kerja",
+              dataIndex: "activity",
+              key: "activity",
+              render: (val: string, s: IHiradcSubActivity) => (
+                <div>
+                  <span style={{ fontWeight: 700, color: "#1e293b" }}>{val}</span>
+                  {s.activityType && (
+                    <Tag style={{ marginLeft: 6, fontSize: 10 }}>{s.activityType}</Tag>
+                  )}
+                </div>
+              ),
+            },
+            {
+              title: "Dampak Risiko",
+              dataIndex: "riskImpact",
+              key: "riskImpact",
+              render: (val: string) => <span style={{ color: "#dc2626", fontSize: 11.5 }}>{val}</span>,
+            },
+            {
+              title: "NFR Awal",
+              width: 100,
+              align: "center",
+              render: (_, s) => {
+                const nfr = s.currentNfr || (s.currentLikelihood * s.currentSeverity);
+                const lvl = s.currentRiskLevel || calculateNfrRiskLevel(nfr);
+                return <Tag color={getNfrTagColor(lvl)} style={{ fontWeight: 700 }}>{nfr} • {lvl}</Tag>;
+              },
+            },
+            {
+              title: "NFR Sisa",
+              width: 100,
+              align: "center",
+              render: (_, s) => {
+                const nfr = s.residualNfr || ((s.residualLikelihood ?? 2) * (s.residualSeverity ?? 2));
+                const lvl = s.residualRiskLevel || calculateNfrRiskLevel(nfr);
+                return <Tag color={getNfrTagColor(lvl)} style={{ fontWeight: 700 }}>{nfr} • {lvl}</Tag>;
+              },
+            },
+            {
+              title: "Pengendalian Utama",
+              render: (_, s) => (
+                <div style={{ fontSize: 11 }}>
+                  <div><strong>Existing:</strong> {s.currentEngineering || s.currentAdministrative || "-"}</div>
+                  <div><strong>Lanjutan:</strong> {s.residualEngineering || s.residualAdministrative || "-"}</div>
+                </div>
+              ),
+            },
+            {
+              title: "Status & PIC",
+              width: 140,
+              render: (_, s) => (
+                <div style={{ fontSize: 11 }}>
+                  <Tag color={s.controlStatus === "Close" ? "green" : "orange"} style={{ fontSize: 10 }}>
+                    {s.controlStatus || "Open"}
+                  </Tag>
+                  <div style={{ marginTop: 2, color: "#475569" }}>{s.responsiblePerson || "-"}</div>
+                </div>
+              ),
+            },
+            {
+              title: "Aksi",
+              width: 90,
+              align: "center",
+              render: (_, s, i) => (
+                canEdit ? (
+                  <Space size={4}>
+                    <Tooltip title="Edit Proses Kerja">
+                      <Button
+                        size="small"
+                        type="text"
+                        icon={<EditOutlined style={{ color: "#f59e0b" }} />}
+                        onClick={() => navigate(`/keselamatan/hiradc/edit/${record.id}?step=${s.id || i}`)}
+                      />
+                    </Tooltip>
+                    <Tooltip title="Hapus Tahap Proses Kerja">
+                      <Popconfirm
+                        title="Hapus Proses Kerja"
+                        description={`Yakin hapus proses kerja "${s.activity || `Tahap #${i + 1}`}"?`}
+                        onConfirm={() => handleDeleteSubActivity(record, s.id || i)}
+                        okText="Hapus"
+                        cancelText="Batal"
+                        okButtonProps={{ danger: true }}
+                      >
+                        <Button
+                          size="small"
+                          type="text"
+                          danger
+                          icon={<DeleteOutlined />}
+                        />
+                      </Popconfirm>
+                    </Tooltip>
+                  </Space>
+                ) : (
+                  <span style={{ color: "#94a3b8" }}>-</span>
+                )
+              ),
+            },
+          ]}
+        />
+      </div>
+    );
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       {/* 1. Hero Banner Modern Gradient */}
@@ -278,7 +570,7 @@ export const HiradcList: React.FC = () => {
               HIRADC (Hazard Identification, Risk Assessment &amp; Determining Control)
             </Title>
             <Paragraph style={{ color: "#e0f2fe", fontSize: 13.5, lineHeight: 1.6, margin: 0, opacity: 0.95 }}>
-              Identifikasi 5 faktor bahaya kerja (Fisika, Kimia, Biologi, Ergonomi, Psikososial), evaluasi Nilai Faktor Risiko (NFR) Pengendalian Saat Ini vs Pengendalian Lanjutan, serta pemantauan durasi dan status perbaikan.
+              Identifikasi 5 faktor bahaya kerja (Fisika, Kimia, Biologi, Ergonomi, Psikososial), evaluasi Nilai Faktor Risiko (NFR) berdasarkan <strong>Judul Kegiatan Utama</strong> beserta rincian <strong>Aktivitas / Proses Kerja</strong> di dalamnya.
             </Paragraph>
           </Col>
 
@@ -294,29 +586,29 @@ export const HiradcList: React.FC = () => {
                 textAlign: "center",
               }}
             >
-              <div style={{ fontSize: 11, color: "#e0f2fe", fontWeight: 600 }}>AKTIVITAS TERPETAKAN</div>
+              <div style={{ fontSize: 11, color: "#e0f2fe", fontWeight: 600 }}>TOTAL DOKUMEN &amp; PROSES</div>
               <div style={{ fontSize: 26, fontWeight: 800, color: "#ffffff", lineHeight: 1.2 }}>
-                {allHiradc.length} <span style={{ fontSize: 13, fontWeight: 400 }}>Proses Kerja</span>
+                {allHiradc.length} <span style={{ fontSize: 13, fontWeight: 400 }}>Kegiatan</span> ({totalSubActivitiesCount} <span style={{ fontSize: 12, fontWeight: 400 }}>Proses</span>)
               </div>
               <Tag color="cyan" style={{ marginTop: 6, borderRadius: 10, fontWeight: 600 }}>
-                ● Matriks NFR 5×5 Standar
+                ● Matriks NFR 5×5 Terstruktur
               </Tag>
             </div>
           </Col>
         </Row>
       </div>
 
-      {/* 2. Stat Metric Cards dengan Animasi Scroll Reveal */}
+      {/* 2. Stat Metric Cards */}
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} lg={6}>
           <div className="safety-stat-card safety-card-animate safety-delay-1">
             <div className="safety-stat-icon-wrapper" style={{ background: "#f0f9ff", color: "#0284c7" }}>
-              <AimOutlined />
+              <ApartmentOutlined />
             </div>
             <div>
-              <Text type="secondary" style={{ fontSize: 12, fontWeight: 500 }}>Aktivitas Dinilai</Text>
-              <div style={{ fontSize: 22, fontWeight: 800, color: "#0f172a" }}>{allHiradc.length} Item</div>
-              <Text style={{ fontSize: 11.5, color: "#0284c7", fontWeight: 600 }}>Kategori Unit Kerja</Text>
+              <Text type="secondary" style={{ fontSize: 12, fontWeight: 500 }}>Judul Kegiatan Induk</Text>
+              <div style={{ fontSize: 22, fontWeight: 800, color: "#0f172a" }}>{allHiradc.length} Pekerjaan</div>
+              <Text style={{ fontSize: 11.5, color: "#0284c7", fontWeight: 600 }}>{totalSubActivitiesCount} Tahapan Proses Kerja</Text>
             </div>
           </div>
         </Col>
@@ -328,7 +620,7 @@ export const HiradcList: React.FC = () => {
             </div>
             <div>
               <Text type="secondary" style={{ fontSize: 12, fontWeight: 500 }}>Risiko Tinggi &amp; Ekstrem</Text>
-              <div style={{ fontSize: 22, fontWeight: 800, color: "#0f172a" }}>{highRiskCount} Bahaya</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: "#0f172a" }}>{highRiskCount} Kegiatan</div>
               <Text style={{ fontSize: 11.5, color: "#e11d48", fontWeight: 600 }}>Tindakan Segera / &lt;12 Bln</Text>
             </div>
           </div>
@@ -341,7 +633,7 @@ export const HiradcList: React.FC = () => {
             </div>
             <div>
               <Text type="secondary" style={{ fontSize: 12, fontWeight: 500 }}>Risiko Rendah / Sedang</Text>
-              <div style={{ fontSize: 22, fontWeight: 800, color: "#0f172a" }}>{lowRiskCount} Aktivitas</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: "#0f172a" }}>{lowRiskCount} Kegiatan</div>
               <Text style={{ fontSize: 11.5, color: "#059669", fontWeight: 600 }}>Mitigasi Memadai</Text>
             </div>
           </div>
@@ -379,9 +671,9 @@ export const HiradcList: React.FC = () => {
       >
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
           <Input
-            placeholder="Cari aktivitas, bahaya, atau PIC..."
+            placeholder="Cari kegiatan (Menata Arsip, Fumigasi), proses kerja, PIC..."
             prefix={<SearchOutlined style={{ color: "#0284c7" }} />}
-            style={{ width: 320, borderRadius: 8 }}
+            style={{ width: 340, borderRadius: 8 }}
             allowClear
             onChange={(e) => {
               const val = e.target.value;
@@ -455,6 +747,33 @@ export const HiradcList: React.FC = () => {
           columns={columns}
           rowKey="id"
           scroll={{ x: 1100 }}
+          expandable={{
+            expandedRowRender,
+            rowExpandable: () => true,
+            expandIcon: ({ expanded, onExpand, record }) => (
+              <Button
+                type="text"
+                size="small"
+                onClick={(e) => onExpand(record, e)}
+                style={{
+                  width: 24,
+                  height: 24,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#0284c7",
+                  padding: 0,
+                }}
+                icon={
+                  expanded ? (
+                    <DownOutlined style={{ fontSize: 13, fontWeight: "bold" }} />
+                  ) : (
+                    <RightOutlined style={{ fontSize: 13, fontWeight: "bold" }} />
+                  )
+                }
+              />
+            ),
+          }}
           pagination={{
             ...tableProps.pagination,
             showSizeChanger: true,
