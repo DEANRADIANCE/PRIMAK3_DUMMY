@@ -26,6 +26,11 @@ export const initialHiradc: IHiradc[] = [
             "Fraktur / patah tulang ekstremitas",
             "Cedera kepala dan memar jaringan lunak",
           ],
+          pengendalianList: [
+            "Penyediaan tangga platform beroda dengan rem pengunci keselamatan",
+            "Pemasangan handrail keselamatan di kedua sisi tangga",
+            "Kewajiban safety shoes anti-slip dan sarung tangan katun bintik",
+          ],
         },
         {
           id: "menata-fisika-2",
@@ -35,6 +40,10 @@ export const initialHiradc: IHiradc[] = [
           ],
           dampakList: [
             "Luka robek, hematoma kuku, dan memar tulang",
+          ],
+          pengendalianList: [
+            "Pemasangan sticker peringatan waspada titik jepit pada kusen brankas",
+            "Instruksi kerja penutupan manual brankas dengan memegang handle pintu",
           ],
         },
       ],
@@ -99,6 +108,11 @@ export const initialHiradc: IHiradc[] = [
       ],
     },
 
+    controlDescriptions: [
+      "Penyediaan tangga lipat aluminium standar dengan pijakan kokoh",
+      "Penerapan instruksi kerja kehati-hatian manual sebelum memanjat rak",
+      "Kewajiban penggunaan APD: masker kain penyaring debu dan sarung tangan katun bintik",
+    ],
     controlDescription: "Tangga lipat aluminium, instruksi kerja kehati-hatian manual, masker kain & sarung tangan katun",
     selectedControls: ["Engineering Control", "Administrasi", "APD"],
     currentElimination: "-",
@@ -148,6 +162,11 @@ export const initialHiradc: IHiradc[] = [
               "Fraktur / patah tulang ekstremitas (tangan/kaki)",
               "Trauma cedera kepala dan Nyeri Punggung Bawah (Low Back Pain)",
             ],
+            pengendalianList: [
+              "Penyediaan tangga platform beroda dengan rem pengunci & handrail ganda",
+              "SOP manual handling: pembatasan beban angkat maksimal 10 kg per kardus",
+              "Pemakaian safety shoes anti-slip dan sarung tangan katun bintik",
+            ],
           },
           {
             id: "menata-row-2",
@@ -161,6 +180,11 @@ export const initialHiradc: IHiradc[] = [
               "Rinitis alergi kerja, batuk kronis, dan serangan asma kerja",
               "Konjungtivitis iritatif (mata merah dan pedih)",
             ],
+            pengendalianList: [
+              "Penggunaan masker respirator partikulat N95 saat handling boks arsip lama",
+              "Penggunaan kacamata pelindung (safety goggles) saat menurunkan boks dari rak",
+              "Pemasangan exhaust ventilation dan air purifier di area depo arsip",
+            ],
           },
           {
             id: "menata-row-3",
@@ -171,6 +195,10 @@ export const initialHiradc: IHiradc[] = [
             ],
             dampakList: [
               "Cedera leher, dislokasi bahu, dan luka robek kulit kepala",
+            ],
+            pengendalianList: [
+              "Pemasangan bibir pengaman (safety stopper bar) pada bibir rak brankas",
+              "Kewajiban penggunaan helm keselamatan (safety helmet) ringan di depo",
             ],
           },
         ],
@@ -187,6 +215,11 @@ export const initialHiradc: IHiradc[] = [
                 "Fraktur / patah tulang ekstremitas (tangan/kaki)",
                 "Trauma cedera kepala dan luka memar jaringan lunak",
               ],
+              pengendalianList: [
+                "Tangga platform beroda dengan rem pengunci keselamatan",
+                "Instruksi kerja aman: batas injakan tangga maksimal",
+                "Safety shoes anti-slip dan sarung tangan katun bintik",
+              ],
             },
             {
               id: "menata-sub1-fisika-2",
@@ -198,6 +231,10 @@ export const initialHiradc: IHiradc[] = [
               dampakList: [
                 "Cedera leher, dislokasi bahu, dan luka robek kulit kepala",
                 "Luka memar hematoma",
+              ],
+              pengendalianList: [
+                "Pemasangan safety stopper bar pada bibir rak brankas",
+                "Kewajiban helm keselamatan ringan saat beraktivitas di rak tinggi",
               ],
             },
           ],
@@ -213,6 +250,11 @@ export const initialHiradc: IHiradc[] = [
                 "Rinitis alergi kerja, batuk kronis, dan serangan asma kerja",
                 "Konjungtivitis iritatif (mata merah, pedih, dan berair)",
               ],
+              pengendalianList: [
+                "Masker respirator debu N95 / KN95 dengan efisiensi filtrasi tinggi",
+                "Safety glasses / goggles anti-debu",
+                "Pembersihan permukaan boks dengan vacuum cleaner ber-filter HEPA",
+              ],
             },
             {
               id: "menata-sub1-kimia-2",
@@ -224,6 +266,10 @@ export const initialHiradc: IHiradc[] = [
               dampakList: [
                 "Pusing, mual akut, dan sakit kepala (cephalgia)",
                 "Iritasi mukosa hidung dan tenggorokan",
+              ],
+              pengendalianList: [
+                "Pembukaan pintu brankas 15 menit sebelum aktivitas dimulai untuk ventilasi",
+                "Pengoperasian exhaust fan ruang arsip secara aktif",
               ],
             },
           ],
@@ -238,6 +284,11 @@ export const initialHiradc: IHiradc[] = [
               dampakList: [
                 "Cedera punggung bawah (Low Back Pain) dan sprain bahu",
               ],
+              pengendalianList: [
+                "Pembagian isi boks arsip maksimal 10 kg per kardus",
+                "Pengangkatan bersama (berdua) untuk boks berbobot berat",
+                "Pelatihan teknik manual handling posisi ergonomis yang tepat",
+              ],
             },
           ],
         },
@@ -248,6 +299,11 @@ export const initialHiradc: IHiradc[] = [
         hazardPsychosocial: "Kekhawatiran jatuh saat memegang boks di atas tangga",
         riskImpact: "Jatuh dari ketinggian, tertimpa boks arsip, cedera punggung & bahu (muskuloskeletal)",
 
+        controlDescriptions: [
+          "Tangga lipat aluminium standar dengan penguncian manual",
+          "Briefing instruksi lisan kehati-hatian saat mengambil boks berat",
+          "Penggunaan sarung tangan katun bintik untuk daya cengkeram boks",
+        ],
         controlDescription: "Tangga lipat aluminium biasa dan instruksi lisan",
         selectedControls: ["Engineering Control", "Administrasi", "APD"],
         currentElimination: "-",
@@ -283,6 +339,62 @@ export const initialHiradc: IHiradc[] = [
         activityType: "Rutin (R)",
         hazardClassification: ["Health (H)"],
         selectedHazardTypes: ["Fisika", "Kimia", "Biologi", "Ergonomi", "Psikososial"],
+        hazardRows: [
+          {
+            id: "menata-sub2-row-1",
+            deskripsi: "Pencahayaan layar scanner intensif dan pantulan silau monitor komputer",
+            jenisBahaya: ["Fisika", "Ergonomi"],
+            risikoList: [
+              "Mata terpapar intensitas cahaya monitor scanner konstan",
+              "Ketegangan saraf optik dan postur leher condong ke depan",
+            ],
+            dampakList: [
+              "Astenopia (mata lelah), penglihatan kabur, sakit kepala migrain",
+            ],
+            pengendalianList: [
+              "Pemasangan filter anti-glare pada monitor komputer dan layar pemindai",
+              "Penerapan jeda istirahat mata 20-20-20 (tiap 20 menit lihat jauh 20 kaki)",
+              "Pengaturan intensitas pencahayaan ruangan standar 300 lux",
+            ],
+          },
+          {
+            id: "menata-sub2-row-2",
+            deskripsi: "Partikel debu mikro kertas kuno lapuk dan spora jamur mikroskopis saat lembaran dibalik satu per satu",
+            jenisBahaya: ["Kimia", "Biologi"],
+            risikoList: [
+              "Inhalasi debu partikel halus ke bronkus dan saluran napas",
+              "Spora jamur kuno terhirup dan menempel pada kulit tangan",
+            ],
+            dampakList: [
+              "Rinitis alergi kerja, batuk kronis, sesak napas (asma kerja)",
+              "Dermatitis kontak dan gatal-gatal pada kulit pergelangan tangan",
+            ],
+            pengendalianList: [
+              "Penyediaan dan kewajiban masker respirator partikulat N95 / KN95",
+              "Penggunaan sarung tangan nitril sekali pakai saat menangani berkas rapuh",
+              "Penyediaan air purifier dengan filter HEPA di ruang pemindaian",
+            ],
+          },
+          {
+            id: "menata-sub2-row-3",
+            deskripsi: "Duduk statis membungkuk berjam-jam dan gerakan pergelangan tangan repetitif (mouse & scan)",
+            jenisBahaya: ["Ergonomi", "Psikososial"],
+            risikoList: [
+              "Beban statis ruas tulang belakang lumbosakral",
+              "Kompresi nervus medianus pada pergelangan tangan akibat klik mouse ribuan kali",
+              "Beban target kuantitas scanning ribuan halaman per hari",
+            ],
+            dampakList: [
+              "Carpal Tunnel Syndrome (CTS), nyeri punggung bawah (Low Back Pain)",
+              "Kelelahan psikologis dan penurunan konsentrasi kerja",
+            ],
+            pengendalianList: [
+              "Penyediaan kursi ergonomis dengan penopang pinggang (lumbar support) & armrest",
+              "Penggunaan mousepad gel ergonomis dan mouse vertikal anti-CTS",
+              "Instruksi peregangan otot (stretching) wajib setiap 2 jam kerja",
+            ],
+          },
+        ],
         hazardDetails: {
           Fisika: [
             {
@@ -332,6 +444,11 @@ export const initialHiradc: IHiradc[] = [
         hazardPsychosocial: "Beban target scan ribuan halaman per hari, kelelahan mental",
         riskImpact: "Sindrom Carpal Tunnel (CTS), mata lelah (asthenopia), sesak napas alergi (asma kerja), nyeri punggung bawah",
 
+        controlDescriptions: [
+          "Meja kerja dan kursi kantor standar ergonomi dasar",
+          "Pengaturan rotasi jeda istirahat peregangan mata dan otot setiap 2 jam",
+          "Pencahayaan lampu kerja tambahan di meja pemindaian arsip",
+        ],
         controlDescription: "Meja kursi kantor biasa dan waktu kerja standar",
         selectedControls: ["Engineering Control", "Administrasi", "APD"],
         currentElimination: "-",
@@ -367,6 +484,42 @@ export const initialHiradc: IHiradc[] = [
         activityType: "Rutin (R)",
         hazardClassification: ["Safety (S)"],
         selectedHazardTypes: ["Fisika", "Ergonomi"],
+        hazardRows: [
+          {
+            id: "menata-sub3-row-1",
+            deskripsi: "Pintu brankas baja tebal dan berat dengan celah engsel sempit (pinch point)",
+            jenisBahaya: ["Fisika"],
+            risikoList: [
+              "Jari tangan terjepit celah engsel pintu brankas baja",
+              "Tertimpa daun pintu brankas saat menutup secara mendadak",
+            ],
+            dampakList: [
+              "Memar tulang, luka robek, fraktur falang distal jari tangan",
+            ],
+            pengendalianList: [
+              "Instruksi kerja penutupan manual brankas dengan memegang handle khusus (dilarang memegang kusen)",
+              "Pemasangan sticker peringatan waspada titik jepit (pinch point danger) kuning-hitam",
+              "Pemasangan peredam hidrolik / door stopper pada daun pintu brankas baja",
+            ],
+          },
+          {
+            id: "menata-sub3-row-2",
+            deskripsi: "Mendorong daun pintu brankas berat dan mengangkat boks arsip ke rak brankas",
+            jenisBahaya: ["Ergonomi"],
+            risikoList: [
+              "Gaya dorong berlebih pada sendi bahu dan siku",
+              "Beban angkat kardus arsip berulang pada posisi ruang terbatas",
+            ],
+            dampakList: [
+              "Ketegangan otot bahu (shoulder strain), spasme otot punggung",
+            ],
+            pengendalianList: [
+              "Pelumasan rutin engsel dan gerendel pintu brankas setiap 3 bulan agar lancar didorong",
+              "Penggunaan troli dorong mini untuk transfer boks arsip ke rak simpan",
+              "Penetapan kapasitas maksimal boks simpan tidak melebihi 10 kg",
+            ],
+          },
+        ],
         hazardDetails: {
           Fisika: [
             {
@@ -392,6 +545,10 @@ export const initialHiradc: IHiradc[] = [
         hazardPsychosocial: "Tanggung jawab keamanan dokumen arsip rahasia negara",
         riskImpact: "Jari tangan terjepit engsel pintu brankas baja, memar tulang, cedera otot",
 
+        controlDescriptions: [
+          "Instruksi kerja penutupan manual brankas dengan dua personel",
+          "Inspeksi engsel dan gerendel pintu brankas secara berkala",
+        ],
         controlDescription: "Instruksi kerja penutupan manual brankas",
         selectedControls: ["Engineering Control", "Administrasi"],
         currentElimination: "-",
@@ -518,6 +675,11 @@ export const initialHiradc: IHiradc[] = [
     hazardPsychosocial: "Kekhawatiran terpapar zat berbahaya secara terus-menerus",
     riskImpact: "Gangguan pernapasan kronis, keracunan akut saluran napas, iritasi mata",
 
+    controlDescriptions: [
+      "Pengoperasian exhaust fan dinding ruang laboratorium secara berkala",
+      "Pemasangan tanda peringatan bahaya kimia di pintu lab",
+      "Penggunaan masker medis 3-ply dan sarung tangan lateks tipis",
+    ],
     controlDescription: "Exhaust fan dinding, tanda bahaya kimia di pintu lab, masker medis & sarung tangan lateks tipis",
     selectedControls: ["Engineering Control", "Administrasi", "APD"],
     currentElimination: "-",
@@ -579,6 +741,11 @@ export const initialHiradc: IHiradc[] = [
         hazardPsychosocial: "Kekhawatiran terpapar zat berbahaya secara terus-menerus",
         riskImpact: "Gangguan pernapasan kronis, keracunan akut saluran napas, iritasi mata",
 
+        controlDescriptions: [
+          "Exhaust fan dinding konvensional untuk sirkulasi udara ruang kerja",
+          "Instruksi lisan pembatasan durasi kontak dengan bahan kimia arsip",
+          "Masker pelindung debu dan sarung tangan katun",
+        ],
         controlDescription: "Exhaust fan dinding konvensional",
         selectedControls: ["Engineering Control", "Administrasi", "APD"],
         currentElimination: "-",
@@ -693,6 +860,11 @@ export const initialHiradc: IHiradc[] = [
     hazardPsychosocial: "Target pemindahan ribuan boks dalam tenggat waktu sempit",
     riskImpact: "Cedera tulang belakang (Low Back Pain), herniasi diskus servikal, terkilir, tertimpa boks arsip",
 
+    controlDescriptions: [
+      "Pengangkatan manual berpasangan (2 orang per boks arsip berat)",
+      "Briefing teknik pengangkatan aman (menekuk lutut, tulang punggung tegak)",
+      "Penggunaan sarung tangan katun rajut dengan grip karet anti-slip",
+    ],
     controlDescription: "Pengangkatan manual oleh 2 orang dan sarung tangan katun rajut",
     selectedControls: ["Administrasi", "APD"],
     currentElimination: "-",
@@ -729,6 +901,42 @@ export const initialHiradc: IHiradc[] = [
         activityType: "Rutin (R)",
         hazardClassification: ["Safety (S)", "Health (H)"],
         selectedHazardTypes: ["Fisika", "Ergonomi"],
+        hazardRows: [
+          {
+            id: "menata-sub3-row-1",
+            deskripsi: "Pintu brankas baja tebal dan berat dengan celah engsel sempit (pinch point)",
+            jenisBahaya: ["Fisika"],
+            risikoList: [
+              "Jari tangan terjepit celah engsel pintu brankas baja",
+              "Tertimpa daun pintu brankas saat menutup secara mendadak",
+            ],
+            dampakList: [
+              "Memar tulang, luka robek, fraktur falang distal jari tangan",
+            ],
+            pengendalianList: [
+              "Instruksi kerja penutupan manual brankas dengan memegang handle khusus (dilarang memegang kusen)",
+              "Pemasangan sticker peringatan waspada titik jepit (pinch point danger) kuning-hitam",
+              "Pemasangan peredam hidrolik / door stopper pada daun pintu brankas baja",
+            ],
+          },
+          {
+            id: "menata-sub3-row-2",
+            deskripsi: "Mendorong daun pintu brankas berat dan mengangkat boks arsip ke rak brankas",
+            jenisBahaya: ["Ergonomi"],
+            risikoList: [
+              "Gaya dorong berlebih pada sendi bahu dan siku",
+              "Beban angkat kardus arsip berulang pada posisi ruang terbatas",
+            ],
+            dampakList: [
+              "Ketegangan otot bahu (shoulder strain), spasme otot punggung",
+            ],
+            pengendalianList: [
+              "Pelumasan rutin engsel dan gerendel pintu brankas setiap 3 bulan agar lancar didorong",
+              "Penggunaan troli dorong mini untuk transfer boks arsip ke rak simpan",
+              "Penetapan kapasitas maksimal boks simpan tidak melebihi 10 kg",
+            ],
+          },
+        ],
         hazardDetails: {
           Fisika: [
             {
@@ -754,6 +962,11 @@ export const initialHiradc: IHiradc[] = [
         hazardPsychosocial: "-",
         riskImpact: "Cedera tulang belakang (Low Back Pain), herniasi diskus, terkilir",
 
+        controlDescriptions: [
+          "Pengangkatan manual berdua untuk boks dengan berat di atas 15 kg",
+          "Penggunaan troli dorong manual beroda empat",
+          "Sarung tangan kerja kain rajut tebal",
+        ],
         controlDescription: "Pengangkatan manual berdua",
         selectedControls: ["Administrasi", "APD"],
         currentElimination: "-",
@@ -871,6 +1084,11 @@ export const initialHiradc: IHiradc[] = [
     hazardPsychosocial: "Tekanan mental tinggi menghadapi pekerjaan bahaya fatal",
     riskImpact: "Sengatan listrik fatal (electrocution), luka bakar derajat 3 akibat arc flash, ledakan panel",
 
+    controlDescriptions: [
+      "Pintu panel listrik terkunci dengan gembok manual",
+      "Pemasangan tanda bahaya tegangan tinggi (Danger High Voltage)",
+      "Penggunaan safety shoes bersol karet anti-statis",
+    ],
     controlDescription: "Pintu panel terkunci konvensional, tanda bahaya tegangan tinggi, safety shoes karet",
     selectedControls: ["Engineering Control", "Administrasi", "APD"],
     currentElimination: "-",
@@ -932,6 +1150,11 @@ export const initialHiradc: IHiradc[] = [
         hazardPsychosocial: "Tekanan mental tinggi menghadapi pekerjaan bahaya fatal",
         riskImpact: "Sengatan listrik fatal (electrocution), luka bakar derajat 3 akibat arc flash, ledakan panel",
 
+        controlDescriptions: [
+          "Pintu panel listrik utama selalu terkunci",
+          "Pemasangan sign peringatan bahaya tegangan tinggi",
+          "Pemeriksaan visual rutin kabel dan sambungan setiap bulan",
+        ],
         controlDescription: "Pintu panel terkunci dan tanda bahaya",
         selectedControls: ["Engineering Control", "Administrasi", "APD"],
         currentElimination: "-",
@@ -1036,6 +1259,11 @@ export const initialHiradc: IHiradc[] = [
     hazardPsychosocial: "Target beban ketik harian tinggi berulang-ulang",
     riskImpact: "Kelelahan mata (astenopia), Carpal Tunnel Syndrome (CTS), nyeri punggung bawah",
 
+    controlDescriptions: [
+      "Kursi kantor standar putar dengan sandaran punggung",
+      "Penerapan jam istirahat makan siang reguler dan peregangan mata berkala",
+      "Filter screen proteksi radiasi layar monitor komputer",
+    ],
     controlDescription: "Kursi kantor standar putar dan jam istirahat makan siang reguler",
     selectedControls: ["Administrasi"],
     currentElimination: "-",
@@ -1072,6 +1300,42 @@ export const initialHiradc: IHiradc[] = [
         activityType: "Rutin (R)",
         hazardClassification: ["Health (H)"],
         selectedHazardTypes: ["Fisika", "Ergonomi"],
+        hazardRows: [
+          {
+            id: "menata-sub3-row-1",
+            deskripsi: "Pintu brankas baja tebal dan berat dengan celah engsel sempit (pinch point)",
+            jenisBahaya: ["Fisika"],
+            risikoList: [
+              "Jari tangan terjepit celah engsel pintu brankas baja",
+              "Tertimpa daun pintu brankas saat menutup secara mendadak",
+            ],
+            dampakList: [
+              "Memar tulang, luka robek, fraktur falang distal jari tangan",
+            ],
+            pengendalianList: [
+              "Instruksi kerja penutupan manual brankas dengan memegang handle khusus (dilarang memegang kusen)",
+              "Pemasangan sticker peringatan waspada titik jepit (pinch point danger) kuning-hitam",
+              "Pemasangan peredam hidrolik / door stopper pada daun pintu brankas baja",
+            ],
+          },
+          {
+            id: "menata-sub3-row-2",
+            deskripsi: "Mendorong daun pintu brankas berat dan mengangkat boks arsip ke rak brankas",
+            jenisBahaya: ["Ergonomi"],
+            risikoList: [
+              "Gaya dorong berlebih pada sendi bahu dan siku",
+              "Beban angkat kardus arsip berulang pada posisi ruang terbatas",
+            ],
+            dampakList: [
+              "Ketegangan otot bahu (shoulder strain), spasme otot punggung",
+            ],
+            pengendalianList: [
+              "Pelumasan rutin engsel dan gerendel pintu brankas setiap 3 bulan agar lancar didorong",
+              "Penggunaan troli dorong mini untuk transfer boks arsip ke rak simpan",
+              "Penetapan kapasitas maksimal boks simpan tidak melebihi 10 kg",
+            ],
+          },
+        ],
         hazardDetails: {
           Fisika: [
             {
@@ -1097,6 +1361,11 @@ export const initialHiradc: IHiradc[] = [
         hazardPsychosocial: "Target entri data harian",
         riskImpact: "Kelelahan mata (astenopia), nyeri leher dan punggung ringan",
 
+        controlDescriptions: [
+          "Kursi kantor putar standar dengan bantalan busa",
+          "Istirahat makan siang teratur dan anjuran minum air putih cukup",
+          "Pengaturan tingkat kecerahan layar monitor komputer kerja",
+        ],
         controlDescription: "Kursi kantor biasa dan istirahat makan siang",
         selectedControls: ["Administrasi"],
         currentElimination: "-",

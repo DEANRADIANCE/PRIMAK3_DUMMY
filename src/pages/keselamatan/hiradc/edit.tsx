@@ -183,6 +183,7 @@ interface SubActivityFormState {
 
   // Pengendalian: Pilihan hirarki (Centang-centang, bisa lebih dari 1)
   selectedControls: ControlHierarchyType[];
+  controlDescriptions: string[];
   controlDescription: string;
   currentElimination: string;
   currentSubstitution: string;
@@ -212,11 +213,17 @@ interface SubActivityFormState {
   targetDate: Dayjs;
 }
 
-const createDefaultHazardItem = (customDeskripsi = ""): IHazardDetailItem => ({
+const createDefaultHazardItem = (
+  customDeskripsi = "",
+  defaultRisiko = [""],
+  defaultDampak = [""],
+  defaultPengendalian = [""]
+): IHazardDetailItem => ({
   id: `hazard-item-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
   deskripsi: customDeskripsi,
-  risikoList: [""],
-  dampakList: [""],
+  risikoList: defaultRisiko,
+  dampakList: defaultDampak,
+  pengendalianList: defaultPengendalian,
 });
 
 const createEmptySubActivity = (index: number): SubActivityFormState => ({
@@ -230,6 +237,7 @@ const createEmptySubActivity = (index: number): SubActivityFormState => ({
     Fisika: [createDefaultHazardItem("")],
   },
   selectedControls: ["Engineering Control", "Administrasi", "APD"],
+  controlDescriptions: [""],
   controlDescription: "",
   currentElimination: "-",
   currentSubstitution: "-",
@@ -275,6 +283,7 @@ const parseSubActivityToState = (
           deskripsi: it.deskripsi || "",
           risikoList: it.risikoList && it.risikoList.length > 0 ? it.risikoList : [""],
           dampakList: it.dampakList && it.dampakList.length > 0 ? it.dampakList : [""],
+          pengendalianList: it.pengendalianList && it.pengendalianList.length > 0 ? it.pengendalianList : (sub.controlDescriptions && sub.controlDescriptions.length > 0 ? sub.controlDescriptions : [""]),
         }));
         if (!selectedHazardTypes.includes(cat)) {
           selectedHazardTypes.push(cat);
@@ -296,6 +305,7 @@ const parseSubActivityToState = (
           deskripsi: r.deskripsi || "",
           risikoList: r.risikoList && r.risikoList.length > 0 ? r.risikoList : [""],
           dampakList: r.dampakList && r.dampakList.length > 0 ? r.dampakList : [""],
+          pengendalianList: r.pengendalianList && r.pengendalianList.length > 0 ? r.pengendalianList : (sub.controlDescriptions && sub.controlDescriptions.length > 0 ? sub.controlDescriptions : [""]),
         });
         if (!selectedHazardTypes.includes(type)) {
           selectedHazardTypes.push(type);
@@ -323,6 +333,7 @@ const parseSubActivityToState = (
           deskripsi: desc,
           risikoList: sub.riskImpact ? [sub.riskImpact] : [""],
           dampakList: sub.riskImpact ? [sub.riskImpact] : [""],
+          pengendalianList: sub.controlDescriptions && sub.controlDescriptions.length > 0 ? sub.controlDescriptions : [""],
         }));
         if (!selectedHazardTypes.includes(cat)) {
           selectedHazardTypes.push(cat);
@@ -373,6 +384,9 @@ const parseSubActivityToState = (
     hazardDetails,
 
     selectedControls: selectedControls.length > 0 ? selectedControls : ["Engineering Control", "Administrasi", "APD"],
+    controlDescriptions: (sub.controlDescriptions && sub.controlDescriptions.length > 0)
+      ? [...sub.controlDescriptions]
+      : (sub.controlDescription ? [sub.controlDescription] : [""]),
     controlDescription: sub.controlDescription || "",
     currentElimination: sub.currentElimination || "-",
     currentSubstitution: sub.currentSubstitution || "-",
@@ -533,6 +547,7 @@ export const HiradcEdit: React.FC = () => {
       activity: `${source.activity || "Proses Kerja"} (Salinan)`,
       selectedHazardTypes: [...(source.selectedHazardTypes || [])],
       hazardDetails: JSON.parse(JSON.stringify(source.hazardDetails || {})),
+      controlDescriptions: [...(source.controlDescriptions || (source.controlDescription ? [source.controlDescription] : [""]))],
       selectedControls: [...(source.selectedControls || [])],
       residualSelectedControls: [...(source.residualSelectedControls || [])],
     };
@@ -680,6 +695,79 @@ export const HiradcEdit: React.FC = () => {
     updateActiveSub({ hazardDetails: currentDetails });
   };
 
+  // Tambah Pengendalian pada Deskripsi Bahaya
+  const handleAddPengendalian = (type: HazardCategoryType, itemIdx: number) => {
+    const currentDetails = { ...(activeSub.hazardDetails || {}) };
+    const items = [...(currentDetails[type] || [])];
+    if (!items[itemIdx]) return;
+    const item = items[itemIdx];
+    item.pengendalianList = [...(item.pengendalianList || []), ""];
+    currentDetails[type] = items;
+    updateActiveSub({ hazardDetails: currentDetails });
+  };
+
+  // Hapus Pengendalian pada Deskripsi Bahaya
+  const handleRemovePengendalian = (type: HazardCategoryType, itemIdx: number, pIdx: number) => {
+    const currentDetails = { ...(activeSub.hazardDetails || {}) };
+    const items = [...(currentDetails[type] || [])];
+    if (!items[itemIdx]) return;
+    const item = items[itemIdx];
+    if ((item.pengendalianList || []).length <= 1) return;
+    item.pengendalianList = (item.pengendalianList || []).filter((_, idx) => idx !== pIdx);
+    currentDetails[type] = items;
+    updateActiveSub({ hazardDetails: currentDetails });
+  };
+
+  // Update teks Pengendalian pada Deskripsi Bahaya
+  const handleUpdatePengendalianText = (type: HazardCategoryType, itemIdx: number, pIdx: number, val: string) => {
+    const currentDetails = { ...(activeSub.hazardDetails || {}) };
+    const items = [...(currentDetails[type] || [])];
+    if (!items[itemIdx]) return;
+    const item = items[itemIdx];
+    const list = [...(item.pengendalianList || [])];
+    list[pIdx] = val;
+    item.pengendalianList = list;
+    currentDetails[type] = items;
+    updateActiveSub({ hazardDetails: currentDetails });
+  };
+
+  // Tambah Deskripsi Pengendalian (Bisa lebih dari 1)
+  const handleAddControlDescription = () => {
+    const list = [...(activeSub.controlDescriptions || (activeSub.controlDescription ? [activeSub.controlDescription] : [""]))];
+    list.push("");
+    updateActiveSub({
+      controlDescriptions: list,
+      controlDescription: list.filter((d) => d && d.trim()).join("; "),
+    });
+  };
+
+  // Hapus Deskripsi Pengendalian
+  const handleRemoveControlDescription = (index: number) => {
+    const list = [...(activeSub.controlDescriptions || (activeSub.controlDescription ? [activeSub.controlDescription] : [""]))];
+    if (list.length <= 1) {
+      updateActiveSub({
+        controlDescriptions: [""],
+        controlDescription: "",
+      });
+      return;
+    }
+    list.splice(index, 1);
+    updateActiveSub({
+      controlDescriptions: list,
+      controlDescription: list.filter((d) => d && d.trim()).join("; "),
+    });
+  };
+
+  // Update teks Deskripsi Pengendalian
+  const handleUpdateControlDescriptionText = (index: number, val: string) => {
+    const list = [...(activeSub.controlDescriptions || (activeSub.controlDescription ? [activeSub.controlDescription] : [""]))];
+    list[index] = val;
+    updateActiveSub({
+      controlDescriptions: list,
+      controlDescription: list.filter((d) => d && d.trim()).join("; "),
+    });
+  };
+
   // Toggle Pengendalian Dicentang (Existing Control)
   const handleToggleControl = (control: ControlHierarchyType) => {
     const current = [...(activeSub.selectedControls || [])];
@@ -756,6 +844,7 @@ export const HiradcEdit: React.FC = () => {
               jenisBahaya: [type],
               risikoList: it.risikoList.filter((r) => r && r.trim()),
               dampakList: it.dampakList.filter((d) => d && d.trim()),
+              pengendalianList: (it.pengendalianList || []).filter((p) => p && p.trim()),
             });
           });
         }
@@ -801,7 +890,12 @@ export const HiradcEdit: React.FC = () => {
         hazardPsychosocial: getCategorySummary("Psikososial"),
         riskImpact: compiledRiskImpact,
 
-        controlDescription: s.controlDescription || "-",
+        controlDescriptions: (s.controlDescriptions && s.controlDescriptions.length > 0)
+          ? s.controlDescriptions.filter((d) => d && d.trim())
+          : (s.controlDescription ? [s.controlDescription] : []),
+        controlDescription: (s.controlDescriptions && s.controlDescriptions.length > 0)
+          ? s.controlDescriptions.filter((d) => d && d.trim()).join("; ")
+          : (s.controlDescription || "-"),
         selectedControls: s.selectedControls || [],
         currentElimination: s.selectedControls?.includes("Eliminasi") ? "✓" : "-",
         currentSubstitution: s.selectedControls?.includes("Subtitusi") ? "✓" : "-",
@@ -861,6 +955,7 @@ export const HiradcEdit: React.FC = () => {
       hazardPsychosocial: worstSub.hazardPsychosocial,
       riskImpact: worstSub.riskImpact,
 
+      controlDescriptions: worstSub.controlDescriptions,
       controlDescription: worstSub.controlDescription,
       selectedControls: worstSub.selectedControls,
       currentElimination: worstSub.currentElimination,
@@ -1373,16 +1468,17 @@ export const HiradcEdit: React.FC = () => {
                             style={{ borderRadius: 6, marginBottom: 12, fontSize: 12.5 }}
                           />
 
-                          {/* Risiko & Dampak Terhubung (Bisa isi lebih dari 1 nyambung) */}
+                          {/* Risiko, Dampak & Pengendalian Terhubung (3 Kolom per Deskripsi Bahaya) */}
                           <Row gutter={12}>
-                            {/* Risiko */}
-                            <Col xs={24} md={12}>
+                            {/* Kolom 1: Risiko */}
+                            <Col xs={24} lg={8} md={12}>
                               <div
                                 style={{
                                   background: "#fff5f5",
                                   border: "1px solid #fecaca",
                                   borderRadius: 6,
                                   padding: "10px 12px",
+                                  marginBottom: 8,
                                 }}
                               >
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
@@ -1426,14 +1522,15 @@ export const HiradcEdit: React.FC = () => {
                               </div>
                             </Col>
 
-                            {/* Dampak */}
-                            <Col xs={24} md={12}>
+                            {/* Kolom 2: Dampak */}
+                            <Col xs={24} lg={8} md={12}>
                               <div
                                 style={{
                                   background: "#fffaf0",
                                   border: "1px solid #fed7aa",
                                   borderRadius: 6,
                                   padding: "10px 12px",
+                                  marginBottom: 8,
                                 }}
                               >
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
@@ -1476,6 +1573,58 @@ export const HiradcEdit: React.FC = () => {
                                 </div>
                               </div>
                             </Col>
+
+                            {/* Kolom 3: Deskripsi Pengendalian (Bisa > 1 per Deskripsi Bahaya) */}
+                            <Col xs={24} lg={8} md={24}>
+                              <div
+                                style={{
+                                  background: "#f0fdf4",
+                                  border: "1px solid #bbf7d0",
+                                  borderRadius: 6,
+                                  padding: "10px 12px",
+                                  marginBottom: 8,
+                                }}
+                              >
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                                  <span style={{ fontWeight: 700, fontSize: 12, color: "#166534" }}>
+                                    🛡️ Deskripsi Pengendalian ({(item.pengendalianList || []).length})
+                                  </span>
+                                  <Button
+                                    type="link"
+                                    size="small"
+                                    icon={<PlusOutlined />}
+                                    onClick={() => handleAddPengendalian(type, itemIdx)}
+                                    style={{ padding: 0, height: "auto", fontSize: 11.5, fontWeight: 700, color: "#15803d" }}
+                                  >
+                                    + Tambah Pengendalian
+                                  </Button>
+                                </div>
+
+                                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                                  {(item.pengendalianList || [""]).map((pengendalian, pIdx) => (
+                                    <div key={pIdx} style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                                      <Input
+                                        size="small"
+                                        placeholder={`Pengendalian #${pIdx + 1} (contoh: Platform tangga beroda)`}
+                                        value={pengendalian}
+                                        onChange={(e) => handleUpdatePengendalianText(type, itemIdx, pIdx, e.target.value)}
+                                        style={{ borderRadius: 4, fontSize: 12 }}
+                                      />
+                                      {(item.pengendalianList || []).length > 1 && (
+                                        <Button
+                                          size="small"
+                                          type="text"
+                                          danger
+                                          icon={<DeleteOutlined />}
+                                          onClick={() => handleRemovePengendalian(type, itemIdx, pIdx)}
+                                          style={{ padding: "0 2px" }}
+                                        />
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </Col>
                           </Row>
                         </div>
                       ))}
@@ -1510,19 +1659,108 @@ export const HiradcEdit: React.FC = () => {
                 </Tag>
               </div>
 
-              {/* Deskripsi Pengendalian Umum */}
-              <Row gutter={12} style={{ marginBottom: 12 }}>
-                <Col xs={24}>
-                  <Form.Item label={<span style={{ fontSize: 12, fontWeight: 700, color: "#166534" }}>Deskripsi Pengendalian (Uraian Upaya Kontrol)</span>} style={{ marginBottom: 10 }}>
-                    <Input
-                      placeholder="Ringkasan atau uraian deskripsi pengendalian saat ini pada aktivitas kerja"
-                      value={activeSub.controlDescription}
-                      onChange={(e) => updateActiveSub({ controlDescription: e.target.value })}
-                      style={{ borderRadius: 6 }}
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
+              {/* Deskripsi Pengendalian (Bisa Lebih Dari 1 Deskripsi Pengendalian) */}
+              <div
+                style={{
+                  background: "#ffffff",
+                  border: "1px solid #86efac",
+                  borderRadius: 8,
+                  padding: "14px 16px",
+                  marginBottom: 16,
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 12,
+                    flexWrap: "wrap",
+                    gap: 8,
+                  }}
+                >
+                  <div>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "#166534", display: "flex", alignItems: "center", gap: 6 }}>
+                      <span>📝 Deskripsi Pengendalian (Uraian Upaya Kontrol)</span>
+                      <Tag color="green" style={{ borderRadius: 10, fontSize: 11, fontWeight: 700 }}>
+                        {(activeSub.controlDescriptions || (activeSub.controlDescription ? [activeSub.controlDescription] : [""])).length} Deskripsi
+                      </Tag>
+                    </span>
+                    <div style={{ fontSize: 11.5, color: "#15803d", marginTop: 2 }}>
+                      Tuliskan rincian tindakan pengendalian saat ini pada proses kerja (dapat menambahkan lebih dari 1 deskripsi pengendalian).
+                    </div>
+                  </div>
+                  <Button
+                    type="dashed"
+                    size="small"
+                    icon={<PlusOutlined />}
+                    onClick={handleAddControlDescription}
+                    style={{
+                      borderColor: "#16a34a",
+                      color: "#15803d",
+                      fontWeight: 700,
+                      borderRadius: 6,
+                    }}
+                  >
+                    + Tambah Deskripsi Pengendalian
+                  </Button>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {(activeSub.controlDescriptions || (activeSub.controlDescription ? [activeSub.controlDescription] : [""])).map((desc, dIdx, arr) => (
+                    <div
+                      key={dIdx}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        background: "#f8fafc",
+                        padding: "8px 10px",
+                        borderRadius: 6,
+                        border: "1px solid #e2e8f0",
+                      }}
+                    >
+                      <Tag
+                        color="green"
+                        style={{
+                          margin: 0,
+                          fontWeight: 700,
+                          fontSize: 11.5,
+                          borderRadius: 4,
+                          minWidth: 28,
+                          textAlign: "center",
+                        }}
+                      >
+                        #{dIdx + 1}
+                      </Tag>
+                      <Input
+                        placeholder={`Deskripsi Pengendalian #${dIdx + 1} (contoh: Penyediaan tangga lipat berstandar keselamatan / SOP kehati-hatian)`}
+                        value={desc}
+                        onChange={(e) => handleUpdateControlDescriptionText(dIdx, e.target.value)}
+                        style={{ borderRadius: 6, fontSize: 12.5 }}
+                      />
+                      {arr.length > 1 && (
+                        <Popconfirm
+                          title="Hapus deskripsi pengendalian ini?"
+                          onConfirm={() => handleRemoveControlDescription(dIdx)}
+                          okText="Hapus"
+                          cancelText="Batal"
+                        >
+                          <Button
+                            size="small"
+                            type="text"
+                            danger
+                            icon={<DeleteOutlined />}
+                            style={{ padding: "0 6px" }}
+                            title="Hapus deskripsi pengendalian"
+                          />
+                        </Popconfirm>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
 
               {/* 5 Hirarki Kontrol: Ceklis Aja Tanpa Keterangan */}
               <div style={{ marginBottom: 16 }}>

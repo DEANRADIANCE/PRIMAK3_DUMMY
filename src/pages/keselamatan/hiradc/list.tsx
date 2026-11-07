@@ -79,6 +79,7 @@ export const HiradcList: React.FC = () => {
               hazardClassification: record.hazardClassification,
               riskImpact: record.riskImpact || record.risk || "-",
               controlDescription: record.controlDescription,
+              controlDescriptions: record.controlDescriptions,
               selectedControls: record.selectedControls,
               currentLikelihood: record.currentLikelihood,
               currentSeverity: record.currentSeverity,

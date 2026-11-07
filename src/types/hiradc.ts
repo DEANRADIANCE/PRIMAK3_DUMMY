@@ -15,6 +15,7 @@ export interface IHazardDetailItem {
   deskripsi: string;
   risikoList: string[]; // Bisa lebih dari 1 risiko
   dampakList: string[]; // Bisa lebih dari 1 dampak
+  pengendalianList?: string[]; // Bisa lebih dari 1 deskripsi pengendalian per deskripsi bahaya
 }
 
 // Tabel baris Deskripsi Bahaya ke bawah (1 deskripsi bisa pilih > 1 jenis bahaya)
@@ -24,6 +25,7 @@ export interface IHazardDetailRow {
   jenisBahaya: HazardCategoryType[]; // Bisa centang lebih dari 1 jenis bahaya!
   risikoList: string[]; // Bisa lebih dari 1 risiko
   dampakList: string[]; // Bisa lebih dari 1 dampak
+  pengendalianList?: string[]; // Bisa lebih dari 1 deskripsi pengendalian per deskripsi bahaya
 }
 
 export type HazardDetailsMap = {
@@ -55,6 +57,7 @@ export interface IHiradcSubActivity {
 
   // Pengendalian (Existing Control - 5 Hirarki K3 Sesuai Spreadsheet)
   controlDescription?: string; // Deskripsi Pengendalian
+  controlDescriptions?: string[]; // Daftar Deskripsi Pengendalian (Bisa lebih dari 1)
   selectedControls?: ControlHierarchyType[]; // Pilihan hirarki yang dicentang
   currentElimination?: string;
   currentSubstitution?: string;
@@ -112,6 +115,7 @@ export interface IHiradc {
 
   // Pengendalian Saat Ini (Existing Control - 5 Hirarki K3)
   controlDescription?: string; // Deskripsi Pengendalian
+  controlDescriptions?: string[]; // Daftar Deskripsi Pengendalian (Bisa lebih dari 1)
   selectedControls?: ControlHierarchyType[];
   currentElimination?: string; // Eliminasi
   currentSubstitution?: string; // Substitusi

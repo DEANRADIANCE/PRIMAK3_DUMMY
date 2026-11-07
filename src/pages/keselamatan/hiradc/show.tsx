@@ -83,6 +83,7 @@ export const HiradcShow: React.FC = () => {
           hazardPsychosocial: record.hazardPsychosocial,
           riskImpact: record.riskImpact || record.risk || "-",
           controlDescription: record.controlDescription,
+          controlDescriptions: record.controlDescriptions,
           selectedControls: record.selectedControls,
           currentElimination: record.currentElimination,
           currentSubstitution: record.currentSubstitution,
@@ -473,61 +474,157 @@ export const HiradcShow: React.FC = () => {
             >
               <thead>
                 <tr style={{ background: "#f1f5f9", textAlign: "left", borderBottom: "1.5px solid #cbd5e1" }}>
-                  <th style={{ padding: "9px 10px", width: "40px", textAlign: "center" }}>No</th>
-                  <th style={{ padding: "9px 12px", width: "32%" }}>Deskripsi Bahaya</th>
-                  <th style={{ padding: "9px 12px", width: "24%" }}>Jenis Bahaya Terkait</th>
-                  <th style={{ padding: "9px 12px", width: "22%" }}>⚠️ Risiko Yang Ditimbulkan</th>
-                  <th style={{ padding: "9px 12px", width: "22%" }}>💥 Dampak / Penyakit</th>
+                  <th style={{ padding: "9px 8px", width: "35px", textAlign: "center" }}>No</th>
+                  <th style={{ padding: "9px 12px", width: "24%" }}>Deskripsi Bahaya</th>
+                  <th style={{ padding: "9px 12px", width: "16%" }}>Jenis Bahaya Terkait</th>
+                  <th style={{ padding: "9px 12px", width: "18%" }}>⚠️ Risiko Yang Ditimbulkan</th>
+                  <th style={{ padding: "9px 12px", width: "18%" }}>💥 Dampak / Penyakit</th>
+                  <th style={{ padding: "9px 12px", width: "24%" }}>🛡️ Deskripsi Pengendalian</th>
                 </tr>
               </thead>
               <tbody>
-                {currentSub.hazardRows.map((r, rIdx) => (
-                  <tr key={r.id || rIdx} style={{ borderBottom: "1px solid #e2e8f0", verticalAlign: "top" }}>
-                    <td style={{ padding: "10px 8px", textAlign: "center", fontWeight: 700, color: "#64748b" }}>
-                      {rIdx + 1}
-                    </td>
-                    <td style={{ padding: "10px 12px", fontWeight: 600, color: "#0f172a" }}>
-                      {r.deskripsi}
-                    </td>
-                    <td style={{ padding: "10px 12px" }}>
-                      <Space wrap size={4}>
-                        {(r.jenisBahaya || []).map((t) => (
-                          <Tag
-                            key={t}
-                            color={
-                              t === "Fisika" ? "blue" :
-                              t === "Kimia" ? "purple" :
-                              t === "Biologi" ? "green" :
-                              t === "Ergonomi" ? "orange" : "magenta"
-                            }
-                            style={{ fontWeight: 700, fontSize: 11.5, borderRadius: 4 }}
-                          >
-                            {t === "Fisika" ? "⚡ " : t === "Kimia" ? "🧪 " : t === "Biologi" ? "🦠 " : t === "Ergonomi" ? "🏋️ " : "🧠 "}
-                            {t}
-                          </Tag>
-                        ))}
-                      </Space>
-                    </td>
-                    <td style={{ padding: "10px 12px" }}>
-                      <Space wrap size={4}>
-                        {(r.risikoList || []).filter(Boolean).map((risk, rkIdx) => (
-                          <Tag key={rkIdx} color="red" style={{ fontSize: 11, borderRadius: 4 }}>
-                            ⚠️ {risk}
-                          </Tag>
-                        ))}
-                      </Space>
-                    </td>
-                    <td style={{ padding: "10px 12px" }}>
-                      <Space wrap size={4}>
-                        {(r.dampakList || []).filter(Boolean).map((dmpk, dpIdx) => (
-                          <Tag key={dpIdx} color="orange" style={{ fontSize: 11, borderRadius: 4 }}>
-                            💥 {dmpk}
-                          </Tag>
-                        ))}
-                      </Space>
-                    </td>
-                  </tr>
-                ))}
+                {currentSub.hazardRows.map((r, rIdx) => {
+                  const pList = (r.pengendalianList || []).filter(Boolean);
+                  const rowsCount = Math.max(1, pList.length);
+
+                  return (
+                    <React.Fragment key={r.id || rIdx}>
+                      <tr style={{ borderBottom: rowsCount === 1 ? "1px solid #e2e8f0" : "1px dashed #bbf7d0", verticalAlign: "top" }}>
+                        <td
+                          rowSpan={rowsCount}
+                          style={{
+                            padding: "10px 8px",
+                            textAlign: "center",
+                            fontWeight: 700,
+                            color: "#64748b",
+                            borderRight: "1px solid #e2e8f0",
+                            background: "#f8fafc",
+                          }}
+                        >
+                          {rIdx + 1}
+                        </td>
+                        <td
+                          rowSpan={rowsCount}
+                          style={{
+                            padding: "10px 12px",
+                            fontWeight: 600,
+                            color: "#0f172a",
+                            borderRight: "1px solid #e2e8f0",
+                          }}
+                        >
+                          {r.deskripsi}
+                        </td>
+                        <td
+                          rowSpan={rowsCount}
+                          style={{ padding: "10px 12px", borderRight: "1px solid #e2e8f0" }}
+                        >
+                          <Space wrap size={4}>
+                            {(r.jenisBahaya || []).map((t) => (
+                              <Tag
+                                key={t}
+                                color={
+                                  t === "Fisika" ? "blue" :
+                                  t === "Kimia" ? "purple" :
+                                  t === "Biologi" ? "green" :
+                                  t === "Ergonomi" ? "orange" : "magenta"
+                                }
+                                style={{ fontWeight: 700, fontSize: 11.5, borderRadius: 4 }}
+                              >
+                                {t === "Fisika" ? "⚡ " : t === "Kimia" ? "🧪 " : t === "Biologi" ? "🦠 " : t === "Ergonomi" ? "🏋️ " : "🧠 "}
+                                {t}
+                              </Tag>
+                            ))}
+                          </Space>
+                        </td>
+                        <td
+                          rowSpan={rowsCount}
+                          style={{ padding: "10px 12px", borderRight: "1px solid #e2e8f0" }}
+                        >
+                          <Space wrap size={4}>
+                            {(r.risikoList || []).filter(Boolean).map((risk, rkIdx) => (
+                              <Tag key={rkIdx} color="red" style={{ fontSize: 11, borderRadius: 4 }}>
+                                ⚠️ {risk}
+                              </Tag>
+                            ))}
+                          </Space>
+                        </td>
+                        <td
+                          rowSpan={rowsCount}
+                          style={{ padding: "10px 12px", borderRight: "1px solid #e2e8f0" }}
+                        >
+                          <Space wrap size={4}>
+                            {(r.dampakList || []).filter(Boolean).map((dmpk, dpIdx) => (
+                              <Tag key={dpIdx} color="orange" style={{ fontSize: 11, borderRadius: 4 }}>
+                                💥 {dmpk}
+                              </Tag>
+                            ))}
+                          </Space>
+                        </td>
+
+                        {/* Baris Pertama Point Pengendalian */}
+                        <td style={{ padding: "9px 12px", background: "#f0fdf4" }}>
+                          {pList.length > 0 ? (
+                            <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+                              <Tag
+                                color="green"
+                                style={{
+                                  fontSize: 10.5,
+                                  borderRadius: 3,
+                                  margin: 0,
+                                  padding: "0 4px",
+                                  fontWeight: 700,
+                                  minWidth: 22,
+                                  textAlign: "center",
+                                }}
+                              >
+                                #1
+                              </Tag>
+                              <span style={{ fontSize: 12, color: "#166534", lineHeight: "17px", fontWeight: 600 }}>
+                                {pList[0]}
+                              </span>
+                            </div>
+                          ) : (
+                            <span style={{ color: "#94a3b8", fontSize: 12 }}>-</span>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* Baris Baru (Row Baru) untuk Setiap Point Pengendalian Berikutnya */}
+                      {pList.slice(1).map((ctrl, pIdx) => (
+                        <tr
+                          key={`${r.id || rIdx}-ctrl-${pIdx + 1}`}
+                          style={{
+                            borderBottom: pIdx === pList.length - 2 ? "1px solid #e2e8f0" : "1px dashed #bbf7d0",
+                            verticalAlign: "top",
+                            background: "#f0fdf4",
+                          }}
+                        >
+                          <td style={{ padding: "8px 12px" }}>
+                            <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+                              <Tag
+                                color="green"
+                                style={{
+                                  fontSize: 10.5,
+                                  borderRadius: 3,
+                                  margin: 0,
+                                  padding: "0 4px",
+                                  fontWeight: 700,
+                                  minWidth: 22,
+                                  textAlign: "center",
+                                }}
+                              >
+                                #{pIdx + 2}
+                              </Tag>
+                              <span style={{ fontSize: 12, color: "#166534", lineHeight: "17px", fontWeight: 600 }}>
+                                {ctrl}
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </React.Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -574,7 +671,7 @@ export const HiradcShow: React.FC = () => {
                         </div>
 
                         <Row gutter={12}>
-                          <Col xs={24} md={12}>
+                          <Col xs={24} lg={8} md={12}>
                             <div style={{ fontSize: 12, color: "#b91c1c", fontWeight: 600, marginBottom: 4 }}>
                               Risiko Yang Ditimbulkan:
                             </div>
@@ -591,7 +688,7 @@ export const HiradcShow: React.FC = () => {
                             </Space>
                           </Col>
 
-                          <Col xs={24} md={12}>
+                          <Col xs={24} lg={8} md={12}>
                             <div style={{ fontSize: 12, color: "#c2410c", fontWeight: 600, marginBottom: 4 }}>
                               Dampak / Penyakit:
                             </div>
@@ -606,6 +703,26 @@ export const HiradcShow: React.FC = () => {
                                 <span style={{ fontSize: 11.5, color: "#94a3b8" }}>-</span>
                               )}
                             </Space>
+                          </Col>
+
+                          <Col xs={24} lg={8} md={24}>
+                            <div style={{ fontSize: 12, color: "#166534", fontWeight: 600, marginBottom: 4 }}>
+                              🛡️ Deskripsi Pengendalian:
+                            </div>
+                            {(it.pengendalianList || []).filter(Boolean).length > 0 ? (
+                              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                                {it.pengendalianList!.filter(Boolean).map((ctrl, cIdx) => (
+                                  <div key={cIdx} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+                                    <Tag color="green" style={{ fontSize: 10, borderRadius: 3, margin: 0, padding: "0 3px", fontWeight: 700 }}>
+                                      #{cIdx + 1}
+                                    </Tag>
+                                    <span style={{ fontSize: 11.5, color: "#166534", lineHeight: "16px" }}>{ctrl}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <span style={{ fontSize: 11.5, color: "#94a3b8" }}>-</span>
+                            )}
                           </Col>
                         </Row>
                       </div>
@@ -653,9 +770,61 @@ export const HiradcShow: React.FC = () => {
               style={{ borderRadius: 10, border: "1px solid #fed7aa", height: "100%", background: "#fffbeb" }}
             >
               <Descriptions bordered column={1} size="small">
-                {currentSub.controlDescription && (
-                  <Descriptions.Item label="Uraian Kontrol">{currentSub.controlDescription}</Descriptions.Item>
-                )}
+                {/* Deskripsi Pengendalian (Bisa > 1) */}
+                {(() => {
+                  const descs =
+                    currentSub.controlDescriptions && currentSub.controlDescriptions.length > 0
+                      ? currentSub.controlDescriptions.filter(Boolean)
+                      : (currentSub.controlDescription ? [currentSub.controlDescription] : []);
+                  if (descs.length === 0) return null;
+                  return (
+                    <Descriptions.Item
+                      label={
+                        <span style={{ fontWeight: 700, color: "#166534" }}>
+                          Deskripsi Pengendalian {descs.length > 1 ? `(${descs.length})` : ""}
+                        </span>
+                      }
+                    >
+                      {descs.length === 1 ? (
+                        <span style={{ fontWeight: 600, color: "#0f172a" }}>{descs[0]}</span>
+                      ) : (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6, width: "100%" }}>
+                          {descs.map((desc, dIdx) => (
+                            <div
+                              key={dIdx}
+                              style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                                gap: 8,
+                                background: "#f0fdf4",
+                                border: "1px solid #bbf7d0",
+                                padding: "6px 10px",
+                                borderRadius: 6,
+                              }}
+                            >
+                              <Tag
+                                color="green"
+                                style={{
+                                  minWidth: 24,
+                                  textAlign: "center",
+                                  borderRadius: 10,
+                                  margin: 0,
+                                  fontWeight: 700,
+                                  fontSize: 11,
+                                }}
+                              >
+                                #{dIdx + 1}
+                              </Tag>
+                              <span style={{ color: "#166534", fontSize: 12.5, fontWeight: 600, lineHeight: "20px" }}>
+                                {desc}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </Descriptions.Item>
+                  );
+                })()}
                 {currentSub.selectedControls && currentSub.selectedControls.length > 0 && (
                   <Descriptions.Item label="Hirarki Terpilih">
                     <Space wrap size={[4, 4]}>

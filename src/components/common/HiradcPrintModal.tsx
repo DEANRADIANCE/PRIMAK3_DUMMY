@@ -51,9 +51,15 @@ interface FlattenedPrintRow {
   isPsikososial: boolean;
   risikoText: string;
   dampakText: string;
+  totalRowsForHazard: number;
+  isFirstRowOfHazard: boolean;
 
-  // Controls
-  controlDescription: string;
+  // Control item (Setiap point dipisahkan menjadi row/baris baru!)
+  controlPointIndex: number;
+  controlPointText: string;
+  totalControlsForHazard: number;
+
+  // Controls (Hierarchy - Activity level)
   isEliminasi: boolean;
   isSubstitusi: boolean;
   isEngineering: boolean;
@@ -217,7 +223,11 @@ export const HiradcPrintModal: React.FC<HiradcPrintModalProps> = ({
                 hazardErgonomics: hiradcDoc.hazardErgonomics,
                 hazardPsychosocial: hiradcDoc.hazardPsychosocial,
                 riskImpact: hiradcDoc.riskImpact || hiradcDoc.risk || "-",
-                controlDescription: hiradcDoc.controlDescription,
+                controlDescription:
+                  hiradcDoc.controlDescriptions && hiradcDoc.controlDescriptions.length > 0
+                    ? hiradcDoc.controlDescriptions.filter(Boolean).join("; ")
+                    : hiradcDoc.controlDescription || "-",
+                controlDescriptions: hiradcDoc.controlDescriptions,
                 currentElimination: hiradcDoc.currentElimination,
                 currentSubstitution: hiradcDoc.currentSubstitution,
                 currentEngineering: hiradcDoc.currentEngineering,
@@ -250,6 +260,8 @@ export const HiradcPrintModal: React.FC<HiradcPrintModalProps> = ({
           isPsikososial: boolean;
           risiko: string;
           dampak: string;
+          pengendalian?: string;
+          pengendalianList?: string[];
         }[] = [];
 
         // 1. Cek dari hazardRows (tabel Deskripsi Bahaya ke bawah, bisa centang > 1 jenis bahaya)
@@ -259,6 +271,8 @@ export const HiradcPrintModal: React.FC<HiradcPrintModalProps> = ({
               const types = r.jenisBahaya || [];
               const risikoStr = (r.risikoList || []).filter(Boolean).join("; ");
               const dampakStr = (r.dampakList || []).filter(Boolean).join("; ");
+              const pList = (r.pengendalianList || []).filter(Boolean);
+              const pengStr = pList.join("; ");
               hazardRowsForThisSub.push({
                 deskripsi: r.deskripsi.trim(),
                 isFisika: types.includes("Fisika"),
@@ -268,6 +282,8 @@ export const HiradcPrintModal: React.FC<HiradcPrintModalProps> = ({
                 isPsikososial: types.includes("Psikososial"),
                 risiko: risikoStr || sub.riskImpact || "-",
                 dampak: dampakStr || sub.riskImpact || "-",
+                pengendalian: pengStr || undefined,
+                pengendalianList: pList.length > 0 ? pList : undefined,
               });
             }
           });
@@ -281,6 +297,8 @@ export const HiradcPrintModal: React.FC<HiradcPrintModalProps> = ({
               if (item.deskripsi && item.deskripsi.trim()) {
                 const risikoStr = (item.risikoList || []).filter(Boolean).join("; ");
                 const dampakStr = (item.dampakList || []).filter(Boolean).join("; ");
+                const pList = (item.pengendalianList || []).filter(Boolean);
+                const pengStr = pList.join("; ");
                 hazardRowsForThisSub.push({
                   deskripsi: item.deskripsi.trim(),
                   isFisika: cat === "Fisika",
@@ -290,6 +308,8 @@ export const HiradcPrintModal: React.FC<HiradcPrintModalProps> = ({
                   isPsikososial: cat === "Psikososial",
                   risiko: risikoStr || sub.riskImpact || "-",
                   dampak: dampakStr || sub.riskImpact || "-",
+                  pengendalian: pengStr || undefined,
+                  pengendalianList: pList.length > 0 ? pList : undefined,
                 });
               }
             });
@@ -337,8 +357,6 @@ export const HiradcPrintModal: React.FC<HiradcPrintModalProps> = ({
           });
         }
 
-        const totalRows = hazardRowsForThisSub.length;
-
         // Cek hirarki kontrol (centang jika dipilih atau ada nilainya)
         const checkControl = (name: string, legacyVal?: string) => {
           if (sub.selectedControls && sub.selectedControls.includes(name as any)) return true;
@@ -352,45 +370,78 @@ export const HiradcPrintModal: React.FC<HiradcPrintModalProps> = ({
         const isAdministrasi = checkControl("Administrasi", sub.currentAdministrative);
         const isApd = checkControl("APD", sub.currentApd);
 
-        hazardRowsForThisSub.forEach((hItem, hIdx) => {
-          flattened.push({
-            activityIndex: actCounter,
-            activityTitle: sub.activity,
-            location: sub.location || hiradcDoc.location || "-",
-            activityType: sub.activityType ? (sub.activityType.includes("Non") ? "NR" : "R") : "R",
-            totalRowsForActivity: totalRows,
-            isFirstRowOfActivity: hIdx === 0,
+        // Ekstrak rincian point-point pengendalian per bahaya untuk dipisahkan per baris (row baru)
+        const hazardItemsWithControls = hazardRowsForThisSub.map((hItem) => {
+          const rawControls =
+            (hItem.pengendalianList && hItem.pengendalianList.length > 0)
+              ? hItem.pengendalianList.filter(Boolean)
+              : (hItem.pengendalian
+                  ? [hItem.pengendalian]
+                  : (sub.controlDescriptions && sub.controlDescriptions.length > 0
+                      ? sub.controlDescriptions.filter(Boolean)
+                      : (sub.controlDescription ? [sub.controlDescription] : ["-"])));
+          const controlPoints = rawControls.length > 0 ? rawControls : ["-"];
+          return {
+            ...hItem,
+            controlPoints,
+            totalRowsForHazard: controlPoints.length,
+          };
+        });
 
-            deskripsiBahaya: hItem.deskripsi,
-            isFisika: hItem.isFisika,
-            isKimia: hItem.isKimia,
-            isBiologi: hItem.isBiologi,
-            isErgonomi: hItem.isErgonomi,
-            isPsikososial: hItem.isPsikososial,
-            risikoText: hItem.risiko,
-            dampakText: hItem.dampak,
+        const totalRowsForActivity = hazardItemsWithControls.reduce(
+          (sum, h) => sum + h.totalRowsForHazard,
+          0
+        );
 
-            controlDescription: sub.controlDescription || "-",
-            isEliminasi,
-            isSubstitusi,
-            isEngineering,
-            isAdministrasi,
-            isApd,
-            eliminasi: isEliminasi ? "✓" : "",
-            substitusi: isSubstitusi ? "✓" : "",
-            engineering: isEngineering ? "✓" : "",
-            administrasi: isAdministrasi ? "✓" : "",
-            apd: isApd ? "✓" : "",
+        let activityRowCounter = 0;
 
-            likelihood: currentLikelihood,
-            severity: currentSeverity,
-            nfr: currentNfr,
-            riskLevel: currentRiskLevel,
+        hazardItemsWithControls.forEach((hItem) => {
+          hItem.controlPoints.forEach((pointText, pIdx) => {
+            flattened.push({
+              activityIndex: actCounter,
+              activityTitle: sub.activity,
+              location: sub.location || hiradcDoc.location || "-",
+              activityType: sub.activityType ? (sub.activityType.includes("Non") ? "NR" : "R") : "R",
+              totalRowsForActivity,
+              isFirstRowOfActivity: activityRowCounter === 0,
 
-            tenggat: sub.targetDate || hiradcDoc.targetDate || "-",
-            status: sub.controlStatus || hiradcDoc.controlStatus || "Open",
-            durasi: sub.controlDuration || hiradcDoc.controlDuration || "30 Hari",
-            pic: sub.responsiblePerson || hiradcDoc.responsiblePerson || "Tim K3",
+              deskripsiBahaya: hItem.deskripsi,
+              isFisika: hItem.isFisika,
+              isKimia: hItem.isKimia,
+              isBiologi: hItem.isBiologi,
+              isErgonomi: hItem.isErgonomi,
+              isPsikososial: hItem.isPsikososial,
+              risikoText: hItem.risiko,
+              dampakText: hItem.dampak,
+              totalRowsForHazard: hItem.totalRowsForHazard,
+              isFirstRowOfHazard: pIdx === 0,
+
+              controlPointIndex: pIdx,
+              controlPointText: pointText,
+              totalControlsForHazard: hItem.totalRowsForHazard,
+
+              isEliminasi,
+              isSubstitusi,
+              isEngineering,
+              isAdministrasi,
+              isApd,
+              eliminasi: isEliminasi ? "✓" : "",
+              substitusi: isSubstitusi ? "✓" : "",
+              engineering: isEngineering ? "✓" : "",
+              administrasi: isAdministrasi ? "✓" : "",
+              apd: isApd ? "✓" : "",
+
+              likelihood: currentLikelihood,
+              severity: currentSeverity,
+              nfr: currentNfr,
+              riskLevel: currentRiskLevel,
+
+              tenggat: sub.targetDate || hiradcDoc.targetDate || "-",
+              status: sub.controlStatus || hiradcDoc.controlStatus || "Open",
+              durasi: sub.controlDuration || hiradcDoc.controlDuration || "30 Hari",
+              pic: sub.responsiblePerson || hiradcDoc.responsiblePerson || "Tim K3",
+            });
+            activityRowCounter += 1;
           });
         });
       });
@@ -436,11 +487,11 @@ export const HiradcPrintModal: React.FC<HiradcPrintModalProps> = ({
         <Button
           key="print"
           type="primary"
-          icon={<PrinterOutlined />}
+          icon={<FilePdfOutlined />}
           style={{ background: "#0284c7", borderColor: "#0284c7", fontWeight: 700 }}
           onClick={handlePrint}
         >
-          Cetak Dokumen (Landscape PDF)
+          Cetak / Unduh Dokumen PDF (Landscape A4)
         </Button>,
       ]}
     >
@@ -611,7 +662,7 @@ export const HiradcPrintModal: React.FC<HiradcPrintModalProps> = ({
                 <th colSpan={7} style={{ border: "1px solid #000", background: "#fef3c7" }}>
                   IDENTIFIKASI BAHAYA DAN RISIKO
                 </th>
-                <th rowSpan={3} style={{ width: "105px", border: "1px solid #000", background: "#dbeafe" }}>
+                <th rowSpan={3} style={{ width: "150px", border: "1px solid #000", background: "#dbeafe" }}>
                   Deskripsi Pengendalian
                 </th>
                 <th colSpan={8} style={{ border: "1px solid #000", background: "#dbeafe" }}>
@@ -726,50 +777,63 @@ export const HiradcPrintModal: React.FC<HiradcPrintModalProps> = ({
                       </td>
                     ) : null}
 
-                    {/* Deskripsi Bahaya */}
-                    <td style={{ border: "1px solid #000", fontWeight: 600 }}>
-                      {row.deskripsiBahaya}
-                    </td>
-
-                    {/* 5 Kolom Centang Jenis Bahaya */}
-                    <td style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#1d4ed8" }}>
-                      {row.isFisika ? "✓" : ""}
-                    </td>
-                    <td style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#7c3aed" }}>
-                      {row.isKimia ? "✓" : ""}
-                    </td>
-                    <td style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#059669" }}>
-                      {row.isBiologi ? "✓" : ""}
-                    </td>
-                    <td style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#d97706" }}>
-                      {row.isErgonomi ? "✓" : ""}
-                    </td>
-                    <td style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#db2777" }}>
-                      {row.isPsikososial ? "✓" : ""}
-                    </td>
-
-                    {/* Risiko */}
-                    <td style={{ border: "1px solid #000", color: "#b91c1c", fontSize: "7pt" }}>
-                      {row.risikoText}
-                    </td>
-
-                    {/* Dampak */}
-                    <td style={{ border: "1px solid #000", color: "#c2410c", fontSize: "7pt" }}>
-                      {row.dampakText}
-                    </td>
-
-                    {/* Deskripsi Pengendalian (rowSpan per aktivitas) */}
-                    {row.isFirstRowOfActivity ? (
+                    {/* Deskripsi Bahaya (rowSpan per bahaya) */}
+                    {row.isFirstRowOfHazard ? (
                       <td
-                        rowSpan={row.totalRowsForActivity}
-                        style={{
-                          border: "1px solid #000",
-                          fontSize: "7pt",
-                        }}
+                        rowSpan={row.totalRowsForHazard}
+                        style={{ border: "1px solid #000", fontWeight: 600 }}
                       >
-                        {row.controlDescription}
+                        {row.deskripsiBahaya}
                       </td>
                     ) : null}
+
+                    {/* 5 Kolom Centang Jenis Bahaya (rowSpan per bahaya) */}
+                    {row.isFirstRowOfHazard ? (
+                      <>
+                        <td rowSpan={row.totalRowsForHazard} style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#1d4ed8" }}>
+                          {row.isFisika ? "✓" : ""}
+                        </td>
+                        <td rowSpan={row.totalRowsForHazard} style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#7c3aed" }}>
+                          {row.isKimia ? "✓" : ""}
+                        </td>
+                        <td rowSpan={row.totalRowsForHazard} style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#059669" }}>
+                          {row.isBiologi ? "✓" : ""}
+                        </td>
+                        <td rowSpan={row.totalRowsForHazard} style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#d97706" }}>
+                          {row.isErgonomi ? "✓" : ""}
+                        </td>
+                        <td rowSpan={row.totalRowsForHazard} style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#db2777" }}>
+                          {row.isPsikososial ? "✓" : ""}
+                        </td>
+
+                        {/* Risiko (rowSpan per bahaya) */}
+                        <td rowSpan={row.totalRowsForHazard} style={{ border: "1px solid #000", color: "#b91c1c", fontSize: "7pt" }}>
+                          {row.risikoText}
+                        </td>
+
+                        {/* Dampak (rowSpan per bahaya) */}
+                        <td rowSpan={row.totalRowsForHazard} style={{ border: "1px solid #000", color: "#c2410c", fontSize: "7pt" }}>
+                          {row.dampakText}
+                        </td>
+                      </>
+                    ) : null}
+
+                    {/* Deskripsi Pengendalian (Setiap point dipisahkan menjadi row/baris baru!) */}
+                    <td
+                      style={{
+                        border: "1px solid #000",
+                        fontSize: "7pt",
+                        color: "#0f172a",
+                        background: row.controlPointIndex % 2 === 0 ? "#ffffff" : "#f8fafc",
+                      }}
+                    >
+                      {row.totalControlsForHazard > 1 ? (
+                        <span style={{ fontWeight: 800, color: "#166534", marginRight: 4 }}>
+                          {row.controlPointIndex + 1}.
+                        </span>
+                      ) : null}
+                      <span style={{ color: "#166534" }}>{row.controlPointText}</span>
+                    </td>
 
                     {/* 5 Hirarki Pengendalian (rowSpan per aktivitas) - Centang Saja */}
                     {row.isFirstRowOfActivity ? (
