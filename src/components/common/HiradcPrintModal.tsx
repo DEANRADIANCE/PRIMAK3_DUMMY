@@ -835,65 +835,61 @@ export const HiradcPrintModal: React.FC<HiradcPrintModalProps> = ({
                       <span style={{ color: "#166534" }}>{row.controlPointText}</span>
                     </td>
 
-                    {/* 5 Hirarki Pengendalian (rowSpan per aktivitas) - Centang Saja */}
-                    {row.isFirstRowOfActivity ? (
-                      <>
-                        <td
-                          rowSpan={row.totalRowsForActivity}
-                          style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#166534", fontSize: "9pt" }}
-                        >
-                          {row.isEliminasi ? "✓" : ""}
-                        </td>
-                        <td
-                          rowSpan={row.totalRowsForActivity}
-                          style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#0891b2", fontSize: "9pt" }}
-                        >
-                          {row.isSubstitusi ? "✓" : ""}
-                        </td>
-                        <td
-                          rowSpan={row.totalRowsForActivity}
-                          style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#2563eb", fontSize: "9pt" }}
-                        >
-                          {row.isEngineering ? "✓" : ""}
-                        </td>
-                        <td
-                          rowSpan={row.totalRowsForActivity}
-                          style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#ea580c", fontSize: "9pt" }}
-                        >
-                          {row.isAdministrasi ? "✓" : ""}
-                        </td>
-                        <td
-                          rowSpan={row.totalRowsForActivity}
-                          style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#9333ea", fontSize: "9pt" }}
-                        >
-                          {row.isApd ? "✓" : ""}
-                        </td>
-                        <td rowSpan={row.totalRowsForActivity} style={{ textAlign: "center", border: "1px solid #000", fontWeight: 700 }}>
-                          {row.likelihood}
-                        </td>
-                        <td rowSpan={row.totalRowsForActivity} style={{ textAlign: "center", border: "1px solid #000", fontWeight: 700 }}>
-                          {row.severity}
-                        </td>
-                        <td rowSpan={row.totalRowsForActivity} style={{ textAlign: "center", border: "1px solid #000" }}>
-                          <span className={getBadgeClass(row.riskLevel)}>{row.nfr}</span>
-                          <div style={{ fontSize: "6.5pt", marginTop: 1, fontWeight: 700 }}>{row.riskLevel}</div>
-                        </td>
-                        <td rowSpan={row.totalRowsForActivity} style={{ border: "1px solid #000", fontSize: "7pt", textAlign: "center" }}>
-                          {row.tenggat}
-                        </td>
-                        <td
-                          rowSpan={row.totalRowsForActivity}
-                          style={{
-                            textAlign: "center",
-                            border: "1px solid #000",
-                            fontWeight: 800,
-                            color: row.status === "Close" ? "#166534" : "#c2410c",
-                          }}
-                        >
-                          {row.status}
-                        </td>
-                      </>
-                    ) : null}
+                    {/* 5 Hirarki Pengendalian - Centang Sama Per Row */}
+                    <td
+                      style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#166534", fontSize: "9pt" }}
+                    >
+                      {row.isEliminasi ? "✓" : ""}
+                    </td>
+                    <td
+                      style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#0891b2", fontSize: "9pt" }}
+                    >
+                      {row.isSubstitusi ? "✓" : ""}
+                    </td>
+                    <td
+                      style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#2563eb", fontSize: "9pt" }}
+                    >
+                      {row.isEngineering ? "✓" : ""}
+                    </td>
+                    <td
+                      style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#ea580c", fontSize: "9pt" }}
+                    >
+                      {row.isAdministrasi ? "✓" : ""}
+                    </td>
+                    <td
+                      style={{ textAlign: "center", border: "1px solid #000", fontWeight: 900, color: "#9333ea", fontSize: "9pt" }}
+                    >
+                      {row.isApd ? "✓" : ""}
+                    </td>
+
+                    {/* Analisis Risiko (Nilai) - Sama Per Row */}
+                    <td style={{ textAlign: "center", border: "1px solid #000", fontWeight: 700 }}>
+                      {row.likelihood}
+                    </td>
+                    <td style={{ textAlign: "center", border: "1px solid #000", fontWeight: 700 }}>
+                      {row.severity}
+                    </td>
+                    <td style={{ textAlign: "center", border: "1px solid #000" }}>
+                      <span className={getBadgeClass(row.riskLevel)}>{row.nfr}</span>
+                      <div style={{ fontSize: "6.5pt", marginTop: 1, fontWeight: 700 }}>{row.riskLevel}</div>
+                    </td>
+
+                    {/* Tenggat Upaya Tindak Lanjut - Sama Per Row */}
+                    <td style={{ border: "1px solid #000", fontSize: "7pt", textAlign: "center" }}>
+                      {row.tenggat}
+                    </td>
+
+                    {/* Status Tindak Lanjut - Sama Per Row */}
+                    <td
+                      style={{
+                        textAlign: "center",
+                        border: "1px solid #000",
+                        fontWeight: 800,
+                        color: row.status === "Close" ? "#166534" : "#c2410c",
+                      }}
+                    >
+                      {row.status}
+                    </td>
                   </tr>
                 );
               })}

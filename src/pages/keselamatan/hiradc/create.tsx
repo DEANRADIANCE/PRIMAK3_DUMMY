@@ -237,7 +237,7 @@ const createDefaultSubActivity = (index: number): SubActivityFormState => ({
   activityType: "Rutin (R)",
   hazardClassification: ["Safety (S)", "Health (H)"],
 
-  selectedHazardTypes: index === 0 ? ["Fisika", "Ergonomi"] : ["Fisika"],
+  selectedHazardTypes: ["Fisika"],
 
   hazardDetails:
     index === 0
@@ -246,52 +246,17 @@ const createDefaultSubActivity = (index: number): SubActivityFormState => ({
             {
               id: `h-fisika-1`,
               deskripsi:
-                "Ketinggian rak brankas (>2 meter), tangga lipat aluminium licin & tidak stabil saat mengambil boks arsip berat",
+                "Ketinggian rak brankas (>2 meter), tangga lipat aluminium licin & tidak stabil saat menjangkau boks arsip berat",
               risikoList: [
-                "Terpeleset dan jatuh dari tangga ketinggian > 2 meter",
+                "Terpeleset dan jatuh dari tangga kerja pada ketinggian > 2 meter",
                 "Kehilangan keseimbangan saat menarik kardus arsip berat",
               ],
               dampakList: [
                 "Fraktur / patah tulang ekstremitas (tangan/kaki)",
-                "Trauma cedera kepala dan luka memar jaringan lunak",
+                "Trauma cedera benturan kepala dan memar jaringan lunak",
               ],
               pengendalianList: [
-                "Penyediaan tangga keselamatan tipe platform beroda dengan rem pengunci",
-                "Pemasangan handrail pegangan tangan ganda di tangga",
-                "Instruksi kerja aman: dilarang memanjat melebihi anak tangga ke-3",
-              ],
-            },
-            {
-              id: `h-fisika-2`,
-              deskripsi:
-                "Benda jatuh dari rak atas (kejatuhan bundel map arsip & boks kardus tebal)",
-              risikoList: [
-                "Tertimpa boks atau map arsip jatuh dari ketinggian rak",
-              ],
-              dampakList: [
-                "Cedera leher, dislokasi bahu, dan luka robek kulit kepala",
-              ],
-              pengendalianList: [
-                "Pemasangan stopper / bibir penahan jatuh pada rak atas",
-                "Kewajiban penggunaan helm keselamatan (safety helmet) ringan di depo",
-              ],
-            },
-          ],
-          Ergonomi: [
-            {
-              id: `h-ergonomi-1`,
-              deskripsi:
-                "Beban kardus arsip berat (>15 kg) dan postur jinjit menjangkau di atas bahu",
-              risikoList: [
-                "Beban statis berlebih pada ruas tulang belakang lumbosakral",
-              ],
-              dampakList: [
-                "Nyeri punggung bawah (Low Back Pain) dan spasme otot punggung",
-              ],
-              pengendalianList: [
-                "Pembagian boks arsip berat menjadi kapasitas maksimal 10 kg",
-                "Pengangkatan bersama (team lifting berdua) untuk boks berat",
-                "Pelatihan teknik manual handling posisi ergonomis yang tepat",
+                "Penyediaan unit tangga keselamatan tipe platform beroda dengan rem pengunci otomatis dan handrail keliling ganda",
               ],
             },
           ],
@@ -300,34 +265,32 @@ const createDefaultSubActivity = (index: number): SubActivityFormState => ({
           Fisika: [createDefaultHazardItem("")],
         },
 
-  selectedControls: ["Engineering Control", "Administrasi", "APD"],
+  selectedControls: ["Engineering Control"],
   controlDescriptions:
     index === 0
       ? [
-          "Penyediaan tangga lipat aluminium standar dengan pijakan kokoh",
-          "Instruksi kerja manual dan SOP kehati-hatian pengambilan arsip",
-          "Penggunaan APD dasar berupa sarung tangan katun bintik dan masker debu",
+          "Penyediaan unit tangga keselamatan tipe platform beroda dengan rem pengunci otomatis dan handrail keliling ganda",
         ]
       : [""],
   controlDescription:
     index === 0
-      ? "Penyediaan tangga lipat aluminium standar; Instruksi kerja manual dan SOP kehati-hatian; Penggunaan APD sarung tangan dan masker"
+      ? "Penyediaan unit tangga keselamatan tipe platform beroda dengan rem pengunci otomatis dan handrail keliling ganda"
       : "",
   currentElimination: "-",
   currentSubstitution: "-",
-  currentEngineering: "Tangga lipat aluminium biasa (tanpa platform pengunci)",
-  currentAdministrative: "Instruksi kerja kehati-hatian manual",
-  currentApd: "Sarung tangan katun dan masker kain",
+  currentEngineering: "Tangga safety platform beroda dengan rem pengunci keselamatan & handrail keliling ganda",
+  currentAdministrative: "-",
+  currentApd: "-",
   currentLikelihood: 3,
   currentSeverity: 3,
 
   includeResidual: true,
-  residualSelectedControls: ["Eliminasi", "Engineering Control", "Administrasi", "APD"],
-  residualElimination: "Penyusunan boks berat hanya di rak tengah (tinggi pinggang maks 1.5m)",
+  residualSelectedControls: ["Engineering Control"],
+  residualElimination: "-",
   residualSubstitution: "-",
-  residualEngineering: "Tangga safety platform beroda dengan rem pengunci & handrail keliling",
-  residualAdministrative: "SOP bekerja di ketinggian depo arsip, pembatasan beban angkat maks 10kg",
-  residualApd: "Safety helmet ringan, safety shoes anti-slip, sarung tangan nitril grip",
+  residualEngineering: "Tangga safety platform beroda berstandar industri dengan sensor rem anti-slip dan sangkar pelindung keliling",
+  residualAdministrative: "-",
+  residualApd: "-",
   residualLikelihood: 1,
   residualSeverity: 2,
 
