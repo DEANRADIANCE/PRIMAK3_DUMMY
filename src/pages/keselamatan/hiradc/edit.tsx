@@ -1159,19 +1159,14 @@ export const HiradcEdit: React.FC = () => {
               <span>Tahapan Aktivitas / Proses Kerja yang Dinilai ({subActivities.length} Tahapan)</span>
             </div>
 
-            <Space wrap>
-              <Tag color={getNfrTagColor(highestRiskLevel)} style={{ fontSize: 12, padding: "4px 10px", borderRadius: 6, fontWeight: 700 }}>
-                NFR Tertinggi: {highestCurrentNfr} [{highestRiskLevel.toUpperCase()}]
-              </Tag>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={handleAddSubActivity}
-                style={{ background: "#0284c7", borderColor: "#0284c7", borderRadius: 8, fontWeight: 600 }}
-              >
-                Tambah Proses Kerja
-              </Button>
-            </Space>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleAddSubActivity}
+              style={{ background: "#0284c7", borderColor: "#0284c7", borderRadius: 8, fontWeight: 600 }}
+            >
+              Tambah Proses Kerja
+            </Button>
           </div>
 
           {/* TABS PROSES KERJA */}
@@ -1179,25 +1174,15 @@ export const HiradcEdit: React.FC = () => {
             type="card"
             activeKey={activeKey}
             onChange={(key) => setActiveKey(key)}
-            items={subActivities.map((sub, idx) => {
-              const nfr = sub.currentLikelihood * sub.currentSeverity;
-              const level = calculateNfrRiskLevel(nfr);
-              return {
-                key: sub.id,
-                label: (
-                  <Space size={6}>
-                    <OrderedListOutlined />
-                    <span>{`Proses #${idx + 1}: ${sub.activity ? sub.activity.slice(0, 24) + (sub.activity.length > 24 ? "..." : "") : "Proses Kerja Baru"}`}</span>
-                    <Tag
-                      color={getNfrTagColor(level)}
-                      style={{ margin: 0, fontSize: 10, borderRadius: 4, lineHeight: "16px", fontWeight: 700 }}
-                    >
-                      {nfr} • {level}
-                    </Tag>
-                  </Space>
-                ),
-              };
-            })}
+            items={subActivities.map((sub, idx) => ({
+              key: sub.id,
+              label: (
+                <Space size={6}>
+                  <OrderedListOutlined />
+                  <span>{`Proses #${idx + 1}: ${sub.activity ? (sub.activity.length > 25 ? sub.activity.slice(0, 25) + "..." : sub.activity) : "Proses Baru"}`}</span>
+                </Space>
+              ),
+            }))}
           />
 
           {/* KARTU FORMULIR PROSES KERJA AKTIF */}
@@ -1229,7 +1214,7 @@ export const HiradcEdit: React.FC = () => {
                   Penilaian Proses Kerja #{activeIndex + 1}
                 </Title>
                 <Text type="secondary" style={{ fontSize: 12.5 }}>
-                  Formulir HIRADC Terperinci Sesuai Standar ISO 45001 &amp; SMK3 (Formulir Google Spreadsheet)
+                  Lengkapi identifikasi bahaya, risiko, dampak, serta rencana pengendalian untuk proses kerja ini.
                 </Text>
               </div>
 
@@ -1260,89 +1245,117 @@ export const HiradcEdit: React.FC = () => {
               </Space>
             </div>
 
-            {/* Alert banner risiko proses aktif */}
-            <Alert
-              type={activeCurrentRiskLevel === "Sangat Tinggi" ? "error" : activeCurrentRiskLevel === "Tinggi" ? "warning" : activeCurrentRiskLevel === "Sedang" ? "info" : "success"}
-              showIcon
-              message={
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-                  <span>
-                    <strong>Analisis Risiko Proses Ini:</strong> NFR {activeCurrentNfr} [{activeCurrentRiskLevel.toUpperCase()}] (Kemungkinan: {activeSub.currentLikelihood} × Keparahan: {activeSub.currentSeverity})
-                  </span>
-                  <Tag color={getNfrTagColor(activeCurrentRiskLevel)} style={{ fontWeight: 800, fontSize: 12 }}>
-                    NFR: {activeCurrentNfr} ({activeCurrentRiskLevel})
-                  </Tag>
-                </div>
-              }
-              style={{ marginBottom: 20, borderRadius: 8 }}
-            />
-
-            {/* A. NAMA PROSES KERJA, LOKASI & SIFAT */}
-            <Row gutter={16}>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  label={<span style={{ fontWeight: 700, color: "#0f172a" }}>Aktivitas / Proses Kerja #{activeIndex + 1}</span>}
-                  required
-                >
-                  <Input
-                    placeholder="Contoh: Mengambil arsip dari brankas & rak tinggi / Melakukan scan digital"
-                    size="large"
-                    value={activeSub.activity}
-                    onChange={(e) => updateActiveSub({ activity: e.target.value })}
-                    style={{ borderRadius: 8, fontWeight: 600 }}
-                  />
-                </Form.Item>
-              </Col>
-
-              <Col xs={24} md={6}>
-                <Form.Item label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Lokasi Spesifik</span>}>
-                  <Input
-                    placeholder="Contoh: Depo Arsip Lt. 2"
-                    size="large"
-                    value={activeSub.location}
-                    onChange={(e) => updateActiveSub({ location: e.target.value })}
-                    style={{ borderRadius: 8 }}
-                  />
-                </Form.Item>
-              </Col>
-
-              <Col xs={24} md={6}>
-                <Form.Item label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Sifat Aktivitas: Rutin / Non-Rutin</span>}>
-                  <Select
-                    size="large"
-                    value={activeSub.activityType}
-                    onChange={(val) => updateActiveSub({ activityType: val })}
-                    style={{ width: "100%", borderRadius: 8 }}
-                  >
-                    <Select.Option value="Rutin (R)">Rutin (R)</Select.Option>
-                    <Select.Option value="Non Rutin (NR)">Non Rutin (NR)</Select.Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-            </Row>
-
-            {/* B. PILIHAN JENIS BAHAYA (CENTANG-CENTANG BISA LEBIH DARI 1) */}
+            {/* 2.1 INFORMASI PROSES KERJA */}
             <div
               style={{
-                marginTop: 10,
                 marginBottom: 20,
-                background: "#f8fafc",
                 padding: "16px 18px",
-                borderRadius: 10,
-                border: "1px solid #cbd5e1",
+                background: "#f8fafc",
+                borderRadius: 8,
+                border: "1px solid #e2e8f0",
+              }}
+            >
+              <div style={{ fontWeight: 700, fontSize: 13.5, color: "#0f172a", marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+                <span
+                  style={{
+                    background: "#0284c7",
+                    color: "#ffffff",
+                    width: 22,
+                    height: 22,
+                    borderRadius: "50%",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 11,
+                    fontWeight: 700,
+                  }}
+                >
+                  1
+                </span>
+                <span>Informasi Tahapan Proses Kerja</span>
+              </div>
+
+              <Row gutter={16}>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    label={<span style={{ fontWeight: 600, color: "#0f172a" }}>Aktivitas / Proses Kerja #{activeIndex + 1}</span>}
+                    required
+                    style={{ marginBottom: 8 }}
+                  >
+                    <Input
+                      placeholder="Contoh: Mengambil arsip dari brankas & rak tinggi / Melakukan scan digital"
+                      size="large"
+                      value={activeSub.activity}
+                      onChange={(e) => updateActiveSub({ activity: e.target.value })}
+                      style={{ borderRadius: 8, fontWeight: 600 }}
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col xs={24} md={6}>
+                  <Form.Item label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Lokasi Spesifik</span>} style={{ marginBottom: 8 }}>
+                    <Input
+                      placeholder="Contoh: Depo Arsip Lt. 2"
+                      size="large"
+                      value={activeSub.location}
+                      onChange={(e) => updateActiveSub({ location: e.target.value })}
+                      style={{ borderRadius: 8 }}
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col xs={24} md={6}>
+                  <Form.Item label={<span style={{ fontWeight: 600, color: "#1e293b" }}>Sifat Aktivitas</span>} style={{ marginBottom: 8 }}>
+                    <Select
+                      size="large"
+                      value={activeSub.activityType}
+                      onChange={(val) => updateActiveSub({ activityType: val })}
+                      style={{ width: "100%", borderRadius: 8 }}
+                    >
+                      <Select.Option value="Rutin (R)">Rutin (R)</Select.Option>
+                      <Select.Option value="Non Rutin (NR)">Non Rutin (NR)</Select.Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+            </div>
+
+            {/* 2.2 IDENTIFIKASI BAHAYA, RISIKO & DAMPAK */}
+            <div
+              style={{
+                marginBottom: 20,
+                background: "#ffffff",
+                padding: "16px 18px",
+                borderRadius: 8,
+                border: "1px solid #e2e8f0",
               }}
             >
               <div style={{ marginBottom: 12 }}>
-                <Text strong style={{ color: "#0f172a", fontSize: 13.5 }}>
-                  <ThunderboltOutlined style={{ color: "#ef4444", marginRight: 8, fontSize: 16 }} />
-                  Pilihan Jenis Bahaya (Centang jenis bahaya yang ada, bisa centang lebih dari 1):
-                </Text>
-                <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
-                  Setiap jenis bahaya yang dicentang akan memunculkan bagian untuk menambah <strong>Deskripsi Bahaya</strong> (bisa lebih dari 1), serta <strong>Risiko</strong> &amp; <strong>Dampak</strong> terhubung.
+                <div style={{ fontWeight: 700, fontSize: 13.5, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+                  <span
+                    style={{
+                      background: "#0284c7",
+                      color: "#ffffff",
+                      width: 22,
+                      height: 22,
+                      borderRadius: "50%",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 11,
+                      fontWeight: 700,
+                    }}
+                  >
+                    2
+                  </span>
+                  <span>Identifikasi Kategori Bahaya</span>
+                </div>
+                <div style={{ fontSize: 12, color: "#64748b", marginTop: 4, marginLeft: 30 }}>
+                  Pilih kategori bahaya yang ada pada tahapan kerja ini (bisa memilih lebih dari 1):
                 </div>
               </div>
 
-              {/* Checkboxes 5 Jenis Bahaya */}
+              {/* Checkboxes 5 Kategori Bahaya */}
               <Row gutter={[10, 10]} style={{ marginBottom: 16 }}>
                 {HAZARD_TYPE_CONFIG.map((cfg) => {
                   const isChecked = (activeSub.selectedHazardTypes || []).includes(cfg.value);
@@ -1354,7 +1367,7 @@ export const HiradcEdit: React.FC = () => {
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: 8,
+                          gap: 10,
                           padding: "10px 12px",
                           borderRadius: 8,
                           cursor: "pointer",
@@ -1369,13 +1382,13 @@ export const HiradcEdit: React.FC = () => {
                           onChange={() => handleToggleHazardType(cfg.value)}
                           onClick={(e) => e.stopPropagation()}
                         />
-                        <span style={{ fontSize: 18 }}>{cfg.icon}</span>
+                        <span style={{ fontSize: 20 }}>{cfg.icon}</span>
                         <div>
-                          <div style={{ fontSize: 12.5, fontWeight: isChecked ? 800 : 600, color: isChecked ? cfg.color : "#1e293b" }}>
+                          <div style={{ fontSize: 13, fontWeight: isChecked ? 700 : 500, color: isChecked ? cfg.color : "#1e293b" }}>
                             {cfg.shortLabel}
                           </div>
-                          <div style={{ fontSize: 10.5, color: isChecked ? cfg.color : "#64748b" }}>
-                            {isChecked ? `${count} Deskripsi Bahaya` : "Klik utk centang"}
+                          <div style={{ fontSize: 11, color: isChecked ? cfg.color : "#64748b" }}>
+                            {isChecked ? `${count} Bahaya Terdata` : "Pilih Kategori"}
                           </div>
                         </div>
                       </div>
@@ -1384,7 +1397,7 @@ export const HiradcEdit: React.FC = () => {
                 })}
               </Row>
 
-              {/* AREA RINCIAN DESKRIPSI BAHAYA, RISIKO & DAMPAK PER JENIS BAHAYA YANG DICENTANG */}
+              {/* DAFTAR RINCIAN BAHAYA PER KATEGORI YANG DIPILIH */}
               {(activeSub.selectedHazardTypes || []).map((type) => {
                 const cfg = HAZARD_TYPE_CONFIG.find((c) => c.value === type) || HAZARD_TYPE_CONFIG[0];
                 const items = activeSub.hazardDetails?.[type] || [];
@@ -1394,27 +1407,24 @@ export const HiradcEdit: React.FC = () => {
                     key={type}
                     style={{
                       marginBottom: 16,
-                      background: cfg.bgColor,
+                      background: "#fafafa",
                       border: `1.5px solid ${cfg.borderColor}`,
-                      borderRadius: 10,
+                      borderRadius: 8,
                       padding: "16px",
                     }}
                   >
-                    {/* Header Jenis Bahaya */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
+                    {/* Header Kategori Bahaya */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <span style={{ fontSize: 20 }}>{cfg.icon}</span>
                         <div>
-                          <span style={{ fontSize: 14, fontWeight: 800, color: cfg.color }}>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: cfg.color }}>
                             {cfg.label}
                           </span>
-                          <span style={{ fontSize: 11.5, color: "#64748b", marginLeft: 8 }}>
+                          <span style={{ fontSize: 12, color: "#64748b", marginLeft: 8 }}>
                             ({cfg.desc})
                           </span>
                         </div>
-                        <Tag color="blue" style={{ borderRadius: 10, fontWeight: 700, fontSize: 11, marginLeft: 4 }}>
-                          {items.length} Deskripsi Bahaya
-                        </Tag>
                       </div>
 
                       <Button
@@ -1422,14 +1432,14 @@ export const HiradcEdit: React.FC = () => {
                         size="small"
                         icon={<PlusOutlined />}
                         onClick={() => handleAddDeskripsi(type)}
-                        style={{ background: cfg.color, borderColor: cfg.color, borderRadius: 6, fontWeight: 700 }}
+                        style={{ background: cfg.color, borderColor: cfg.color, borderRadius: 6, fontWeight: 600 }}
                       >
-                        + Tambah Deskripsi Bahaya {type}
+                        Tambah Deskripsi Bahaya {type}
                       </Button>
                     </div>
 
-                    {/* Daftar Item Deskripsi Bahaya, Risiko & Dampak */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    {/* Daftar Item Deskripsi Bahaya */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                       {items.map((item, itemIdx) => (
                         <div
                           key={item.id || itemIdx}
@@ -1437,12 +1447,11 @@ export const HiradcEdit: React.FC = () => {
                             background: "#ffffff",
                             border: "1px solid #e2e8f0",
                             borderRadius: 8,
-                            padding: "14px",
-                            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+                            padding: "14px 16px",
                           }}
                         >
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                            <span style={{ fontWeight: 700, fontSize: 12.5, color: "#0f172a" }}>
+                            <span style={{ fontWeight: 700, fontSize: 13, color: "#0f172a" }}>
                               Deskripsi Bahaya #{itemIdx + 1}
                             </span>
                             {items.length > 1 && (
@@ -1454,7 +1463,7 @@ export const HiradcEdit: React.FC = () => {
                                 okButtonProps={{ danger: true, size: "small" }}
                               >
                                 <Button size="small" type="text" danger icon={<DeleteOutlined />}>
-                                  Hapus Deskripsi
+                                  Hapus
                                 </Button>
                               </Popconfirm>
                             )}
@@ -1462,19 +1471,19 @@ export const HiradcEdit: React.FC = () => {
 
                           <Input.TextArea
                             rows={2}
-                            placeholder={`Tuliskan deskripsi bahaya ${type.toLowerCase()} secara spesifik pada proses kerja ini...`}
+                            placeholder={`Jelaskan secara spesifik sumber atau kondisi bahaya ${type.toLowerCase()} yang ditemukan...`}
                             value={item.deskripsi}
                             onChange={(e) => handleUpdateDeskripsiText(type, itemIdx, e.target.value)}
-                            style={{ borderRadius: 6, marginBottom: 12, fontSize: 12.5 }}
+                            style={{ borderRadius: 6, marginBottom: 12, fontSize: 13 }}
                           />
 
-                          {/* Risiko, Dampak & Pengendalian Terhubung (3 Kolom per Deskripsi Bahaya) */}
-                          <Row gutter={12}>
-                            {/* Kolom 1: Risiko */}
-                            <Col xs={24} lg={8} md={12}>
+                          {/* 2 Kolom Bersih: Risiko & Dampak */}
+                          <Row gutter={16}>
+                            {/* Kolom Risiko */}
+                            <Col xs={24} md={12}>
                               <div
                                 style={{
-                                  background: "#fff5f5",
+                                  background: "#fef2f2",
                                   border: "1px solid #fecaca",
                                   borderRadius: 6,
                                   padding: "10px 12px",
@@ -1482,29 +1491,29 @@ export const HiradcEdit: React.FC = () => {
                                 }}
                               >
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                                  <span style={{ fontWeight: 700, fontSize: 12, color: "#991b1b" }}>
-                                    ⚠️ Risiko Terkait ({(item.risikoList || []).length})
+                                  <span style={{ fontWeight: 600, fontSize: 12, color: "#991b1b" }}>
+                                    ⚠️ Potensi Risiko (Kejadian / Insiden)
                                   </span>
                                   <Button
                                     type="link"
                                     size="small"
                                     icon={<PlusOutlined />}
                                     onClick={() => handleAddRisiko(type, itemIdx)}
-                                    style={{ padding: 0, height: "auto", fontSize: 11.5, fontWeight: 700, color: "#dc2626" }}
+                                    style={{ padding: 0, height: "auto", fontSize: 11.5, fontWeight: 600, color: "#dc2626" }}
                                   >
-                                    + Tambah Risiko
+                                    Tambah Risiko
                                   </Button>
                                 </div>
 
                                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                                   {(item.risikoList || [""]).map((risiko, rIdx) => (
-                                    <div key={rIdx} style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                                    <div key={rIdx} style={{ display: "flex", gap: 6, alignItems: "center" }}>
                                       <Input
-                                        size="small"
+                                        size="middle"
                                         placeholder={`Risiko #${rIdx + 1} (contoh: Terpeleset & jatuh dari tangga)`}
                                         value={risiko}
                                         onChange={(e) => handleUpdateRisikoText(type, itemIdx, rIdx, e.target.value)}
-                                        style={{ borderRadius: 4, fontSize: 12 }}
+                                        style={{ borderRadius: 4, fontSize: 12.5 }}
                                       />
                                       {(item.risikoList || []).length > 1 && (
                                         <Button
@@ -1522,11 +1531,11 @@ export const HiradcEdit: React.FC = () => {
                               </div>
                             </Col>
 
-                            {/* Kolom 2: Dampak */}
-                            <Col xs={24} lg={8} md={12}>
+                            {/* Kolom Dampak */}
+                            <Col xs={24} md={12}>
                               <div
                                 style={{
-                                  background: "#fffaf0",
+                                  background: "#fff7ed",
                                   border: "1px solid #fed7aa",
                                   borderRadius: 6,
                                   padding: "10px 12px",
@@ -1534,29 +1543,29 @@ export const HiradcEdit: React.FC = () => {
                                 }}
                               >
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                                  <span style={{ fontWeight: 700, fontSize: 12, color: "#9a3412" }}>
-                                    💥 Dampak / Akibat ({(item.dampakList || []).length})
+                                  <span style={{ fontWeight: 600, fontSize: 12, color: "#9a3412" }}>
+                                    💥 Dampak / Akibat (Konsekuensi Cedera)
                                   </span>
                                   <Button
                                     type="link"
                                     size="small"
                                     icon={<PlusOutlined />}
                                     onClick={() => handleAddDampak(type, itemIdx)}
-                                    style={{ padding: 0, height: "auto", fontSize: 11.5, fontWeight: 700, color: "#ea580c" }}
+                                    style={{ padding: 0, height: "auto", fontSize: 11.5, fontWeight: 600, color: "#ea580c" }}
                                   >
-                                    + Tambah Dampak
+                                    Tambah Dampak
                                   </Button>
                                 </div>
 
                                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                                   {(item.dampakList || [""]).map((dampak, dIdx) => (
-                                    <div key={dIdx} style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                                    <div key={dIdx} style={{ display: "flex", gap: 6, alignItems: "center" }}>
                                       <Input
-                                        size="small"
+                                        size="middle"
                                         placeholder={`Dampak #${dIdx + 1} (contoh: Fraktur tulang ekstremitas)`}
                                         value={dampak}
                                         onChange={(e) => handleUpdateDampakText(type, itemIdx, dIdx, e.target.value)}
-                                        style={{ borderRadius: 4, fontSize: 12 }}
+                                        style={{ borderRadius: 4, fontSize: 12.5 }}
                                       />
                                       {(item.dampakList || []).length > 1 && (
                                         <Button
@@ -1573,59 +1582,57 @@ export const HiradcEdit: React.FC = () => {
                                 </div>
                               </div>
                             </Col>
-
-                            {/* Kolom 3: Deskripsi Pengendalian (Bisa > 1 per Deskripsi Bahaya) */}
-                            <Col xs={24} lg={8} md={24}>
-                              <div
-                                style={{
-                                  background: "#f0fdf4",
-                                  border: "1px solid #bbf7d0",
-                                  borderRadius: 6,
-                                  padding: "10px 12px",
-                                  marginBottom: 8,
-                                }}
-                              >
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                                  <span style={{ fontWeight: 700, fontSize: 12, color: "#166534" }}>
-                                    🛡️ Deskripsi Pengendalian ({(item.pengendalianList || []).length})
-                                  </span>
-                                  <Button
-                                    type="link"
-                                    size="small"
-                                    icon={<PlusOutlined />}
-                                    onClick={() => handleAddPengendalian(type, itemIdx)}
-                                    style={{ padding: 0, height: "auto", fontSize: 11.5, fontWeight: 700, color: "#15803d" }}
-                                  >
-                                    + Tambah Pengendalian
-                                  </Button>
-                                </div>
-
-                                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                                  {(item.pengendalianList || [""]).map((pengendalian, pIdx) => (
-                                    <div key={pIdx} style={{ display: "flex", gap: 4, alignItems: "center" }}>
-                                      <Input
-                                        size="small"
-                                        placeholder={`Pengendalian #${pIdx + 1} (contoh: Platform tangga beroda)`}
-                                        value={pengendalian}
-                                        onChange={(e) => handleUpdatePengendalianText(type, itemIdx, pIdx, e.target.value)}
-                                        style={{ borderRadius: 4, fontSize: 12 }}
-                                      />
-                                      {(item.pengendalianList || []).length > 1 && (
-                                        <Button
-                                          size="small"
-                                          type="text"
-                                          danger
-                                          icon={<DeleteOutlined />}
-                                          onClick={() => handleRemovePengendalian(type, itemIdx, pIdx)}
-                                          style={{ padding: "0 2px" }}
-                                        />
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </Col>
                           </Row>
+
+                          {/* Upaya Pengendalian Terkait Bahaya Ini */}
+                          <div
+                            style={{
+                              background: "#f0fdf4",
+                              border: "1px solid #bbf7d0",
+                              borderRadius: 6,
+                              padding: "10px 12px",
+                              marginTop: 4,
+                            }}
+                          >
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, fontSize: 12, color: "#166534" }}>
+                                🛡️ Upaya Pengendalian Terkait Bahaya Ini
+                              </span>
+                              <Button
+                                type="link"
+                                size="small"
+                                icon={<PlusOutlined />}
+                                onClick={() => handleAddPengendalian(type, itemIdx)}
+                                style={{ padding: 0, height: "auto", fontSize: 11.5, fontWeight: 600, color: "#15803d" }}
+                              >
+                                Tambah Pengendalian
+                              </Button>
+                            </div>
+
+                            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                              {(item.pengendalianList || [""]).map((pengendalian, pIdx) => (
+                                <div key={pIdx} style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                                  <Input
+                                    size="middle"
+                                    placeholder={`Pengendalian #${pIdx + 1} (contoh: Platform tangga beroda dengan rem pengunci)`}
+                                    value={pengendalian}
+                                    onChange={(e) => handleUpdatePengendalianText(type, itemIdx, pIdx, e.target.value)}
+                                    style={{ borderRadius: 4, fontSize: 12.5 }}
+                                  />
+                                  {(item.pengendalianList || []).length > 1 && (
+                                    <Button
+                                      size="small"
+                                      type="text"
+                                      danger
+                                      icon={<DeleteOutlined />}
+                                      onClick={() => handleRemovePengendalian(type, itemIdx, pIdx)}
+                                      style={{ padding: "0 2px" }}
+                                    />
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -1634,138 +1641,45 @@ export const HiradcEdit: React.FC = () => {
               })}
             </div>
 
-            {/* C. PENGENDALIAN (ELIMINASI, SUBTITUSI, ENGINEERING CONTROL, ADMINISTRASI, APD) */}
+            {/* 2.3 PENGENDALIAN RISIKO & PENILAIAN RISIKO */}
             <div
               style={{
-                marginTop: 14,
-                marginBottom: 16,
-                padding: "16px",
-                background: "#f0fdf4",
-                border: "1px solid #bbf7d0",
+                marginBottom: 20,
+                padding: "16px 18px",
+                background: "#ffffff",
+                border: "1px solid #e2e8f0",
                 borderRadius: 8,
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
-                <div>
-                  <span style={{ fontWeight: 800, color: "#166534", fontSize: 14 }}>
-                    🛡️ Pengendalian Risiko &amp; Hirarki Kontrol K3 (Kolom M - U Spreadsheet)
-                  </span>
-                  <div style={{ fontSize: 12, color: "#15803d" }}>
-                    Centang hirarki pengendalian yang diterapkan (bisa centang lebih dari 1) dan masukkan uraian spesifiknya.
-                  </div>
-                </div>
-                <Tag color={getNfrTagColor(activeCurrentRiskLevel)} style={{ fontWeight: 800, fontSize: 13, padding: "4px 10px" }}>
-                  NFR: {activeCurrentNfr} ({activeCurrentRiskLevel})
-                </Tag>
-              </div>
-
-              {/* Deskripsi Pengendalian (Bisa Lebih Dari 1 Deskripsi Pengendalian) */}
-              <div
-                style={{
-                  background: "#ffffff",
-                  border: "1px solid #86efac",
-                  borderRadius: 8,
-                  padding: "14px 16px",
-                  marginBottom: 16,
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 12,
-                    flexWrap: "wrap",
-                    gap: 8,
-                  }}
-                >
-                  <div>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: "#166534", display: "flex", alignItems: "center", gap: 6 }}>
-                      <span>📝 Deskripsi Pengendalian (Uraian Upaya Kontrol)</span>
-                      <Tag color="green" style={{ borderRadius: 10, fontSize: 11, fontWeight: 700 }}>
-                        {(activeSub.controlDescriptions || (activeSub.controlDescription ? [activeSub.controlDescription] : [""])).length} Deskripsi
-                      </Tag>
-                    </span>
-                    <div style={{ fontSize: 11.5, color: "#15803d", marginTop: 2 }}>
-                      Tuliskan rincian tindakan pengendalian saat ini pada proses kerja (dapat menambahkan lebih dari 1 deskripsi pengendalian).
-                    </div>
-                  </div>
-                  <Button
-                    type="dashed"
-                    size="small"
-                    icon={<PlusOutlined />}
-                    onClick={handleAddControlDescription}
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontWeight: 700, fontSize: 13.5, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+                  <span
                     style={{
-                      borderColor: "#16a34a",
-                      color: "#15803d",
+                      background: "#0284c7",
+                      color: "#ffffff",
+                      width: 22,
+                      height: 22,
+                      borderRadius: "50%",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 11,
                       fontWeight: 700,
-                      borderRadius: 6,
                     }}
                   >
-                    + Tambah Deskripsi Pengendalian
-                  </Button>
+                    3
+                  </span>
+                  <span>Pengendalian Risiko Saat Ini &amp; Penilaian Tingkat Risiko</span>
                 </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {(activeSub.controlDescriptions || (activeSub.controlDescription ? [activeSub.controlDescription] : [""])).map((desc, dIdx, arr) => (
-                    <div
-                      key={dIdx}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        background: "#f8fafc",
-                        padding: "8px 10px",
-                        borderRadius: 6,
-                        border: "1px solid #e2e8f0",
-                      }}
-                    >
-                      <Tag
-                        color="green"
-                        style={{
-                          margin: 0,
-                          fontWeight: 700,
-                          fontSize: 11.5,
-                          borderRadius: 4,
-                          minWidth: 28,
-                          textAlign: "center",
-                        }}
-                      >
-                        #{dIdx + 1}
-                      </Tag>
-                      <Input
-                        placeholder={`Deskripsi Pengendalian #${dIdx + 1} (contoh: Penyediaan tangga lipat berstandar keselamatan / SOP kehati-hatian)`}
-                        value={desc}
-                        onChange={(e) => handleUpdateControlDescriptionText(dIdx, e.target.value)}
-                        style={{ borderRadius: 6, fontSize: 12.5 }}
-                      />
-                      {arr.length > 1 && (
-                        <Popconfirm
-                          title="Hapus deskripsi pengendalian ini?"
-                          onConfirm={() => handleRemoveControlDescription(dIdx)}
-                          okText="Hapus"
-                          cancelText="Batal"
-                        >
-                          <Button
-                            size="small"
-                            type="text"
-                            danger
-                            icon={<DeleteOutlined />}
-                            style={{ padding: "0 6px" }}
-                            title="Hapus deskripsi pengendalian"
-                          />
-                        </Popconfirm>
-                      )}
-                    </div>
-                  ))}
+                <div style={{ fontSize: 12, color: "#64748b", marginTop: 4, marginLeft: 30 }}>
+                  Pilih hirarki pengendalian yang diterapkan dan tentukan tingkat kemungkinan serta keparahannya.
                 </div>
               </div>
 
-              {/* 5 Hirarki Kontrol: Ceklis Aja Tanpa Keterangan */}
+              {/* Hirarki Kontrol */}
               <div style={{ marginBottom: 16 }}>
-                <Text strong style={{ fontSize: 12.5, color: "#166534", display: "block", marginBottom: 8 }}>
-                  Hirarki Pengendalian yang Diterapkan (Ceklis jenis kontrol yang digunakan, bisa lebih dari 1):
+                <Text strong style={{ fontSize: 12.5, color: "#1e293b", display: "block", marginBottom: 8 }}>
+                  Hirarki Pengendalian yang Diterapkan:
                 </Text>
 
                 <Row gutter={[10, 10]}>
@@ -1782,9 +1696,9 @@ export const HiradcEdit: React.FC = () => {
                             padding: "10px 12px",
                             borderRadius: 8,
                             cursor: "pointer",
-                            border: isChecked ? `2px solid #059669` : "1px solid #cbd5e1",
-                            background: isChecked ? "#ffffff" : "#f8fafc",
-                            boxShadow: isChecked ? "0 2px 8px rgba(5, 150, 105, 0.18)" : "none",
+                            border: isChecked ? "2px solid #059669" : "1px solid #cbd5e1",
+                            background: isChecked ? "#ecfdf5" : "#ffffff",
+                            boxShadow: isChecked ? "0 2px 6px rgba(5, 150, 105, 0.15)" : "none",
                             transition: "all 0.15s ease",
                           }}
                         >
@@ -1794,11 +1708,11 @@ export const HiradcEdit: React.FC = () => {
                             onClick={(e) => e.stopPropagation()}
                           />
                           <div>
-                            <Tag color={ctrl.tagColor} style={{ fontWeight: 800, margin: 0, fontSize: 11.5 }}>
+                            <Tag color={ctrl.tagColor} style={{ fontWeight: 700, margin: 0, fontSize: 11 }}>
                               {ctrl.badgeNum}. {ctrl.label}
                             </Tag>
-                            <div style={{ fontSize: 10.5, color: isChecked ? "#059669" : "#64748b", marginTop: 2, fontWeight: isChecked ? 700 : 400 }}>
-                              {isChecked ? "✓ Diterapkan" : "Klik utk ceklis"}
+                            <div style={{ fontSize: 10.5, color: isChecked ? "#059669" : "#64748b", marginTop: 2 }}>
+                              {isChecked ? "Diterapkan" : "Klik utk pilih"}
                             </div>
                           </div>
                         </div>
@@ -1808,204 +1722,236 @@ export const HiradcEdit: React.FC = () => {
                 </Row>
               </div>
 
-              {/* Matriks Analisis Risiko */}
-              <Row
-                gutter={16}
-                align="middle"
+              {/* Uraian Tindakan Pengendalian */}
+              <div
                 style={{
-                  marginTop: 10,
-                  background: "#ffffff",
-                  padding: "12px 16px",
-                  borderRadius: 6,
-                  border: "1px solid #dcfce7",
+                  background: "#f8fafc",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: 8,
+                  padding: "12px 14px",
+                  marginBottom: 16,
                 }}
               >
-                <Col xs={24} sm={8}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <Text strong style={{ fontSize: 12.5 }}>Kemungkinan (L):</Text>
-                    <Select
-                      size="middle"
-                      value={activeSub.currentLikelihood}
-                      onChange={(val) => updateActiveSub({ currentLikelihood: val })}
-                      style={{ width: 145 }}
-                    >
-                      {[1, 2, 3, 4, 5].map((num) => (
-                        <Select.Option key={num} value={num}>
-                          {num} - {num === 1 ? "Sangat Jarang" : num === 2 ? "Jarang" : num === 3 ? "Sedang" : num === 4 ? "Sering" : "Pasti Terjadi"}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  </div>
-                </Col>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 10,
+                    flexWrap: "wrap",
+                    gap: 8,
+                  }}
+                >
+                  <span style={{ fontSize: 12.5, fontWeight: 700, color: "#1e293b" }}>
+                    Uraian Upaya Pengendalian
+                  </span>
+                  <Button
+                    type="dashed"
+                    size="small"
+                    icon={<PlusOutlined />}
+                    onClick={handleAddControlDescription}
+                    style={{ borderRadius: 6, fontWeight: 600 }}
+                  >
+                    Tambah Pengendalian
+                  </Button>
+                </div>
 
-                <Col xs={24} sm={8}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <Text strong style={{ fontSize: 12.5 }}>Keparahan (S):</Text>
-                    <Select
-                      size="middle"
-                      value={activeSub.currentSeverity}
-                      onChange={(val) => updateActiveSub({ currentSeverity: val })}
-                      style={{ width: 145 }}
-                    >
-                      {[1, 2, 3, 4, 5].map((num) => (
-                        <Select.Option key={num} value={num}>
-                          {num} - {num === 1 ? "Ringan Sekali" : num === 2 ? "Ringan" : num === 3 ? "Sedang" : num === 4 ? "Berat" : "Fatal"}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  </div>
-                </Col>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {(activeSub.controlDescriptions || (activeSub.controlDescription ? [activeSub.controlDescription] : [""])).map((desc, dIdx, arr) => (
+                    <div key={dIdx} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <Input
+                        placeholder={`Pengendalian #${dIdx + 1} (contoh: Penyediaan tangga lipat safety platform beroda)`}
+                        value={desc}
+                        onChange={(e) => handleUpdateControlDescriptionText(dIdx, e.target.value)}
+                        style={{ borderRadius: 6, fontSize: 12.5 }}
+                      />
+                      {arr.length > 1 && (
+                        <Popconfirm
+                          title="Hapus uraian ini?"
+                          onConfirm={() => handleRemoveControlDescription(dIdx)}
+                          okText="Hapus"
+                          cancelText="Batal"
+                        >
+                          <Button size="small" type="text" danger icon={<DeleteOutlined />} />
+                        </Popconfirm>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-                <Col xs={24} sm={8} style={{ textAlign: "right" }}>
-                  <Text style={{ fontSize: 12.5, marginRight: 8, color: "#334155" }}>
-                    Nilai Faktor Risiko (NFR = L × S):
-                  </Text>
-                  <Tag color={getNfrTagColor(activeCurrentRiskLevel)} style={{ fontSize: 14, fontWeight: 900, padding: "3px 12px" }}>
-                    {activeCurrentNfr} [{activeCurrentRiskLevel.toUpperCase()}]
-                  </Tag>
-                </Col>
-              </Row>
+              {/* Penilaian Risiko Saat Ini (L & S) */}
+              <div
+                style={{
+                  background: "#f8fafc",
+                  padding: "14px 16px",
+                  borderRadius: 8,
+                  border: "1px solid #e2e8f0",
+                }}
+              >
+                <Text strong style={{ fontSize: 12.5, color: "#1e293b", display: "block", marginBottom: 10 }}>
+                  Penilaian Tingkat Risiko Saat Ini:
+                </Text>
+                <Row gutter={16}>
+                  <Col xs={24} sm={12}>
+                    <Form.Item label={<span style={{ fontWeight: 600, fontSize: 12 }}>Kemungkinan Terjadi (Likelihood)</span>} style={{ marginBottom: 0 }}>
+                      <Select
+                        size="large"
+                        value={activeSub.currentLikelihood}
+                        onChange={(val) => updateActiveSub({ currentLikelihood: val })}
+                        style={{ width: "100%" }}
+                      >
+                        {[1, 2, 3, 4, 5].map((num) => (
+                          <Select.Option key={num} value={num}>
+                            {num} - {num === 1 ? "Sangat Jarang" : num === 2 ? "Jarang" : num === 3 ? "Sedang" : num === 4 ? "Sering" : "Pasti Terjadi"}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+
+                  <Col xs={24} sm={12}>
+                    <Form.Item label={<span style={{ fontWeight: 600, fontSize: 12 }}>Keparahan Dampak (Severity)</span>} style={{ marginBottom: 0 }}>
+                      <Select
+                        size="large"
+                        value={activeSub.currentSeverity}
+                        onChange={(val) => updateActiveSub({ currentSeverity: val })}
+                        style={{ width: "100%" }}
+                      >
+                        {[1, 2, 3, 4, 5].map((num) => (
+                          <Select.Option key={num} value={num}>
+                            {num} - {num === 1 ? "Ringan Sekali" : num === 2 ? "Ringan" : num === 3 ? "Sedang" : num === 4 ? "Berat" : "Fatal"}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </div>
             </div>
 
-            {/* D. PENGENDALIAN LANJUTAN (RESIDUAL CONTROL - OPSIONAL) */}
+            {/* 2.4 PENGENDALIAN LANJUTAN (OPSIONAL) */}
             <div
               style={{
-                marginTop: 14,
-                marginBottom: 16,
-                padding: "16px",
-                background: "#f0fdfa",
-                border: "1px solid #ccfbf1",
+                marginBottom: 20,
+                padding: "16px 18px",
+                background: "#ffffff",
+                border: "1px solid #e2e8f0",
                 borderRadius: 8,
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, flexWrap: "wrap", gap: 8 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <Checkbox
-                    checked={activeSub.includeResidual}
-                    onChange={(e) => updateActiveSub({ includeResidual: e.target.checked })}
-                  />
-                  <span style={{ fontWeight: 800, color: "#0f766e", fontSize: 13.5 }}>
-                    Sertakan Rencana Pengendalian Lanjutan (Determining / Residual Control)
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: activeSub.includeResidual ? 14 : 0 }}>
+                <Checkbox
+                  checked={activeSub.includeResidual}
+                  onChange={(e) => updateActiveSub({ includeResidual: e.target.checked })}
+                />
+                <div>
+                  <span style={{ fontWeight: 700, color: "#0f172a", fontSize: 13.5 }}>
+                    Sertakan Rencana Pengendalian Lanjutan (Residual Risk)
                   </span>
+                  <span style={{ fontSize: 11.5, color: "#64748b", marginLeft: 8 }}>(Opsional)</span>
                 </div>
-                {activeSub.includeResidual && (
-                  <Tag color={getNfrTagColor(activeResidualRiskLevel)} style={{ fontWeight: 800, fontSize: 13, padding: "3px 10px" }}>
-                    NFR Target: {activeResidualNfr} ({activeResidualRiskLevel})
-                  </Tag>
-                )}
               </div>
 
               {activeSub.includeResidual && (
-                <div style={{ marginTop: 10 }}>
-                  <div style={{ marginBottom: 12 }}>
-                    <Text strong style={{ fontSize: 12, color: "#0f766e", display: "block", marginBottom: 6 }}>
-                      Hirarki Pengendalian Lanjutan (Ceklis jenis kontrol lanjutan, bisa lebih dari 1):
-                    </Text>
-                    <Row gutter={[10, 10]}>
-                      {CONTROL_HIERARCHY_CONFIG.map((ctrl) => {
-                        const isChecked = (activeSub.residualSelectedControls || []).includes(ctrl.value);
-                        return (
-                          <Col xs={24} sm={12} md={8} lg={4.8} key={`res-${ctrl.value}`} style={{ flex: "1 0 18%", minWidth: 160 }}>
-                            <div
-                              onClick={() => handleToggleResidualControl(ctrl.value)}
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 8,
-                                padding: "8px 10px",
-                                borderRadius: 8,
-                                cursor: "pointer",
-                                border: isChecked ? `2px solid #0d9488` : "1px solid #cbd5e1",
-                                background: isChecked ? "#ffffff" : "#f0fdfa",
-                                transition: "all 0.15s ease",
-                              }}
-                            >
-                              <Checkbox
-                                checked={isChecked}
-                                onChange={() => handleToggleResidualControl(ctrl.value)}
-                                onClick={(e) => e.stopPropagation()}
-                              />
-                              <div>
-                                <Tag color={ctrl.tagColor} style={{ fontWeight: 700, margin: 0, fontSize: 11 }}>
-                                  {ctrl.badgeNum}. {ctrl.label}
-                                </Tag>
-                                <div style={{ fontSize: 10, color: isChecked ? "#0d9488" : "#64748b", marginTop: 1 }}>
-                                  {isChecked ? "✓ Diterapkan" : "Klik utk ceklis"}
-                                </div>
+                <div style={{ marginTop: 12 }}>
+                  <Text strong style={{ fontSize: 12, color: "#1e293b", display: "block", marginBottom: 8 }}>
+                    Hirarki Pengendalian Lanjutan:
+                  </Text>
+                  <Row gutter={[10, 10]} style={{ marginBottom: 14 }}>
+                    {CONTROL_HIERARCHY_CONFIG.map((ctrl) => {
+                      const isChecked = (activeSub.residualSelectedControls || []).includes(ctrl.value);
+                      return (
+                        <Col xs={24} sm={12} md={8} lg={4.8} key={`res-${ctrl.value}`} style={{ flex: "1 0 18%", minWidth: 160 }}>
+                          <div
+                            onClick={() => handleToggleResidualControl(ctrl.value)}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
+                              padding: "8px 10px",
+                              borderRadius: 8,
+                              cursor: "pointer",
+                              border: isChecked ? "2px solid #0d9488" : "1px solid #cbd5e1",
+                              background: isChecked ? "#f0fdfa" : "#ffffff",
+                              transition: "all 0.15s ease",
+                            }}
+                          >
+                            <Checkbox
+                              checked={isChecked}
+                              onChange={() => handleToggleResidualControl(ctrl.value)}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                            <div>
+                              <Tag color={ctrl.tagColor} style={{ fontWeight: 700, margin: 0, fontSize: 11 }}>
+                                {ctrl.badgeNum}. {ctrl.label}
+                              </Tag>
+                              <div style={{ fontSize: 10, color: isChecked ? "#0d9488" : "#64748b", marginTop: 1 }}>
+                                {isChecked ? "Diterapkan" : "Klik utk pilih"}
                               </div>
                             </div>
-                          </Col>
-                        );
-                      })}
-                    </Row>
-                  </div>
+                          </div>
+                        </Col>
+                      );
+                    })}
+                  </Row>
 
-                  <Row gutter={16} align="middle" style={{ background: "#ffffff", padding: "10px 14px", borderRadius: 6, border: "1px solid #ccfbf1" }}>
-                    <Col xs={24} sm={8}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <Text strong style={{ fontSize: 12 }}>Kemungkinan Sisa (L):</Text>
+                  <Row gutter={16}>
+                    <Col xs={24} sm={12}>
+                      <Form.Item label={<span style={{ fontWeight: 600, fontSize: 12 }}>Kemungkinan Sisa (Likelihood)</span>} style={{ marginBottom: 0 }}>
                         <Select
-                          size="small"
+                          size="middle"
                           value={activeSub.residualLikelihood}
                           onChange={(val) => updateActiveSub({ residualLikelihood: val })}
-                          style={{ width: 130 }}
+                          style={{ width: "100%" }}
                         >
                           {[1, 2, 3, 4, 5].map((num) => (
                             <Select.Option key={num} value={num}>{num}</Select.Option>
                           ))}
                         </Select>
-                      </div>
+                      </Form.Item>
                     </Col>
-                    <Col xs={24} sm={8}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <Text strong style={{ fontSize: 12 }}>Keparahan Sisa (S):</Text>
+                    <Col xs={24} sm={12}>
+                      <Form.Item label={<span style={{ fontWeight: 600, fontSize: 12 }}>Keparahan Sisa (Severity)</span>} style={{ marginBottom: 0 }}>
                         <Select
-                          size="small"
+                          size="middle"
                           value={activeSub.residualSeverity}
                           onChange={(val) => updateActiveSub({ residualSeverity: val })}
-                          style={{ width: 130 }}
+                          style={{ width: "100%" }}
                         >
                           {[1, 2, 3, 4, 5].map((num) => (
                             <Select.Option key={num} value={num}>{num}</Select.Option>
                           ))}
                         </Select>
-                      </div>
-                    </Col>
-                    <Col xs={24} sm={8} style={{ textAlign: "right" }}>
-                      <Text style={{ fontSize: 12, marginRight: 8, color: "#0f766e" }}>NFR Target Sisa:</Text>
-                      <Tag color={getNfrTagColor(activeResidualRiskLevel)} style={{ fontWeight: 800 }}>
-                        {activeResidualNfr} [{activeResidualRiskLevel.toUpperCase()}]
-                      </Tag>
+                      </Form.Item>
                     </Col>
                   </Row>
                 </div>
               )}
             </div>
 
-            {/* E. TINDAK LANJUT & STATUS */}
+            {/* 2.5 TINDAK LANJUT & PENANGGUNG JAWAB */}
             <div
               style={{
-                marginTop: 14,
                 marginBottom: 10,
-                padding: "16px",
+                padding: "16px 18px",
                 background: "#f8fafc",
                 border: "1px solid #e2e8f0",
                 borderRadius: 8,
               }}
             >
-              <div style={{ marginBottom: 12 }}>
-                <span style={{ fontWeight: 800, color: "#0f172a", fontSize: 13.5 }}>
-                  <CalendarOutlined style={{ marginRight: 6, color: "#0284c7" }} />
-                  Tindak Lanjut &amp; Status Pengendalian (Kolom V &amp; W Spreadsheet)
-                </span>
+              <div style={{ marginBottom: 12, fontWeight: 700, fontSize: 13.5, color: "#0f172a", display: "flex", alignItems: "center", gap: 6 }}>
+                <CalendarOutlined style={{ color: "#0284c7" }} />
+                <span>Tindak Lanjut &amp; Penanggung Jawab</span>
               </div>
 
               <Row gutter={16}>
                 <Col xs={24} sm={12} md={6}>
-                  <Form.Item label={<span style={{ fontSize: 12, fontWeight: 600 }}>Tenggat Upaya Tindak Lanjut</span>}>
+                  <Form.Item label={<span style={{ fontSize: 12, fontWeight: 600 }}>Tenggat Waktu</span>}>
                     <DatePicker
                       style={{ width: "100%", borderRadius: 6 }}
                       format="DD/MM/YYYY"
+                      size="middle"
                       value={activeSub.targetDate}
                       onChange={(date) => updateActiveSub({ targetDate: date || dayjs() })}
                     />
@@ -2013,8 +1959,9 @@ export const HiradcEdit: React.FC = () => {
                 </Col>
 
                 <Col xs={24} sm={12} md={6}>
-                  <Form.Item label={<span style={{ fontSize: 12, fontWeight: 600 }}>Status Tindak Lanjut</span>}>
+                  <Form.Item label={<span style={{ fontSize: 12, fontWeight: 600 }}>Status</span>}>
                     <Select
+                      size="middle"
                       value={activeSub.controlStatus}
                       onChange={(val) => updateActiveSub({ controlStatus: val })}
                       style={{ width: "100%" }}
@@ -2023,7 +1970,7 @@ export const HiradcEdit: React.FC = () => {
                         <Tag color="orange" style={{ margin: 0, fontWeight: 700 }}>Open</Tag> (Dalam Proses)
                       </Select.Option>
                       <Select.Option value="Close">
-                        <Tag color="green" style={{ margin: 0, fontWeight: 700 }}>Close</Tag> (Sudah Selesai Dikerjakan)
+                        <Tag color="green" style={{ margin: 0, fontWeight: 700 }}>Close</Tag> (Selesai)
                       </Select.Option>
                     </Select>
                   </Form.Item>
@@ -2032,6 +1979,7 @@ export const HiradcEdit: React.FC = () => {
                 <Col xs={24} sm={12} md={6}>
                   <Form.Item label={<span style={{ fontSize: 12, fontWeight: 600 }}>Durasi Pengendalian</span>}>
                     <Select
+                      size="middle"
                       value={activeSub.controlDuration}
                       onChange={(val) => updateActiveSub({ controlDuration: val })}
                       style={{ width: "100%" }}
@@ -2048,6 +1996,7 @@ export const HiradcEdit: React.FC = () => {
                 <Col xs={24} sm={12} md={6}>
                   <Form.Item label={<span style={{ fontSize: 12, fontWeight: 600 }}>Penanggung Jawab (PIC)</span>}>
                     <Input
+                      size="middle"
                       placeholder="Contoh: Koordinator Depo Arsip"
                       value={activeSub.responsiblePerson}
                       onChange={(e) => updateActiveSub({ responsiblePerson: e.target.value })}
